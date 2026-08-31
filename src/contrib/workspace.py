@@ -34,7 +34,6 @@ def create_workspace(issue_url: str, branch_name: Optional[str] = None) -> Dict[
             [
                 "clone",
                 "--filter=blob:none",
-                "--no-checkout",
                 meta["clone_url"],
                 str(ws_path),
             ]
