@@ -42,10 +42,10 @@ dev = [
 contrib = "contrib.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/anandmahadev/contrib-cli"
-Repository = "https://github.com/anandmahadev/contrib-cli.git"
-"Bug Tracker" = "https://github.com/anandmahadev/contrib-cli/issues"
-Changelog = "https://github.com/anandmahadev/contrib-cli/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/anandmahadevv/contrib-cli"
+Repository = "https://github.com/anandmahadevv/contrib-cli.git"
+"Bug Tracker" = "https://github.com/anandmahadevv/contrib-cli/issues"
+Changelog = "https://github.com/anandmahadevv/contrib-cli/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/contrib"]
