@@ -1,4 +1,7 @@
 /**
+ * @license MIT
+ * Copyright (c) 2026 Anand
+ *
  * Environment inspection and authentication helpers.
  */
 

@@ -1,4 +1,7 @@
 /**
+ * @license MIT
+ * Copyright (c) 2026 Anand
+ *
  * Security, sanitization, and input validation utilities for contrib.
  */
 

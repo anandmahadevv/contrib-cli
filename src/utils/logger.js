@@ -1,4 +1,7 @@
 /**
+ * @license MIT
+ * Copyright (c) 2026 Anand
+ *
  * Terminal output and formatting utilities.
  */
 

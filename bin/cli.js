@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 /**
+ * @license MIT
+ * Copyright (c) 2026 Anand
+ *
  * gsoc-contrib CLI executable entry point.
  */
 

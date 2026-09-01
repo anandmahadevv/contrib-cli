@@ -16,6 +16,10 @@
     "!**/*.py",
     "!**/*.pyc"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "start": "node ./bin/cli.js",
     "test": "node --test tests/*.test.js",

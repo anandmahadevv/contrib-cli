@@ -1,4 +1,7 @@
 /**
+ * @license MIT
+ * Copyright (c) 2026 Anand
+ *
  * gsoc-contrib (contrib) - Programmatic API.
  * Lightweight GitHub contribution workspace manager.
  */
