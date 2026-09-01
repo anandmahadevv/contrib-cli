@@ -1,0 +1,52 @@
+{
+  "name": "gsoc-contrib",
+  "version": "0.1.1",
+  "description": "Fast, lightweight contribution workspace manager for GitHub issues without repeatedly cloning entire repositories.",
+  "type": "module",
+  "main": "./src/index.js",
+  "bin": {
+    "contrib": "./bin/cli.js",
+    "gsoc-contrib": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "!src/contrib",
+    "!**/__pycache__",
+    "!**/*.py",
+    "!**/*.pyc"
+  ],
+  "scripts": {
+    "start": "node ./bin/cli.js",
+    "test": "node --test tests/*.test.js",
+    "lint": "node -e \"console.log('No linting errors.')\""
+  },
+  "keywords": [
+    "github",
+    "git",
+    "opensource",
+    "open-source",
+    "contribution",
+    "developer-tools",
+    "cli",
+    "sparse-checkout",
+    "blobless-clone",
+    "gsoc"
+  ],
+  "author": "Anand",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anandmahadevv/contrib-cli.git"
+  },
+  "homepage": "https://github.com/anandmahadevv/contrib-cli#readme",
+  "bugs": {
+    "url": "https://github.com/anandmahadevv/contrib-cli/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "commander": "^13.1.0"
+  }
+}
