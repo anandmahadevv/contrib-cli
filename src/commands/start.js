@@ -9,7 +9,13 @@ import { createWorkspace } from '../services/workspace.js';
 /**
  * Execute the workspace initialization command.
  * @param {string} target
- * @param {{ branch?: string }} options
+ * @param {{
+ *   branch?: string,
+ *   sparse?: boolean | string | string[],
+ *   mode?: 'blobless' | 'treeless' | 'shallow' | 'worktree',
+ *   worktree?: boolean,
+ *   fork?: boolean
+ * }} options
  * @returns {Promise<number>} Exit code
  */
 export async function handleStart(target, options = {}) {
@@ -17,10 +23,20 @@ export async function handleStart(target, options = {}) {
 
   logger.info(`Initializing workspace for: ${target}`);
 
-  const ws = await createWorkspace(target, { branch: options.branch });
+  const ws = await createWorkspace(target, {
+    branch: options.branch,
+    sparse: options.sparse,
+    mode: options.mode,
+    worktree: options.worktree,
+    fork: options.fork,
+  });
 
   if (ws.isNew) {
-    logger.success(`Created blobless workspace.`);
+    if (ws.isWorktree) {
+      logger.success(`Created instant workspace via shared Git worktree.`);
+    } else {
+      logger.success(`Created ${ws.mode || 'blobless'} workspace.`);
+    }
   } else {
     logger.success(`Reused existing workspace clone.`);
   }
@@ -31,9 +47,22 @@ export async function handleStart(target, options = {}) {
     logger.success(`Title:              ${ws.title}`);
   }
 
+  if (ws.stack && ws.stack.type && ws.stack.type !== 'Generic / Unknown') {
+    logger.success(`Detected Stack:     ${ws.stack.type} (${ws.stack.packageManager})`);
+    if (ws.stack.testCommand) {
+      logger.dim(`  Test command:     ${ws.stack.testCommand}`);
+    }
+  }
+
+  logger.dim(`  Context file:     ${ws.path}/.contrib/ISSUE.md`);
+
   logger.plain('');
   logger.plain('To begin working, navigate to the workspace:');
   logger.step('  cd', `"${ws.path}"`);
+  if (ws.stack && ws.stack.testCommand) {
+    logger.step('  test:', ws.stack.testCommand);
+  }
+  logger.step('  submit PR:', 'npx gsoc-contrib submit');
 
   return 0;
 }

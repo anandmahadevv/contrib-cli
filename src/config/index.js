@@ -36,6 +36,42 @@ export function getWorkspacesDir() {
 }
 
 /**
+ * Return the directory for caching shared git clones and API responses.
+ * @returns {string}
+ */
+export function getCacheDir() {
+  const cacheDir = path.join(getContribHome(), 'cache');
+  if (!fs.existsSync(cacheDir)) {
+    fs.mkdirSync(cacheDir, { recursive: true });
+  }
+  return cacheDir;
+}
+
+/**
+ * Return the directory for caching GitHub API payloads.
+ * @returns {string}
+ */
+export function getApiCacheDir() {
+  const apiCacheDir = path.join(getCacheDir(), 'api');
+  if (!fs.existsSync(apiCacheDir)) {
+    fs.mkdirSync(apiCacheDir, { recursive: true });
+  }
+  return apiCacheDir;
+}
+
+/**
+ * Return the directory for caching shared bare git repositories.
+ * @returns {string}
+ */
+export function getGitCacheDir() {
+  const gitCacheDir = path.join(getCacheDir(), 'git');
+  if (!fs.existsSync(gitCacheDir)) {
+    fs.mkdirSync(gitCacheDir, { recursive: true });
+  }
+  return gitCacheDir;
+}
+
+/**
  * Return the JSON file path tracking active workspaces.
  * @returns {string}
  */

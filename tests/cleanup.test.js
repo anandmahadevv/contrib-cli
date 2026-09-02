@@ -79,4 +79,51 @@ describe('Cleanup & Safe Deletion', () => {
     // Assert file was NOT deleted
     assert.strictEqual(fs.existsSync(path.join(outsideDir, 'important.txt')), true);
   });
+
+  test('blocks deletion of workspace with uncommitted changes unless force=true', async () => {
+    const wsDir = getWorkspacesDir();
+    const targetWs = path.join(wsDir, 'test_org__repo__issue_dirty');
+    fs.mkdirSync(targetWs, { recursive: true });
+
+    // Initialize mock git repo
+    const { execSync } = await import('node:child_process');
+    try {
+      execSync('git init', { cwd: targetWs, stdio: 'pipe' });
+      execSync('git config user.name "Tester"', { cwd: targetWs, stdio: 'pipe' });
+      execSync('git config user.email "test@test.com"', { cwd: targetWs, stdio: 'pipe' });
+      fs.writeFileSync(path.join(targetWs, 'initial.txt'), 'clean');
+      execSync('git add . && git commit -m "init"', { cwd: targetWs, stdio: 'pipe' });
+
+      // Create dirty uncommitted file
+      fs.writeFileSync(path.join(targetWs, 'uncommitted.js'), 'const dirty = 1;');
+
+      saveRegistry({
+        test_org__repo__issue_dirty: {
+          id: 'test_org__repo__issue_dirty',
+          owner: 'test_org',
+          repo: 'repo',
+          issue_number: 'dirty',
+          path: targetWs,
+        },
+      });
+
+      // Attempt deletion without force should fail
+      await assert.rejects(
+        async () => await deleteWorkspace('test_org__repo__issue_dirty'),
+        /uncommitted or untracked changes/
+      );
+
+      // Attempt deletion with force should succeed
+      const result = await deleteWorkspace('test_org__repo__issue_dirty', { force: true });
+      assert.strictEqual(result.deleted, true);
+      assert.strictEqual(fs.existsSync(targetWs), false);
+    } catch (e) {
+      if (e.message && e.message.includes('Git executable')) {
+        // If git is not installed in test runner, skip
+        return;
+      }
+      throw e;
+    }
+  });
 });
+

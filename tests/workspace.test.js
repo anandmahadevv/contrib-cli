@@ -7,7 +7,9 @@ import {
   listWorkspaces,
   getWorkspace,
   analyzeIssue,
+  writeWorkspaceContextFiles,
 } from '../src/services/workspace.js';
+import { detectProjectStack } from '../src/utils/git.js';
 import { saveRegistry } from '../src/config/index.js';
 
 describe('Workspace Service', () => {
@@ -75,4 +77,64 @@ describe('Workspace Service', () => {
     assert.ok(analysis.metadata);
     assert.ok(Array.isArray(analysis.suggested_focus_areas));
   });
+
+  test('writeWorkspaceContextFiles creates .contrib/ISSUE.md and .contrib/context.json', () => {
+    const wsPath = path.join(tmpDir, 'workspaces', 'test_context_ws');
+    fs.mkdirSync(wsPath, { recursive: true });
+
+    const meta = {
+      owner: 'example',
+      repo: 'project',
+      issue_number: '123',
+      url: 'https://github.com/example/project/issues/123',
+      title: 'Fix parsing bug in header parser',
+      body: 'Here is how to reproduce the bug: look at src/parser.js',
+      author: 'contributor1',
+      labels: ['bug', 'good first issue'],
+      state: 'open',
+    };
+
+    writeWorkspaceContextFiles(wsPath, meta, 'contrib/issue-123', ['src/parser.js'], {
+      type: 'Node.js / JavaScript',
+      packageManager: 'npm',
+      testCommand: 'npm test',
+    });
+
+    const issueMdPath = path.join(wsPath, '.contrib', 'ISSUE.md');
+    const contextJsonPath = path.join(wsPath, '.contrib', 'context.json');
+
+    assert.strictEqual(fs.existsSync(issueMdPath), true);
+    assert.strictEqual(fs.existsSync(contextJsonPath), true);
+
+    const issueMd = fs.readFileSync(issueMdPath, 'utf-8');
+    assert.ok(issueMd.includes('Fix parsing bug in header parser'));
+    assert.ok(issueMd.includes('src/parser.js'));
+    assert.ok(issueMd.includes('npm test'));
+
+    const contextJson = JSON.parse(fs.readFileSync(contextJsonPath, 'utf-8'));
+    assert.strictEqual(contextJson.issue_number, '123');
+    assert.strictEqual(contextJson.repository, 'example/project');
+  });
+
+  test('detectProjectStack identifies Node, Python, and Rust repositories', () => {
+    const nodeDir = path.join(tmpDir, 'node_project');
+    fs.mkdirSync(nodeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(nodeDir, 'package.json'),
+      JSON.stringify({ name: 'test-node', scripts: { test: 'vitest run' } })
+    );
+
+    const nodeStack = detectProjectStack(nodeDir);
+    assert.strictEqual(nodeStack.type, 'Node.js / JavaScript');
+    assert.strictEqual(nodeStack.testCommand, 'npm test');
+
+    const pyDir = path.join(tmpDir, 'py_project');
+    fs.mkdirSync(pyDir, { recursive: true });
+    fs.writeFileSync(path.join(pyDir, 'requirements.txt'), 'pytest>=7.0\n');
+
+    const pyStack = detectProjectStack(pyDir);
+    assert.strictEqual(pyStack.type, 'Python');
+    assert.strictEqual(pyStack.testCommand, 'pytest');
+  });
 });
+

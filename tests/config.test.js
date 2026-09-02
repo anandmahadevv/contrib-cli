@@ -6,6 +6,9 @@ import os from 'node:os';
 import {
   getContribHome,
   getWorkspacesDir,
+  getCacheDir,
+  getApiCacheDir,
+  getGitCacheDir,
   getRegistryFile,
   loadRegistry,
   saveRegistry,
@@ -31,11 +34,23 @@ describe('Config and Registry Persistence', () => {
     }
   });
 
-  test('respects CONTRIB_HOME environment variable', () => {
+  test('respects CONTRIB_HOME environment variable and cache paths', () => {
     assert.strictEqual(path.resolve(getContribHome()), path.resolve(tmpDir));
     assert.strictEqual(
       path.resolve(getWorkspacesDir()),
       path.resolve(path.join(tmpDir, 'workspaces'))
+    );
+    assert.strictEqual(
+      path.resolve(getCacheDir()),
+      path.resolve(path.join(tmpDir, 'cache'))
+    );
+    assert.strictEqual(
+      path.resolve(getApiCacheDir()),
+      path.resolve(path.join(tmpDir, 'cache', 'api'))
+    );
+    assert.strictEqual(
+      path.resolve(getGitCacheDir()),
+      path.resolve(path.join(tmpDir, 'cache', 'git'))
     );
   });
 

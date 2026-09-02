@@ -12,17 +12,22 @@ export {
   getWorkspace,
   deleteWorkspace,
   analyzeIssue,
+  writeWorkspaceContextFiles,
 } from './services/workspace.js';
 
 export {
   fetchIssueMetadata,
   searchIssues,
   checkGitHubAuth,
+  getUserFork,
 } from './services/github.js';
 
 export {
   getContribHome,
   getWorkspacesDir,
+  getCacheDir,
+  getApiCacheDir,
+  getGitCacheDir,
   getRegistryFile,
   loadRegistry,
   saveRegistry,
@@ -44,6 +49,10 @@ export {
   checkGitInstalled,
   getDirectorySize,
   formatBytes,
+  isGitDirty,
+  getGitStatusSummary,
+  setupSparseCheckout,
+  detectProjectStack,
 } from './utils/git.js';
 
 export {
@@ -53,3 +62,4 @@ export {
 
 export { logger } from './utils/logger.js';
 export { createProgram, runCli } from './cli.js';
+

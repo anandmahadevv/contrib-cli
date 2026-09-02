@@ -5,14 +5,18 @@
  * GitHub API integration and issue resolution.
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
 import { validateGitHubUrl, GitHubApiError } from '../utils/security.js';
 import { getGitHubToken } from '../utils/env.js';
+import { getApiCacheDir } from '../config/index.js';
 
 const USER_AGENT = 'gsoc-contrib-cli/0.1.1';
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 /**
  * Fetch issue or pull request details via GitHub REST API.
- * Falls back gracefully if rate-limited or offline.
+ * Falls back gracefully to cache or defaults if rate-limited or offline.
  *
  * @param {string} urlOrTarget
  * @returns {Promise<{
@@ -24,6 +28,7 @@ const USER_AGENT = 'gsoc-contrib-cli/0.1.1';
  *   body: string,
  *   labels: string[],
  *   state: string,
+ *   author?: string,
  *   clone_url: string
  * }>}
  */
@@ -42,11 +47,31 @@ export async function fetchIssueMetadata(urlOrTarget) {
     body: '',
     labels: [],
     state: 'open',
+    author: '',
     clone_url: `https://github.com/${owner}/${repo}.git`,
   };
 
   if (!issueNum) {
     return metadata;
+  }
+
+  const cacheFile = path.join(
+    getApiCacheDir(),
+    `${owner.toLowerCase()}__${repo.toLowerCase()}__issue_${issueNum}.json`
+  );
+
+  // Check local cache
+  if (fs.existsSync(cacheFile)) {
+    try {
+      const cachedRaw = fs.readFileSync(cacheFile, 'utf-8');
+      const cached = JSON.parse(cachedRaw);
+      const isFresh = cached.cached_at && Date.now() - cached.cached_at < CACHE_TTL_MS;
+      if (isFresh && cached.data) {
+        return { ...metadata, ...cached.data };
+      }
+    } catch {
+      // cache corrupted, continue
+    }
   }
 
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issueNum}`;
@@ -75,17 +100,87 @@ export async function fetchIssueMetadata(urlOrTarget) {
       metadata.title = payload.title || metadata.title;
       metadata.body = payload.body || '';
       metadata.state = payload.state || 'open';
+      metadata.author = payload.user?.login || '';
       if (Array.isArray(payload.labels)) {
-        metadata.labels = payload.labels.map((lbl) =>
-          typeof lbl === 'string' ? lbl : lbl.name || ''
-        ).filter(Boolean);
+        metadata.labels = payload.labels
+          .map((lbl) => (typeof lbl === 'string' ? lbl : lbl.name || ''))
+          .filter(Boolean);
+      }
+
+      // Save to cache
+      try {
+        fs.writeFileSync(
+          cacheFile,
+          JSON.stringify({ cached_at: Date.now(), data: metadata }, null, 2),
+          'utf-8'
+        );
+      } catch {
+        // ignore cache write error
       }
     }
   } catch {
-    // Graceful fallback on network or API errors
+    // Graceful fallback: load stale cache if available
+    if (fs.existsSync(cacheFile)) {
+      try {
+        const cached = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
+        if (cached.data) return { ...metadata, ...cached.data };
+      } catch {
+        // ignore
+      }
+    }
   }
 
   return metadata;
+}
+
+/**
+ * Check if the user has a fork of the target repo.
+ * @param {string} owner
+ * @param {string} repo
+ * @returns {Promise<{ hasFork: boolean, forkUrl: string | null, forkOwner: string | null }>}
+ */
+export async function getUserFork(owner, repo) {
+  const token = await getGitHubToken();
+  if (!token) {
+    return { hasFork: false, forkUrl: null, forkOwner: null };
+  }
+
+  const headers = {
+    'User-Agent': USER_AGENT,
+    Accept: 'application/vnd.github.v3+json',
+    Authorization: `token ${token}`,
+  };
+
+  try {
+    const userRes = await fetch('https://api.github.com/user', { headers });
+    if (!userRes.ok) return { hasFork: false, forkUrl: null, forkOwner: null };
+    const userData = await userRes.json();
+    const username = userData.login;
+
+    if (username.toLowerCase() === owner.toLowerCase()) {
+      return { hasFork: false, forkUrl: null, forkOwner: null };
+    }
+
+    const forkRes = await fetch(`https://api.github.com/repos/${username}/${repo}`, { headers });
+    if (forkRes.ok) {
+      const forkData = await forkRes.json();
+      if (
+        forkData.fork &&
+        forkData.parent &&
+        forkData.parent.full_name.toLowerCase() === `${owner}/${repo}`.toLowerCase()
+      ) {
+        return {
+          hasFork: true,
+          forkUrl: forkData.clone_url || `https://github.com/${username}/${repo}.git`,
+          forkOwner: username,
+        };
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return { hasFork: false, forkUrl: null, forkOwner: null };
 }
 
 /**

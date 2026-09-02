@@ -35,6 +35,7 @@ async function confirm(question) {
  */
 export async function handleCleanup(idOrTarget, options = {}) {
   const autoConfirm = options.yes || options.force;
+  const force = Boolean(options.force);
   const workspaces = listWorkspaces();
 
   if (workspaces.length === 0) {
@@ -53,12 +54,21 @@ export async function handleCleanup(idOrTarget, options = {}) {
     }
 
     let deletedCount = 0;
+    let skippedCount = 0;
     for (const ws of workspaces) {
-      await deleteWorkspace(ws.id);
-      logger.success(`Removed workspace: ${ws.id}`);
-      deletedCount++;
+      try {
+        await deleteWorkspace(ws.id, { force });
+        logger.success(`Removed workspace: ${ws.id}`);
+        deletedCount++;
+      } catch (err) {
+        logger.warn(`Skipped '${ws.id}': ${err.message}`);
+        skippedCount++;
+      }
     }
 
+    if (skippedCount > 0) {
+      logger.warn(`Skipped ${skippedCount} workspace(s) with uncommitted changes. Use '--force' to delete all.`);
+    }
     logger.success(`Successfully cleaned up ${deletedCount} workspace(s).`);
     return 0;
   }
@@ -69,7 +79,7 @@ export async function handleCleanup(idOrTarget, options = {}) {
     for (const ws of workspaces) {
       logger.plain(`  - ${ws.id} (${ws.owner}/${ws.repo}) [${ws.formattedSize}]`);
     }
-    logger.plain("\nUsage: contrib cleanup <workspace-id> [-y] or contrib cleanup --all");
+    logger.plain("\nUsage: contrib cleanup <workspace-id> [-y] [-f] or contrib cleanup --all");
     return 1;
   }
 
@@ -87,7 +97,12 @@ export async function handleCleanup(idOrTarget, options = {}) {
     }
   }
 
-  await deleteWorkspace(ws.id);
-  logger.success(`Successfully removed workspace '${ws.id}'.`);
-  return 0;
+  try {
+    await deleteWorkspace(ws.id, { force });
+    logger.success(`Successfully removed workspace '${ws.id}'.`);
+    return 0;
+  } catch (err) {
+    logger.error(err.message);
+    return 1;
+  }
 }

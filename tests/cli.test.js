@@ -77,4 +77,15 @@ describe('CLI Entry Point', () => {
     const code = await runCli(['node', 'contrib', 'status']);
     assert.strictEqual(code, 0);
   });
+
+  test('runs doctor command successfully', async () => {
+    const code = await runCli(['node', 'contrib', 'doctor']);
+    assert.strictEqual(code, 0);
+  });
+
+  test('submit exits gracefully when no workspace provided or active', async () => {
+    const code = await runCli(['node', 'contrib', 'submit', 'non_existent_ws']);
+    assert.strictEqual(code, 1);
+  });
 });
+

@@ -97,8 +97,14 @@ npx gsoc-contrib cleanup psf__requests__issue_6000
 Create or open a lightweight contribution workspace for a GitHub issue or PR URL.
 
 ```bash
-# Using full URL
+# Using full URL (blobless mode by default)
 npx gsoc-contrib start https://github.com/psf/requests/issues/6000
+
+# Sub-second workspace creation via shared Git worktree
+npx gsoc-contrib start https://github.com/psf/requests/issues/6000 --worktree
+
+# Sparse checkout only focused directories
+npx gsoc-contrib start https://github.com/psf/requests/issues/6000 --sparse src/requests
 
 # With custom branch name
 npx gsoc-contrib start https://github.com/psf/requests/issues/6000 -b fix-bug-123
@@ -108,7 +114,7 @@ npx gsoc-contrib start https://github.com/psf/requests/issues/6000 -b fix-bug-12
 Smart shorthand alias for starting a workspace. Supports full URLs, repository shorthands (`owner/repo#123`), and repo targets (`owner/repo`).
 
 ```bash
-npx gsoc-contrib contribute facebook/react#24000
+npx gsoc-contrib contribute facebook/react#24000 --worktree
 ```
 
 ### `analyze <url>`
@@ -129,15 +135,29 @@ npx gsoc-contrib search "good first issue" --repo psf/requests
 npx gsoc-contrib search --label "help wanted" --limit 5
 ```
 
+### `doctor [id]` *(alias: `info`)*
+Run health diagnostics on your environment (Node, Git, GitHub Auth, Rate Limits, Storage, Cache) or inspect a specific workspace for uncommitted changes, stack detection, and remotes.
+
+```bash
+npx gsoc-contrib doctor
+```
+
+### `submit [id]` *(alias: `pr`)*
+Inspect your workspace's branch status, verify uncommitted changes, and prepare a GitHub Pull Request with auto-generated titles, issue linkage (`Fixes #123`), and compare URLs.
+
+```bash
+npx gsoc-contrib submit
+```
+
 ### `status`
-List all active workspaces, their corresponding repositories, active branches, local paths, and disk usage.
+List all active workspaces, their corresponding repositories, active branches, local paths, clone modes, and disk usage.
 
 ```bash
 npx gsoc-contrib status
 ```
 
 ### `cleanup [id]`
-Safely delete a contribution workspace and remove it from the workspace registry.
+Safely delete a contribution workspace and remove it from the workspace registry. Protects uncommitted work unless `--force` is provided.
 
 ```bash
 # Delete a specific workspace (prompts for confirmation)
@@ -146,7 +166,10 @@ npx gsoc-contrib cleanup psf__requests__issue_6000
 # Delete without prompt
 npx gsoc-contrib cleanup psf__requests__issue_6000 -y
 
-# Clean up all workspaces
+# Force delete workspace even if uncommitted changes exist
+npx gsoc-contrib cleanup psf__requests__issue_6000 -f
+
+# Clean up all workspaces safely (skips dirty workspaces unless -f)
 npx gsoc-contrib cleanup --all
 ```
 
@@ -159,53 +182,29 @@ npx gsoc-contrib init
 
 ---
 
-## Requirements
+## Workspace Context Files (`.contrib/ISSUE.md`)
 
-* **Node.js**: `v18.0.0` or higher
-* **Git**: `v2.25.0` or higher installed and accessible in `PATH`
-* **GitHub CLI** (`gh`) *(Optional)*: If installed and logged in (`gh auth login`), `contrib` automatically detects and uses your authentication token.
+When a contribution workspace is initialized, `gsoc-contrib` automatically generates:
+1. **`.contrib/ISSUE.md`**: Complete issue briefing with title, description, state, labels, candidate files, and test commands.
+2. **`.contrib/context.json`**: Machine-readable metadata for IDEs, extensions, and local AI coding agents.
 
----
-
-## Authentication
-
-`gsoc-contrib` works out-of-the-box without authentication for public GitHub repositories (using GitHub's public API rate limits of 60 requests/hour).
-
-To increase your rate limit to 5,000 requests/hour or access private repositories, provide a GitHub personal access token using any of the following methods:
-
-1. **Environment Variable**:
-   ```bash
-   export GITHUB_TOKEN="ghp_yourPersonalAccessToken"
-   # or
-   export GH_TOKEN="ghp_yourPersonalAccessToken"
-   ```
-2. **GitHub CLI (`gh`)**:
-   ```bash
-   gh auth login
-   ```
-   `gsoc-contrib` automatically discovers tokens from `gh` without any manual configuration.
-
-> **Security Note**: `gsoc-contrib` never logs, prints, or stores your GitHub tokens.
+The `.contrib/` folder is automatically excluded in `.git/info/exclude` so your git working tree stays clean!
 
 ---
-
-## Configuration & Environment Variables
-
-| Variable | Description | Default |
-| :--- | :--- | :--- |
-| `CONTRIB_HOME` | Custom base directory for workspaces and workspace registry | `~/.contrib` |
-| `GITHUB_TOKEN` | GitHub Personal Access Token for API requests | *(none)* |
-| `GH_TOKEN` | Alternative GitHub token environment variable | *(none)* |
-| `NO_COLOR` | Disable terminal color output | *(none)* |
 
 ### Storage Directory Structure
 
-Workspaces and registry are organized under `~/.contrib`:
+Workspaces, cache, and registry are organized under `~/.contrib`:
 ```text
 ~/.contrib/
 ├── registry.json     # Workspace registry tracking active sessions
-└── workspaces/       # Isolated blobless git workspaces
+├── cache/
+│   ├── api/          # Offline & rate-limit cached GitHub API responses
+│   └── git/          # Shared bare repositories for instant git worktrees
+└── workspaces/       # Isolated contribution workspaces
     ├── psf__requests__issue_6000/
+    │   ├── .contrib/ISSUE.md
+    │   └── ...
     └── facebook__react__issue_24000/
 ```
 

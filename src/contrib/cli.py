@@ -1,5 +1,5 @@
 """
-CLI entry point for the contrib tool.
+CLI entry point for the contrib tool (Python).
 """
 
 from __future__ import annotations
@@ -10,7 +10,13 @@ from typing import Optional, Sequence
 
 from contrib import __version__
 from contrib.security import SecurityError
-from contrib.workspace import analyze_issue, create_workspace, list_workspaces
+from contrib.workspace import (
+    analyze_issue,
+    create_workspace,
+    delete_workspace,
+    get_workspace,
+    list_workspaces,
+)
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -24,6 +30,7 @@ Examples:
   contrib start https://github.com/psf/requests/issues/6000
   contrib analyze https://github.com/psf/requests/issues/6000
   contrib status
+  contrib cleanup --all
         """,
     )
     parser.add_argument(
@@ -49,6 +56,27 @@ Examples:
         default=None,
         help="Custom branch name to create in the workspace.",
     )
+    start_parser.add_argument(
+        "-s", "--sparse",
+        nargs="*",
+        default=None,
+        help="Sparse checkout directory paths.",
+    )
+
+    # Subcommand: contribute
+    contrib_parser = subparsers.add_parser(
+        "contribute",
+        help="Smart alias to start contributing.",
+    )
+    contrib_parser.add_argument(
+        "target",
+        help="GitHub issue URL or target.",
+    )
+    contrib_parser.add_argument(
+        "-b", "--branch",
+        default=None,
+        help="Custom branch name.",
+    )
 
     # Subcommand: analyze
     analyze_parser = subparsers.add_parser(
@@ -66,6 +94,28 @@ Examples:
         help="List all active contribution workspaces.",
     )
 
+    # Subcommand: cleanup
+    cleanup_parser = subparsers.add_parser(
+        "cleanup",
+        help="Clean up active contribution workspaces safely.",
+    )
+    cleanup_parser.add_argument(
+        "id",
+        nargs="?",
+        default=None,
+        help="Workspace ID to delete.",
+    )
+    cleanup_parser.add_argument(
+        "-a", "--all",
+        action="store_true",
+        help="Delete all workspaces.",
+    )
+    cleanup_parser.add_argument(
+        "-f", "--force",
+        action="store_true",
+        help="Force delete workspace even if uncommitted changes exist.",
+    )
+
     return parser
 
 
@@ -73,10 +123,11 @@ def handle_start(args: argparse.Namespace) -> int:
     """Execute the 'start' command."""
     print(f"[*] Initializing workspace for: {args.url}")
     try:
-        ws = create_workspace(args.url, branch_name=args.branch)
+        ws = create_workspace(args.url, branch_name=args.branch, sparse=args.sparse)
         print(f"[+] Workspace ready at: {ws['path']}")
         print(f"[+] Active branch:      {ws['branch']}")
         print(f"[+] Title:              {ws['title']}")
+        print(f"  Context file:         {ws['path']}/.contrib/ISSUE.md")
         print("\nTo begin working, navigate to the workspace:")
         print(f"  cd {ws['path']}")
         return 0
@@ -127,6 +178,35 @@ def handle_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def handle_cleanup(args: argparse.Namespace) -> int:
+    """Execute the 'cleanup' command."""
+    workspaces = list_workspaces()
+    if not workspaces:
+        print("No active contribution workspaces to clean up.")
+        return 0
+
+    if args.all:
+        for ws in workspaces:
+            try:
+                delete_workspace(ws["id"], force=args.force)
+                print(f"[+] Removed workspace: {ws['id']}")
+            except Exception as e:
+                print(f"[!] Skipping {ws['id']}: {e}")
+        return 0
+
+    if not args.id:
+        print("[!] Please specify a workspace ID or pass --all.")
+        return 1
+
+    try:
+        delete_workspace(args.id, force=args.force)
+        print(f"[+] Successfully removed workspace: {args.id}")
+        return 0
+    except Exception as e:
+        print(f"[!] Error: {e}", file=sys.stderr)
+        return 1
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Main CLI entry point."""
     parser = create_parser()
@@ -136,12 +216,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         parser.print_help()
         return 0
 
-    if args.command == "start":
+    if args.command in ("start", "contribute"):
+        url = getattr(args, "url", getattr(args, "target", None))
+        setattr(args, "url", url)
         return handle_start(args)
     elif args.command == "analyze":
         return handle_analyze(args)
     elif args.command == "status":
         return handle_status(args)
+    elif args.command == "cleanup":
+        return handle_cleanup(args)
 
     return 0
 

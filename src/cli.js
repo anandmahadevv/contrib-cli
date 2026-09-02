@@ -16,6 +16,9 @@ import { handleStatus } from './commands/status.js';
 import { handleCleanup } from './commands/cleanup.js';
 import { handleInit } from './commands/init.js';
 import { handleSearch } from './commands/search.js';
+import { handleDoctor } from './commands/doctor.js';
+import { handleSubmit } from './commands/submit.js';
+import { handlePr } from './commands/pr.js';
 import {
   SecurityError,
   UserError,
@@ -45,9 +48,11 @@ export function createProgram() {
       `
 Examples:
   $ npx gsoc-contrib start https://github.com/psf/requests/issues/6000
-  $ npx gsoc-contrib contribute psf/requests#6000 -b fix-header-parsing
+  $ npx gsoc-contrib contribute psf/requests#6000 -b fix-header-parsing --worktree
   $ npx gsoc-contrib analyze https://github.com/psf/requests/issues/6000
   $ npx gsoc-contrib search "good first issue" --repo psf/requests
+  $ npx gsoc-contrib doctor
+  $ npx gsoc-contrib submit
   $ npx gsoc-contrib status
   $ npx gsoc-contrib cleanup --all
   $ npx gsoc-contrib init
@@ -59,6 +64,10 @@ Examples:
     .command('start <url>')
     .description('Create or open a lightweight contribution workspace for a GitHub issue or PR.')
     .option('-b, --branch <branch>', 'Custom branch name to create in the workspace')
+    .option('-s, --sparse [dirs...]', 'Enable sparse checkout for specific or candidate directories')
+    .option('-w, --worktree', 'Use shared bare repo cache & git worktree for sub-second setup')
+    .option('-m, --mode <mode>', 'Clone mode: blobless, treeless, shallow, or worktree', 'blobless')
+    .option('--fork', 'Automatically configure remote for user fork')
     .action(async (url, options) => {
       process.exitCode = await handleStart(url, options);
     });
@@ -68,6 +77,10 @@ Examples:
     .command('contribute <target>')
     .description('Start contributing to a GitHub issue or repository (supports URL or owner/repo#123).')
     .option('-b, --branch <branch>', 'Custom branch name to create in the workspace')
+    .option('-s, --sparse [dirs...]', 'Enable sparse checkout for specific or candidate directories')
+    .option('-w, --worktree', 'Use shared bare repo cache & git worktree for sub-second setup')
+    .option('-m, --mode <mode>', 'Clone mode: blobless, treeless, shallow, or worktree', 'blobless')
+    .option('--fork', 'Automatically configure remote for user fork')
     .action(async (target, options) => {
       process.exitCode = await handleContribute(target, options);
     });
@@ -99,13 +112,33 @@ Examples:
       process.exitCode = await handleSearch(query, options);
     });
 
+  // Command: doctor / info
+  program
+    .command('doctor [id]')
+    .alias('info')
+    .description('Inspect environment health, storage, cache, and workspace status.')
+    .action(async (id) => {
+      process.exitCode = await handleDoctor(id);
+    });
+
+  // Command: submit / pr
+  program
+    .command('submit [id]')
+    .alias('pr')
+    .description('Review branch status and prepare PR creation for a workspace.')
+    .option('-t, --title <title>', 'Custom Pull Request title')
+    .option('--body <body>', 'Custom Pull Request body')
+    .action(async (id, options) => {
+      process.exitCode = await handleSubmit(id, options);
+    });
+
   // Command: cleanup
   program
     .command('cleanup [id]')
     .description('Safely clean up one or all active contribution workspaces.')
     .option('-a, --all', 'Remove all active workspaces')
     .option('-y, --yes', 'Skip confirmation prompt')
-    .option('-f, --force', 'Force remove workspace')
+    .option('-f, --force', 'Force remove workspace (even if uncommitted changes exist)')
     .action(async (id, options) => {
       process.exitCode = await handleCleanup(id, options);
     });
