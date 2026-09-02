@@ -1,12 +1,12 @@
 {
   "name": "gsoc-contrib",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Fast, lightweight contribution workspace manager for GitHub issues without repeatedly cloning entire repositories.",
   "type": "module",
   "main": "./src/index.js",
   "bin": {
-    "contrib": "./bin/cli.js",
-    "gsoc-contrib": "./bin/cli.js"
+    "contrib": "bin/cli.js",
+    "gsoc-contrib": "bin/cli.js"
   },
   "files": [
     "bin",
@@ -41,7 +41,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/anandmahadevv/contrib-cli.git"
+    "url": "git+https://github.com/anandmahadevv/contrib-cli.git"
   },
   "homepage": "https://github.com/anandmahadevv/contrib-cli#readme",
   "bugs": {

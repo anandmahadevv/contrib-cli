@@ -65,6 +65,14 @@ export {
   checkNodeVersion,
 } from './utils/env.js';
 
+export {
+  openInEditor,
+  openInBrowser,
+  isCommandAvailable,
+  detectDefaultEditor,
+} from './utils/opener.js';
+
+export { handleOpen } from './commands/open.js';
 export { logger } from './utils/logger.js';
 export { createProgram, runCli } from './cli.js';
 

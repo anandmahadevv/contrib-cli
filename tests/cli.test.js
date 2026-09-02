@@ -13,7 +13,7 @@ describe('CLI Entry Point', () => {
     try {
       const code = await runCli(['node', 'contrib', '--version']);
       assert.strictEqual(code, 0);
-      assert.match(output, /gsoc-contrib 0\.1\.1/);
+      assert.match(output, /gsoc-contrib 0\.2\.0/);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -35,6 +35,7 @@ describe('CLI Entry Point', () => {
       assert.match(output, /analyze/);
       assert.match(output, /status/);
       assert.match(output, /cleanup/);
+      assert.match(output, /open/);
       assert.match(output, /search/);
       assert.match(output, /init/);
     } finally {
@@ -112,6 +113,11 @@ describe('CLI Entry Point', () => {
 
   test('setup exits gracefully when no workspace provided or active', async () => {
     const code = await runCli(['node', 'contrib', 'setup', 'non_existent_ws']);
+    assert.strictEqual(code, 1);
+  });
+
+  test('open exits gracefully when no workspace provided or active', async () => {
+    const code = await runCli(['node', 'contrib', 'open', 'non_existent_ws']);
     assert.strictEqual(code, 1);
   });
 });

@@ -24,6 +24,7 @@ import { handleDiff } from './commands/diff.js';
 import { handleSetup } from './commands/setup.js';
 import { handleStats } from './commands/stats.js';
 import { handleBrowse } from './commands/browse.js';
+import { handleOpen } from './commands/open.js';
 import {
   SecurityError,
   UserError,
@@ -54,6 +55,10 @@ export function createProgram() {
 Examples:
   $ npx gsoc-contrib start https://github.com/psf/requests/issues/6000 --worktree --install
   $ npx gsoc-contrib contribute psf/requests#6000 -b fix-header-parsing
+  $ npx gsoc-contrib open
+  $ npx gsoc-contrib open --antigravity
+  $ npx gsoc-contrib open psf/requests#6000 --web
+  $ npx gsoc-contrib open --code
   $ npx gsoc-contrib browse --repo psf/requests
   $ npx gsoc-contrib sync
   $ npx gsoc-contrib diff
@@ -74,6 +79,10 @@ Examples:
     .option('-w, --worktree', 'Use shared bare repo cache & git worktree for sub-second setup')
     .option('-m, --mode <mode>', 'Clone mode: blobless, treeless, shallow, or worktree', 'blobless')
     .option('-i, --install', 'Automatically install project dependencies after creation')
+    .option('-o, --open', 'Open workspace in default editor immediately after creation')
+    .option('-a, --antigravity', 'Open workspace in Antigravity IDE after creation')
+    .option('--ide', 'Alias for --antigravity (open in Antigravity IDE after creation)')
+    .option('--agy', 'Alias for --antigravity (open in Antigravity IDE after creation)')
     .option('--fork', 'Automatically configure remote for user fork')
     .action(async (url, options) => {
       process.exitCode = await handleStart(url, options);
@@ -88,6 +97,10 @@ Examples:
     .option('-w, --worktree', 'Use shared bare repo cache & git worktree for sub-second setup')
     .option('-m, --mode <mode>', 'Clone mode: blobless, treeless, shallow, or worktree', 'blobless')
     .option('-i, --install', 'Automatically install project dependencies after creation')
+    .option('-o, --open', 'Open workspace in default editor immediately after creation')
+    .option('-a, --antigravity', 'Open workspace in Antigravity IDE after creation')
+    .option('--ide', 'Alias for --antigravity (open in Antigravity IDE after creation)')
+    .option('--agy', 'Alias for --antigravity (open in Antigravity IDE after creation)')
     .option('--fork', 'Automatically configure remote for user fork')
     .action(async (target, options) => {
       process.exitCode = await handleContribute(target, options);
@@ -143,6 +156,23 @@ Examples:
     .description('Detect and install dependencies in an active workspace.')
     .action(async (id) => {
       process.exitCode = await handleSetup(id);
+    });
+
+  // Command: open
+  program
+    .command('open [id]')
+    .description('Open a contribution workspace in your editor or open its GitHub issue/PR in the browser.')
+    .option('-w, --web', 'Open the GitHub issue or pull request URL in default web browser')
+    .option('-a, --antigravity', 'Open workspace in Antigravity IDE')
+    .option('--ide', 'Alias for --antigravity (open in Antigravity IDE)')
+    .option('--agy', 'Alias for --antigravity (open in Antigravity IDE)')
+    .option('-c, --code', 'Open workspace in Visual Studio Code')
+    .option('--cursor', 'Open workspace in Cursor')
+    .option('-e, --editor <editor>', 'Open workspace in custom editor (e.g. nvim, vim, subl, idea)')
+    .option('-i, --issue', 'Open .contrib/ISSUE.md specification file directly')
+    .option('-p, --print', 'Print only the workspace path to stdout (for shell navigation/piping)')
+    .action(async (id, options) => {
+      process.exitCode = await handleOpen(id, options);
     });
 
   // Command: stats

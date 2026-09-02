@@ -11,6 +11,7 @@ import urllib.request
 from typing import Any, Dict, Optional
 
 from contrib.security import validate_github_url
+from contrib import __version__
 
 
 def fetch_issue_metadata(url: str) -> Dict[str, Any]:
@@ -39,7 +40,7 @@ def fetch_issue_metadata(url: str) -> Dict[str, Any]:
 
     api_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_num}"
     req = urllib.request.Request(api_url)
-    req.add_header("User-Agent", "contrib-cli/0.1.0")
+    req.add_header("User-Agent", f"contrib-cli/{__version__}")
     req.add_header("Accept", "application/vnd.github.v3+json")
 
     token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")

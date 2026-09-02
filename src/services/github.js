@@ -11,7 +11,10 @@ import { validateGitHubUrl, GitHubApiError } from '../utils/security.js';
 import { getGitHubToken } from '../utils/env.js';
 import { getApiCacheDir } from '../config/index.js';
 
-const USER_AGENT = 'gsoc-contrib-cli/0.1.1';
+const pkg = JSON.parse(
+  fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf-8')
+);
+const USER_AGENT = `gsoc-contrib-cli/${pkg.version}`;
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 /**

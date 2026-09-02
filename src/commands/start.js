@@ -5,6 +5,11 @@
 import { checkGitInstalled } from '../utils/git.js';
 import { logger } from '../utils/logger.js';
 import { createWorkspace } from '../services/workspace.js';
+import {
+  detectDefaultEditor,
+  openInEditor,
+  isCommandAvailable,
+} from '../utils/opener.js';
 
 /**
  * Execute the workspace initialization command.
@@ -64,11 +69,31 @@ export async function handleStart(target, options = {}) {
 
   logger.plain('');
   logger.plain('To begin working, navigate to the workspace:');
+  logger.step('  open workspace:', `npx gsoc-contrib open ${ws.id}`);
   logger.step('  cd', `"${ws.path}"`);
   if (ws.stack && ws.stack.testCommand) {
     logger.step('  test:', ws.stack.testCommand);
   }
   logger.step('  submit PR:', 'npx gsoc-contrib submit');
+
+  if (options.open || options.antigravity || options.agy || options.ide) {
+    let editor = null;
+    if (options.antigravity || options.agy || options.ide) {
+      editor = isCommandAvailable('antigravity-ide')
+        ? 'antigravity-ide'
+        : (isCommandAvailable('antigravity') ? 'antigravity' : 'antigravity-ide');
+    } else {
+      editor = detectDefaultEditor();
+    }
+    if (editor) {
+      logger.info(`Opening workspace in ${editor}...`);
+      try {
+        await openInEditor(ws.path, editor);
+      } catch {
+        // non-fatal
+      }
+    }
+  }
 
   return 0;
 }

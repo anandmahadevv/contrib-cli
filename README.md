@@ -77,13 +77,29 @@ Or using shorthand:
 npx gsoc-contrib contribute psf/requests#6000 -b fix-header-parsing
 ```
 
-### 5. Check Active Workspaces
+### 5. Open in Editor or Browser
+
+```bash
+# Open in Antigravity IDE
+npx gsoc-contrib open --antigravity
+
+# Open in VS Code
+npx gsoc-contrib open --code
+
+# Or open the issue in your default browser
+npx gsoc-contrib open --web
+
+# Or navigate directly via shell evaluation
+cd $(npx gsoc-contrib open -p)
+```
+
+### 6. Check Active Workspaces
 
 ```bash
 npx gsoc-contrib status
 ```
 
-### 6. Clean Up When Done
+### 7. Clean Up When Done
 
 ```bash
 npx gsoc-contrib cleanup psf__requests__issue_6000
@@ -172,6 +188,36 @@ Automatically detect the workspace runtime and install dependencies (`npm instal
 
 ```bash
 npx gsoc-contrib setup
+```
+
+### `open [options] [id]`
+Open a contribution workspace directly in your preferred editor or launch the corresponding GitHub issue/PR in your browser.
+
+```bash
+# Auto-open active or single workspace in detected editor (Antigravity IDE, VS Code, Cursor, $EDITOR)
+npx gsoc-contrib open
+
+# Open in Antigravity IDE (aliases: --agy, --ide)
+npx gsoc-contrib open psf/requests#6000 --antigravity
+npx gsoc-contrib open psf/requests#6000 --agy
+
+# Open in Visual Studio Code
+npx gsoc-contrib open psf/requests#6000 --code
+
+# Open in Cursor
+npx gsoc-contrib open psf/requests#6000 --cursor
+
+# Open in custom editor (e.g. nvim, vim, subl, idea)
+npx gsoc-contrib open psf/requests#6000 --editor nvim
+
+# Open the issue specification (.contrib/ISSUE.md) directly
+npx gsoc-contrib open psf/requests#6000 --issue
+
+# Open the GitHub issue or PR in default browser
+npx gsoc-contrib open psf/requests#6000 --web
+
+# Print path only (for shell navigation/piping)
+cd $(npx gsoc-contrib open psf/requests#6000 --print)
 ```
 
 ### `stats`
