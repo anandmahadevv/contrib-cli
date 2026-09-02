@@ -13,6 +13,8 @@ export {
   deleteWorkspace,
   analyzeIssue,
   writeWorkspaceContextFiles,
+  syncWorkspace,
+  getWorkspaceDiff,
 } from './services/workspace.js';
 
 export {
@@ -20,6 +22,8 @@ export {
   searchIssues,
   checkGitHubAuth,
   getUserFork,
+  createFork,
+  getRepoDefaultBranch,
 } from './services/github.js';
 
 export {
@@ -53,6 +57,7 @@ export {
   getGitStatusSummary,
   setupSparseCheckout,
   detectProjectStack,
+  installDependencies,
 } from './utils/git.js';
 
 export {

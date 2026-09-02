@@ -116,6 +116,36 @@ Examples:
         help="Force delete workspace even if uncommitted changes exist.",
     )
 
+    # Subcommand: sync
+    sync_parser = subparsers.add_parser(
+        "sync",
+        help="Sync workspace branch with upstream changes.",
+    )
+    sync_parser.add_argument(
+        "id",
+        nargs="?",
+        default=None,
+        help="Workspace ID to sync.",
+    )
+
+    # Subcommand: diff
+    diff_parser = subparsers.add_parser(
+        "diff",
+        help="View diff on the active workspace branch.",
+    )
+    diff_parser.add_argument(
+        "id",
+        nargs="?",
+        default=None,
+        help="Workspace ID to inspect.",
+    )
+
+    # Subcommand: stats
+    subparsers.add_parser(
+        "stats",
+        help="Display contribution stats and metrics.",
+    )
+
     return parser
 
 
@@ -207,6 +237,51 @@ def handle_cleanup(args: argparse.Namespace) -> int:
         return 1
 
 
+def handle_sync(args: argparse.Namespace) -> int:
+    """Execute the 'sync' command."""
+    workspaces = list_workspaces()
+    ws_id = args.id or (workspaces[0]["id"] if workspaces else None)
+    if not ws_id:
+        print("[!] No active workspaces found to sync.", file=sys.stderr)
+        return 1
+    try:
+        from contrib.workspace import sync_workspace
+        res = sync_workspace(ws_id)
+        print(f"[+] {res['message']}")
+        return 0
+    except Exception as e:
+        print(f"[!] Error: {e}", file=sys.stderr)
+        return 1
+
+
+def handle_diff(args: argparse.Namespace) -> int:
+    """Execute the 'diff' command."""
+    workspaces = list_workspaces()
+    ws_id = args.id or (workspaces[0]["id"] if workspaces else None)
+    if not ws_id:
+        print("[!] No active workspaces found.", file=sys.stderr)
+        return 1
+    try:
+        from contrib.workspace import get_workspace_diff
+        res = get_workspace_diff(ws_id)
+        print(res["diff"] or "No changes detected.")
+        return 0
+    except Exception as e:
+        print(f"[!] Error: {e}", file=sys.stderr)
+        return 1
+
+
+def handle_stats(args: argparse.Namespace) -> int:
+    """Execute the 'stats' command."""
+    workspaces = list_workspaces()
+    print("Contribution Stats Summary")
+    print("-" * 72)
+    print(f"  Total Workspaces: {len(workspaces)}")
+    for ws in workspaces:
+        print(f"  [{ws.get('owner')}/{ws.get('repo')}] {ws.get('branch')} ({ws.get('path')})")
+    return 0
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Main CLI entry point."""
     parser = create_parser()
@@ -226,9 +301,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return handle_status(args)
     elif args.command == "cleanup":
         return handle_cleanup(args)
+    elif args.command == "sync":
+        return handle_sync(args)
+    elif args.command == "diff":
+        return handle_diff(args)
+    elif args.command == "stats":
+        return handle_stats(args)
 
     return 0
 
 
 if __name__ == "__main__":
     sys.exit(main())
+

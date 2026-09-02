@@ -83,9 +83,37 @@ describe('CLI Entry Point', () => {
     assert.strictEqual(code, 0);
   });
 
+  test('runs stats command successfully', async () => {
+    const code = await runCli(['node', 'contrib', 'stats']);
+    assert.strictEqual(code, 0);
+  });
+
+  test('runs stats command with --markdown and --json', async () => {
+    const codeMd = await runCli(['node', 'contrib', 'stats', '--markdown']);
+    assert.strictEqual(codeMd, 0);
+    const codeJson = await runCli(['node', 'contrib', 'stats', '--json']);
+    assert.strictEqual(codeJson, 0);
+  });
+
   test('submit exits gracefully when no workspace provided or active', async () => {
     const code = await runCli(['node', 'contrib', 'submit', 'non_existent_ws']);
     assert.strictEqual(code, 1);
   });
+
+  test('sync exits gracefully when no workspace provided or active', async () => {
+    const code = await runCli(['node', 'contrib', 'sync', 'non_existent_ws']);
+    assert.strictEqual(code, 1);
+  });
+
+  test('diff exits gracefully when no workspace provided or active', async () => {
+    const code = await runCli(['node', 'contrib', 'diff', 'non_existent_ws']);
+    assert.strictEqual(code, 1);
+  });
+
+  test('setup exits gracefully when no workspace provided or active', async () => {
+    const code = await runCli(['node', 'contrib', 'setup', 'non_existent_ws']);
+    assert.strictEqual(code, 1);
+  });
 });
+
 

@@ -307,3 +307,78 @@ export async function checkGitHubAuth() {
     resetDate: null,
   };
 }
+
+/**
+ * Create a fork of the target repository for the authenticated user.
+ * @param {string} owner
+ * @param {string} repo
+ * @returns {Promise<{ success: boolean, forkUrl: string, forkOwner: string }>}
+ */
+export async function createFork(owner, repo) {
+  const token = await getGitHubToken();
+  if (!token) {
+    throw new GitHubApiError(
+      'GitHub authentication is required to create a fork. Set GITHUB_TOKEN or login with `gh auth login`.'
+    );
+  }
+
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/forks`;
+  const headers = {
+    'User-Agent': USER_AGENT,
+    Accept: 'application/vnd.github.v3+json',
+    Authorization: `token ${token}`,
+  };
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new GitHubApiError(`Failed to create fork: HTTP ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      forkUrl: data.clone_url || `https://github.com/${data.owner?.login}/${repo}.git`,
+      forkOwner: data.owner?.login || '',
+    };
+  } catch (err) {
+    if (err instanceof GitHubApiError) throw err;
+    throw new GitHubApiError(`Failed to create fork: ${err.message}`);
+  }
+}
+
+/**
+ * Get repository default branch name (e.g. main or master).
+ * @param {string} owner
+ * @param {string} repo
+ * @returns {Promise<string>}
+ */
+export async function getRepoDefaultBranch(owner, repo) {
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}`;
+  const headers = {
+    'User-Agent': USER_AGENT,
+    Accept: 'application/vnd.github.v3+json',
+  };
+
+  const token = await getGitHubToken();
+  if (token) {
+    headers.Authorization = `token ${token}`;
+  }
+
+  try {
+    const response = await fetch(apiUrl, { headers });
+    if (response.ok) {
+      const data = await response.json();
+      return data.default_branch || 'main';
+    }
+  } catch {
+    // fallback
+  }
+
+  return 'main';
+}
+

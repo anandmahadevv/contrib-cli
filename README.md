@@ -135,11 +135,54 @@ npx gsoc-contrib search "good first issue" --repo psf/requests
 npx gsoc-contrib search --label "help wanted" --limit 5
 ```
 
+### `browse [query]`
+Interactively search and select candidate GitHub issues with a number picker to launch workspaces instantly.
+
+```bash
+npx gsoc-contrib browse --repo psf/requests
+```
+
 ### `doctor [id]` *(alias: `info`)*
 Run health diagnostics on your environment (Node, Git, GitHub Auth, Rate Limits, Storage, Cache) or inspect a specific workspace for uncommitted changes, stack detection, and remotes.
 
 ```bash
 npx gsoc-contrib doctor
+```
+
+### `sync [id]`
+Fetch upstream changes and automatically rebase your active issue branch against `upstream/main` to resolve drift.
+
+```bash
+npx gsoc-contrib sync
+```
+
+### `diff [id]`
+Inspect the git diff of code changes on your issue branch against the base branch.
+
+```bash
+# View diff summary
+npx gsoc-contrib diff
+
+# Export formatted Markdown diff for PR description
+npx gsoc-contrib diff --markdown
+```
+
+### `setup [id]`
+Automatically detect the workspace runtime and install dependencies (`npm install`, `uv sync`, `poetry install`, `cargo fetch`, etc.).
+
+```bash
+npx gsoc-contrib setup
+```
+
+### `stats`
+View contribution metrics, active workspaces, and commits authored. Useful for GSoC/Hacktoberfest check-in reports.
+
+```bash
+# Terminal summary
+npx gsoc-contrib stats
+
+# Export Markdown table for reports
+npx gsoc-contrib stats --markdown
 ```
 
 ### `submit [id]` *(alias: `pr`)*
@@ -182,11 +225,12 @@ npx gsoc-contrib init
 
 ---
 
-## Workspace Context Files (`.contrib/ISSUE.md`)
+## Workspace Context Files (`.contrib/ISSUE.md` & `.contrib/AI_PROMPT.md`)
 
 When a contribution workspace is initialized, `gsoc-contrib` automatically generates:
 1. **`.contrib/ISSUE.md`**: Complete issue briefing with title, description, state, labels, candidate files, and test commands.
-2. **`.contrib/context.json`**: Machine-readable metadata for IDEs, extensions, and local AI coding agents.
+2. **`.contrib/AI_PROMPT.md`**: Tailored role-based prompt for AI coding assistants (Antigravity, Cursor, Copilot, Claude Code) with problem description, candidate files, and verification commands.
+3. **`.contrib/context.json`**: Machine-readable metadata for IDE extensions and scripts.
 
 The `.contrib/` folder is automatically excluded in `.git/info/exclude` so your git working tree stays clean!
 

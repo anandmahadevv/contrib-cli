@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchIssueMetadata, checkGitHubAuth } from '../src/services/github.js';
+import { fetchIssueMetadata, checkGitHubAuth, getRepoDefaultBranch } from '../src/services/github.js';
 import { getGitHubToken, maskToken } from '../src/utils/env.js';
 
 describe('GitHub Service & Auth', () => {
@@ -21,6 +21,12 @@ describe('GitHub Service & Auth', () => {
     assert.strictEqual(meta.clone_url, 'https://github.com/psf/requests.git');
   });
 
+  test('getRepoDefaultBranch returns default branch', async () => {
+    const branch = await getRepoDefaultBranch('psf', 'requests');
+    assert.ok(typeof branch === 'string');
+    assert.ok(branch.length > 0);
+  });
+
   test('checkGitHubAuth returns status object with rate limits', async () => {
     const status = await checkGitHubAuth();
     assert.ok(typeof status.authenticated === 'boolean');
@@ -34,3 +40,4 @@ describe('GitHub Service & Auth', () => {
     assert.strictEqual(maskToken(''), '****');
   });
 });
+

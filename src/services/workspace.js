@@ -29,6 +29,7 @@ import {
   getGitStatusSummary,
   setupSparseCheckout,
   detectProjectStack,
+  installDependencies,
 } from '../utils/git.js';
 
 /**
@@ -85,6 +86,41 @@ export function writeWorkspaceContextFiles(wsPath, meta, targetBranch, focusArea
 
   fs.writeFileSync(path.join(contribDir, 'ISSUE.md'), issueMdContent, 'utf-8');
 
+  // AI Prompt generation for coding agents
+  const aiPromptContent = [
+    `# AI Agent Instructions for Issue #${meta.issue_number || 'N/A'}`,
+    '',
+    `## Context`,
+    `- **Repository:** ${meta.owner}/${meta.repo}`,
+    `- **Issue Title:** ${meta.title || 'N/A'}`,
+    `- **Issue URL:** ${meta.url}`,
+    `- **Working Branch:** ${targetBranch}`,
+    `- **Tech Stack:** ${stack.type || 'Generic'} (${stack.packageManager || 'unknown'})`,
+    '',
+    `## Task`,
+    `You are tasked with resolving the following GitHub issue:`,
+    '',
+    `### Issue Description`,
+    meta.body ? meta.body : '_No description provided._',
+    '',
+    `## Candidate Files & Focus Areas`,
+    focusAreas.length > 0
+      ? focusAreas.map((f) => `- \`${f}\``).join('\n')
+      : '- Search for symbols or error strings referenced in the issue.',
+    '',
+    `## Verification Steps`,
+    stack.testCommand ? `- Run test suite: \`${stack.testCommand}\`` : '- Run repository tests',
+    `- Check git status: \`git status\``,
+    '',
+    `## Guidelines`,
+    `1. Maintain documentation and code style conventions.`,
+    `2. Ensure all existing tests pass before and after making changes.`,
+    `3. Write minimal, surgical code changes targeting this issue.`,
+    '',
+  ].join('\n');
+
+  fs.writeFileSync(path.join(contribDir, 'AI_PROMPT.md'), aiPromptContent, 'utf-8');
+
   const contextJson = {
     workspace_id: sanitizeWorkspaceName(`${meta.owner}__${meta.repo}__issue_${meta.issue_number || 'main'}`),
     repository: `${meta.owner}/${meta.repo}`,
@@ -126,7 +162,8 @@ export function writeWorkspaceContextFiles(wsPath, meta, targetBranch, focusArea
  *   sparse?: boolean | string | string[],
  *   mode?: 'blobless' | 'treeless' | 'shallow' | 'worktree',
  *   worktree?: boolean,
- *   fork?: boolean
+ *   fork?: boolean,
+ *   install?: boolean
  * }} options
  * @returns {Promise<{
  *   id: string,
@@ -140,6 +177,7 @@ export function writeWorkspaceContextFiles(wsPath, meta, targetBranch, focusArea
  *   mode: string,
  *   isWorktree: boolean,
  *   stack: Record<string, any>,
+ *   installed?: boolean,
  *   created_at: string,
  *   status: string,
  *   isNew: boolean
@@ -225,6 +263,14 @@ export async function createWorkspace(target, options = {}) {
           // ignore fork auto-setup error
         }
       }
+      // Apply Git performance optimizations to workspace
+      try {
+        await runGitCommand(['config', 'fetch.parallel', '0'], { cwd: wsPath });
+        await runGitCommand(['config', 'index.threads', 'true'], { cwd: wsPath });
+        await runGitCommand(['config', 'pack.threads', '0'], { cwd: wsPath });
+      } catch {
+        // non-fatal
+      }
     } catch (err) {
       // Clean up incomplete directory on failure
       try {
@@ -253,6 +299,15 @@ export async function createWorkspace(target, options = {}) {
   const stack = detectProjectStack(wsPath);
   writeWorkspaceContextFiles(wsPath, meta, targetBranch, focusAreas, stack);
 
+  // Auto-install dependencies if requested
+  let installed = false;
+  let installOutput = '';
+  if (options.install && isNew) {
+    const installRes = await installDependencies(wsPath, stack);
+    installed = installRes.success;
+    installOutput = installRes.output;
+  }
+
   const record = {
     id: wsId,
     url: meta.url,
@@ -265,6 +320,7 @@ export async function createWorkspace(target, options = {}) {
     mode: cloneMode,
     isWorktree: useWorktree,
     stack,
+    installed,
     created_at: new Date().toISOString(),
     status: 'active',
   };
@@ -273,7 +329,7 @@ export async function createWorkspace(target, options = {}) {
   registry[wsId] = record;
   saveRegistry(registry);
 
-  return { ...record, isNew, stack };
+  return { ...record, isNew, stack, installOutput };
 }
 
 /**
@@ -410,4 +466,131 @@ export async function analyzeIssue(target) {
     suggested_focus_areas: suggestedPaths.slice(0, 10),
   };
 }
+
+/**
+ * Sync and rebase a workspace branch against upstream/origin main branch.
+ * @param {string} idOrTarget
+ * @returns {Promise<{ id: string, branch: string, baseBranch: string, synced: boolean, message: string }>}
+ */
+export async function syncWorkspace(idOrTarget) {
+  const ws = getWorkspace(idOrTarget);
+  if (!ws) {
+    throw new UserError(`Workspace not found for: '${idOrTarget}'.`);
+  }
+
+  if (!fs.existsSync(ws.path)) {
+    throw new UserError(`Workspace directory does not exist on disk: ${ws.path}`);
+  }
+
+  // Determine remotes
+  let remoteName = 'origin';
+  try {
+    const { stdout: remotes } = await runGitCommand(['remote'], { cwd: ws.path });
+    if (remotes.includes('upstream')) {
+      remoteName = 'upstream';
+    }
+  } catch {
+    // ignore
+  }
+
+  // Fetch remote
+  try {
+    await runGitCommand(['fetch', remoteName], { cwd: ws.path });
+  } catch (err) {
+    throw new GitError(`Failed to fetch from remote '${remoteName}': ${err.message}`);
+  }
+
+  // Determine default branch
+  let defaultBranch = 'main';
+  try {
+    const { stdout: headRef } = await runGitCommand(
+      ['symbolic-ref', `refs/remotes/${remoteName}/HEAD`],
+      { cwd: ws.path }
+    );
+    defaultBranch = headRef.split('/').pop() || 'main';
+  } catch {
+    try {
+      await runGitCommand(['rev-parse', '--verify', `${remoteName}/main`], { cwd: ws.path });
+      defaultBranch = 'main';
+    } catch {
+      defaultBranch = 'master';
+    }
+  }
+
+  // Rebase onto remote default branch
+  try {
+    await runGitCommand(['rebase', `${remoteName}/${defaultBranch}`], { cwd: ws.path });
+    return {
+      id: ws.id,
+      branch: ws.branch,
+      baseBranch: `${remoteName}/${defaultBranch}`,
+      synced: true,
+      message: `Successfully rebased '${ws.branch}' onto '${remoteName}/${defaultBranch}'.`,
+    };
+  } catch {
+    // If rebase failed, abort rebase to leave workspace in clean state
+    try {
+      await runGitCommand(['rebase', '--abort'], { cwd: ws.path });
+    } catch {
+      // ignore
+    }
+    throw new GitError(
+      `Sync failed due to merge conflicts while rebasing onto ${remoteName}/${defaultBranch}. Rebase was aborted.`
+    );
+  }
+}
+
+/**
+ * Get the diff of changes made in a contribution workspace.
+ * @param {string} idOrTarget
+ * @param {{ patch?: boolean, markdown?: boolean }} options
+ * @returns {Promise<{ id: string, diff: string, summary: string }>}
+ */
+export async function getWorkspaceDiff(idOrTarget, options = {}) {
+  const ws = getWorkspace(idOrTarget);
+  if (!ws) {
+    throw new UserError(`Workspace not found for: '${idOrTarget}'.`);
+  }
+
+  if (!fs.existsSync(ws.path)) {
+    throw new UserError(`Workspace directory does not exist: ${ws.path}`);
+  }
+
+  let baseRef = 'HEAD~1';
+  try {
+    await runGitCommand(['rev-parse', '--verify', 'upstream/main'], { cwd: ws.path });
+    baseRef = 'upstream/main...HEAD';
+  } catch {
+    try {
+      await runGitCommand(['rev-parse', '--verify', 'origin/main'], { cwd: ws.path });
+      baseRef = 'origin/main...HEAD';
+    } catch {
+      baseRef = 'HEAD';
+    }
+  }
+
+  let diffOutput = '';
+  try {
+    const diffRes = await runGitCommand(['diff', baseRef], { cwd: ws.path });
+    diffOutput = diffRes.stdout;
+  } catch {
+    const fallbackRes = await runGitCommand(['diff'], { cwd: ws.path });
+    diffOutput = fallbackRes.stdout;
+  }
+
+  let statOutput = '';
+  try {
+    const statRes = await runGitCommand(['diff', '--stat', baseRef], { cwd: ws.path });
+    statOutput = statRes.stdout;
+  } catch {
+    // ignore
+  }
+
+  return {
+    id: ws.id,
+    diff: diffOutput,
+    summary: statOutput || 'No changes detected.',
+  };
+}
+
 

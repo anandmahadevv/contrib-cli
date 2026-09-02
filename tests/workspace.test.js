@@ -101,15 +101,21 @@ describe('Workspace Service', () => {
     });
 
     const issueMdPath = path.join(wsPath, '.contrib', 'ISSUE.md');
+    const aiPromptPath = path.join(wsPath, '.contrib', 'AI_PROMPT.md');
     const contextJsonPath = path.join(wsPath, '.contrib', 'context.json');
 
     assert.strictEqual(fs.existsSync(issueMdPath), true);
+    assert.strictEqual(fs.existsSync(aiPromptPath), true);
     assert.strictEqual(fs.existsSync(contextJsonPath), true);
 
     const issueMd = fs.readFileSync(issueMdPath, 'utf-8');
     assert.ok(issueMd.includes('Fix parsing bug in header parser'));
     assert.ok(issueMd.includes('src/parser.js'));
     assert.ok(issueMd.includes('npm test'));
+
+    const aiPrompt = fs.readFileSync(aiPromptPath, 'utf-8');
+    assert.ok(aiPrompt.includes('AI Agent Instructions for Issue #123'));
+    assert.ok(aiPrompt.includes('Fix parsing bug in header parser'));
 
     const contextJson = JSON.parse(fs.readFileSync(contextJsonPath, 'utf-8'));
     assert.strictEqual(contextJson.issue_number, '123');
@@ -137,4 +143,5 @@ describe('Workspace Service', () => {
     assert.strictEqual(pyStack.testCommand, 'pytest');
   });
 });
+
 

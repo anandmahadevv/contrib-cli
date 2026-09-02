@@ -309,3 +309,57 @@ export function detectProjectStack(dirPath) {
   return stack;
 }
 
+/**
+ * Run package manager install command if available.
+ * @param {string} wsPath
+ * @param {Record<string, any>} stack
+ * @returns {Promise<{ success: boolean, command: string, output: string }>}
+ */
+export async function installDependencies(wsPath, stack) {
+  let cmd = 'npm';
+  let args = ['install'];
+
+  if (stack.packageManager === 'pnpm') {
+    cmd = 'pnpm';
+    args = ['install'];
+  } else if (stack.packageManager === 'yarn') {
+    cmd = 'yarn';
+    args = ['install'];
+  } else if (stack.packageManager === 'bun') {
+    cmd = 'bun';
+    args = ['install'];
+  } else if (stack.packageManager === 'poetry') {
+    cmd = 'poetry';
+    args = ['install'];
+  } else if (stack.packageManager === 'uv') {
+    cmd = 'uv';
+    args = ['sync'];
+  } else if (stack.packageManager === 'cargo') {
+    cmd = 'cargo';
+    args = ['fetch'];
+  } else if (stack.packageManager === 'go') {
+    cmd = 'go';
+    args = ['mod', 'download'];
+  }
+
+  try {
+    const { stdout, stderr } = await execFileAsync(cmd, args, {
+      cwd: wsPath,
+      timeout: 180000,
+      shell: process.platform === 'win32',
+    });
+    return {
+      success: true,
+      command: `${cmd} ${args.join(' ')}`,
+      output: (stdout || stderr || '').trim(),
+    };
+  } catch (err) {
+    return {
+      success: false,
+      command: `${cmd} ${args.join(' ')}`,
+      output: err.message,
+    };
+  }
+}
+
+

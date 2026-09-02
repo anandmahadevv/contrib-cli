@@ -29,6 +29,7 @@ export async function handleStart(target, options = {}) {
     mode: options.mode,
     worktree: options.worktree,
     fork: options.fork,
+    install: options.install,
   });
 
   if (ws.isNew) {
@@ -54,7 +55,12 @@ export async function handleStart(target, options = {}) {
     }
   }
 
-  logger.dim(`  Context file:     ${ws.path}/.contrib/ISSUE.md`);
+  if (ws.installed) {
+    logger.success(`Dependencies:       Installed successfully`);
+  }
+
+  logger.dim(`  Context files:    ${ws.path}/.contrib/ISSUE.md`);
+  logger.dim(`                    ${ws.path}/.contrib/AI_PROMPT.md`);
 
   logger.plain('');
   logger.plain('To begin working, navigate to the workspace:');

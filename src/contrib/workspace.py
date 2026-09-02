@@ -85,6 +85,40 @@ def write_workspace_context_files(
     with open(contrib_dir / "ISSUE.md", "w", encoding="utf-8") as f:
         f.write("\n".join(issue_md_lines))
 
+    ai_prompt_lines = [
+        f"# AI Agent Instructions for Issue #{issue_num or 'N/A'}",
+        "",
+        "## Context",
+        f"- **Repository:** {owner}/{repo}",
+        f"- **Issue Title:** {title}",
+        f"- **Issue URL:** {meta.get('url')}",
+        f"- **Working Branch:** {target_branch}",
+        "",
+        "## Task",
+        "You are tasked with fixing or implementing the solution for the following GitHub issue:",
+        "",
+        "### Issue Description",
+        meta.get("body") or "_No description provided._",
+        "",
+        "## Suggested Files to Inspect",
+    ]
+    if focus_areas:
+        for f in focus_areas:
+            ai_prompt_lines.append(f"- `{f}`")
+    else:
+        ai_prompt_lines.append("- Search for symbols or error strings referenced in the issue.")
+
+    ai_prompt_lines.extend([
+        "",
+        "## Guidelines",
+        "1. Ensure all tests pass before and after making changes.",
+        "2. Keep edits focused and minimal.",
+        "",
+    ])
+
+    with open(contrib_dir / "AI_PROMPT.md", "w", encoding="utf-8") as f:
+        f.write("\n".join(ai_prompt_lines))
+
     context_json = {
         "workspace_id": sanitize_workspace_name(f"{meta['owner']}__{meta['repo']}__issue_{meta.get('issue_number', 'main')}"),
         "repository": f"{meta['owner']}/{meta['repo']}",
@@ -231,3 +265,36 @@ def analyze_issue(issue_url: str) -> Dict[str, Any]:
         "metadata": meta,
         "suggested_focus_areas": suggested_paths[:10],
     }
+
+
+def sync_workspace(id_or_target: str) -> Dict[str, Any]:
+    """Sync workspace branch with upstream."""
+    ws = get_workspace(id_or_target)
+    if not ws:
+        raise ValueError(f"Workspace not found for: '{id_or_target}'")
+
+    ws_path = Path(ws["path"])
+    run_git_command(["fetch", "origin"], cwd=ws_path)
+    run_git_command(["rebase", "origin/main"], cwd=ws_path)
+
+    return {
+        "id": ws["id"],
+        "branch": ws["branch"],
+        "synced": True,
+        "message": f"Successfully rebased {ws['branch']} onto origin/main.",
+    }
+
+
+def get_workspace_diff(id_or_target: str) -> Dict[str, Any]:
+    """Get diff for a workspace."""
+    ws = get_workspace(id_or_target)
+    if not ws:
+        raise ValueError(f"Workspace not found for: '{id_or_target}'")
+
+    ws_path = Path(ws["path"])
+    res = run_git_command(["diff", "HEAD~1"], cwd=ws_path)
+    return {
+        "id": ws["id"],
+        "diff": res.stdout,
+    }
+

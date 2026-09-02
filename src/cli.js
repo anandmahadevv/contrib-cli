@@ -19,6 +19,11 @@ import { handleSearch } from './commands/search.js';
 import { handleDoctor } from './commands/doctor.js';
 import { handleSubmit } from './commands/submit.js';
 import { handlePr } from './commands/pr.js';
+import { handleSync } from './commands/sync.js';
+import { handleDiff } from './commands/diff.js';
+import { handleSetup } from './commands/setup.js';
+import { handleStats } from './commands/stats.js';
+import { handleBrowse } from './commands/browse.js';
 import {
   SecurityError,
   UserError,
@@ -47,15 +52,16 @@ export function createProgram() {
       'after',
       `
 Examples:
-  $ npx gsoc-contrib start https://github.com/psf/requests/issues/6000
-  $ npx gsoc-contrib contribute psf/requests#6000 -b fix-header-parsing --worktree
-  $ npx gsoc-contrib analyze https://github.com/psf/requests/issues/6000
-  $ npx gsoc-contrib search "good first issue" --repo psf/requests
+  $ npx gsoc-contrib start https://github.com/psf/requests/issues/6000 --worktree --install
+  $ npx gsoc-contrib contribute psf/requests#6000 -b fix-header-parsing
+  $ npx gsoc-contrib browse --repo psf/requests
+  $ npx gsoc-contrib sync
+  $ npx gsoc-contrib diff
+  $ npx gsoc-contrib stats
   $ npx gsoc-contrib doctor
   $ npx gsoc-contrib submit
   $ npx gsoc-contrib status
   $ npx gsoc-contrib cleanup --all
-  $ npx gsoc-contrib init
 `
     );
 
@@ -67,6 +73,7 @@ Examples:
     .option('-s, --sparse [dirs...]', 'Enable sparse checkout for specific or candidate directories')
     .option('-w, --worktree', 'Use shared bare repo cache & git worktree for sub-second setup')
     .option('-m, --mode <mode>', 'Clone mode: blobless, treeless, shallow, or worktree', 'blobless')
+    .option('-i, --install', 'Automatically install project dependencies after creation')
     .option('--fork', 'Automatically configure remote for user fork')
     .action(async (url, options) => {
       process.exitCode = await handleStart(url, options);
@@ -80,9 +87,21 @@ Examples:
     .option('-s, --sparse [dirs...]', 'Enable sparse checkout for specific or candidate directories')
     .option('-w, --worktree', 'Use shared bare repo cache & git worktree for sub-second setup')
     .option('-m, --mode <mode>', 'Clone mode: blobless, treeless, shallow, or worktree', 'blobless')
+    .option('-i, --install', 'Automatically install project dependencies after creation')
     .option('--fork', 'Automatically configure remote for user fork')
     .action(async (target, options) => {
       process.exitCode = await handleContribute(target, options);
+    });
+
+  // Command: browse (interactive issue picker)
+  program
+    .command('browse [query]')
+    .description('Interactively search and select candidate GitHub issues to start workspaces.')
+    .option('-r, --repo <repo>', 'Target repository (e.g. psf/requests)')
+    .option('-l, --label <label>', 'Filter by label (e.g. "good first issue")')
+    .option('-n, --limit <number>', 'Maximum results (default: 10)')
+    .action(async (query, options) => {
+      process.exitCode = await handleBrowse(query, options);
     });
 
   // Command: analyze
@@ -99,6 +118,41 @@ Examples:
     .description('List all active contribution workspaces.')
     .action(async () => {
       process.exitCode = await handleStatus();
+    });
+
+  // Command: sync
+  program
+    .command('sync [id]')
+    .description('Pull upstream changes and rebase your working contribution branch.')
+    .action(async (id) => {
+      process.exitCode = await handleSync(id);
+    });
+
+  // Command: diff
+  program
+    .command('diff [id]')
+    .description('Inspect the git diff of changes made on the issue branch.')
+    .option('-m, --markdown', 'Output diff formatted in Markdown')
+    .action(async (id, options) => {
+      process.exitCode = await handleDiff(id, options);
+    });
+
+  // Command: setup
+  program
+    .command('setup [id]')
+    .description('Detect and install dependencies in an active workspace.')
+    .action(async (id) => {
+      process.exitCode = await handleSetup(id);
+    });
+
+  // Command: stats
+  program
+    .command('stats')
+    .description('View contribution activity, commits authored, and metrics across workspaces.')
+    .option('-m, --markdown', 'Output report formatted in Markdown (for GSoC reports)')
+    .option('-j, --json', 'Output report as JSON')
+    .action(async (options) => {
+      process.exitCode = await handleStats(options);
     });
 
   // Command: search
