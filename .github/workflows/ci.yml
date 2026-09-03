@@ -1,4 +1,4 @@
-﻿name: CI & Security
+name: CI & Security
 
 on:
   push:
@@ -10,6 +10,7 @@ jobs:
   test-node:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         node-version: [18, 20, 22]
@@ -29,6 +30,7 @@ jobs:
   test-python:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
