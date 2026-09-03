@@ -14,6 +14,6 @@ else:
 try:
     __version__ = version("gsoc-contrib")
 except PackageNotFoundError:
-    __version__ = "0.2.0"
+    __version__ = "0.4.0"
 
 __all__ = ["__version__"]
