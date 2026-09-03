@@ -9,6 +9,9 @@ import {
   detectDefaultEditor,
   openInBrowser,
   openInEditor,
+  resolveRequestedEditor,
+  resolveEditorBinary,
+  EDITOR_CANDIDATES,
 } from '../src/utils/opener.js';
 import { saveRegistry } from '../src/config/index.js';
 import { SecurityError, UserError } from '../src/utils/security.js';
@@ -79,6 +82,28 @@ describe('Opener Utilities', () => {
     await assert.rejects(async () => {
       await openInEditor('/path/to/nonexistent/workspace/12345', 'code');
     }, UserError);
+  });
+
+  test('resolveEditorBinary resolves candidate array and fallback', () => {
+    assert.strictEqual(resolveEditorBinary('code'), EDITOR_CANDIDATES.code.includes(resolveEditorBinary('code')) ? resolveEditorBinary('code') : 'code');
+    assert.ok(EDITOR_CANDIDATES.nvim.includes(resolveEditorBinary('nvim')));
+    assert.ok(EDITOR_CANDIDATES.idea.includes(resolveEditorBinary('idea')));
+    assert.strictEqual(resolveEditorBinary('custom_unknown_ed'), 'custom_unknown_ed');
+  });
+
+  test('resolveRequestedEditor resolves flags for Neovim, Vim, Helix, Zed, JetBrains, and Sublime', () => {
+    assert.ok(EDITOR_CANDIDATES.nvim.includes(resolveRequestedEditor({ nvim: true })));
+    assert.ok(EDITOR_CANDIDATES.vim.includes(resolveRequestedEditor({ vim: true })));
+    assert.ok(EDITOR_CANDIDATES.helix.includes(resolveRequestedEditor({ helix: true })));
+    assert.ok(EDITOR_CANDIDATES.helix.includes(resolveRequestedEditor({ hx: true })));
+    assert.ok(EDITOR_CANDIDATES.zed.includes(resolveRequestedEditor({ zed: true })));
+    assert.ok(EDITOR_CANDIDATES.idea.includes(resolveRequestedEditor({ idea: true })));
+    assert.ok(EDITOR_CANDIDATES.pycharm.includes(resolveRequestedEditor({ pycharm: true })));
+    assert.ok(EDITOR_CANDIDATES.webstorm.includes(resolveRequestedEditor({ webstorm: true })));
+    assert.ok(EDITOR_CANDIDATES.sublime.includes(resolveRequestedEditor({ subl: true })));
+    assert.ok(EDITOR_CANDIDATES.sublime.includes(resolveRequestedEditor({ sublime: true })));
+    assert.strictEqual(resolveRequestedEditor({ editor: 'nano' }), 'nano');
+    assert.strictEqual(resolveRequestedEditor({}), null);
   });
 });
 
@@ -223,5 +248,12 @@ describe('Open Command Handler', () => {
 
     const codeAgyShort = await handleOpen('ide_ws', { agy: true, print: true });
     assert.strictEqual(codeAgyShort, 0);
+
+    // Multi-IDE flags with print flag to avoid external spawning
+    const flags = ['nvim', 'vim', 'helix', 'hx', 'zed', 'idea', 'pycharm', 'webstorm', 'subl', 'sublime'];
+    for (const flag of flags) {
+      const res = await handleOpen('ide_ws', { [flag]: true, print: true });
+      assert.strictEqual(res, 0, `handleOpen failed for flag --${flag}`);
+    }
   });
 });

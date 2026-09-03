@@ -122,3 +122,90 @@ export function removeRegistryEntry(id) {
     saveRegistry(registry);
   }
 }
+
+/**
+ * Return the JSON file path tracking user Git/SSH identities.
+ * @returns {string}
+ */
+export function getIdentitiesFile() {
+  return path.join(getContribHome(), 'identities.json');
+}
+
+/**
+ * Load all stored Git identities.
+ * @returns {Record<string, { id: string, name: string, email: string, sshHost?: string, sshKey?: string, signingKey?: string }>}
+ */
+export function loadIdentities() {
+  const file = getIdentitiesFile();
+  if (!fs.existsSync(file)) {
+    return {};
+  }
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf-8'));
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Save identities atomically.
+ * @param {Record<string, any>} data
+ */
+export function saveIdentities(data) {
+  const file = getIdentitiesFile();
+  const dir = path.dirname(file);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  const tempFile = `${file}.tmp`;
+  fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
+  fs.renameSync(tempFile, file);
+}
+
+/**
+ * Get an identity by name.
+ * @param {string} name
+ * @returns {{ id: string, name: string, email: string, sshHost?: string, sshKey?: string, signingKey?: string } | null}
+ */
+export function getIdentity(name) {
+  if (!name || typeof name !== 'string') return null;
+  const list = loadIdentities();
+  return list[name.toLowerCase().trim()] || null;
+}
+
+/**
+ * Set or update an identity.
+ * @param {string} name
+ * @param {{ name: string, email: string, sshHost?: string, sshKey?: string, signingKey?: string }} details
+ */
+export function setIdentity(name, details) {
+  const list = loadIdentities();
+  const key = name.toLowerCase().trim();
+  list[key] = {
+    id: key,
+    name: details.name,
+    email: details.email,
+    sshHost: details.sshHost || null,
+    sshKey: details.sshKey || null,
+    signingKey: details.signingKey || null,
+    updatedAt: new Date().toISOString(),
+  };
+  saveIdentities(list);
+  return list[key];
+}
+
+/**
+ * Remove an identity by name.
+ * @param {string} name
+ * @returns {boolean}
+ */
+export function removeIdentity(name) {
+  const list = loadIdentities();
+  const key = name.toLowerCase().trim();
+  if (list[key]) {
+    delete list[key];
+    saveIdentities(list);
+    return true;
+  }
+  return false;
+}

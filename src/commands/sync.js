@@ -12,9 +12,10 @@ import { syncWorkspace, listWorkspaces, getWorkspace } from '../services/workspa
 /**
  * Sync contribution workspace with upstream changes.
  * @param {string | undefined} idOrTarget
+ * @param {{ push?: boolean, fork?: boolean }} options
  * @returns {Promise<number>} Exit code
  */
-export async function handleSync(idOrTarget) {
+export async function handleSync(idOrTarget, options = {}) {
   let ws = null;
   if (idOrTarget) {
     ws = getWorkspace(idOrTarget);
@@ -33,7 +34,7 @@ export async function handleSync(idOrTarget) {
   logger.info(`Syncing workspace '${ws.id}' with upstream...`);
 
   try {
-    const res = await syncWorkspace(ws.id);
+    const res = await syncWorkspace(ws.id, options);
     logger.success(res.message);
     return 0;
   } catch (err) {

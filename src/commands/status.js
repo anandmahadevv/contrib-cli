@@ -7,10 +7,16 @@ import { listWorkspaces } from '../services/workspace.js';
 
 /**
  * List all active contribution workspaces.
+ * @param {{ ids?: boolean }} options
  * @returns {Promise<number>} Exit code
  */
-export async function handleStatus() {
+export async function handleStatus(options = {}) {
   const workspaces = listWorkspaces();
+
+  if (options && options.ids) {
+    process.stdout.write(workspaces.map((w) => w.id).join('\n') + (workspaces.length ? '\n' : ''));
+    return 0;
+  }
 
   if (workspaces.length === 0) {
     logger.plain('No active contribution workspaces found.');

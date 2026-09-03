@@ -77,29 +77,54 @@ Or using shorthand:
 npx gsoc-contrib contribute psf/requests#6000 -b fix-header-parsing
 ```
 
-### 5. Open in Editor or Browser
+### 5. Open in Any Editor or Browser
 
 ```bash
-# Open in Antigravity IDE
+# Open in Antigravity IDE (aliases: --agy, --ide)
 npx gsoc-contrib open --antigravity
 
-# Open in VS Code
-npx gsoc-contrib open --code
+# Open in terminal power-user editors
+npx gsoc-contrib open --nvim        # Neovim
+npx gsoc-contrib open --vim         # Vim
+npx gsoc-contrib open --helix       # Helix (--hx)
+npx gsoc-contrib open --zed         # Zed
+
+# Open in JetBrains or desktop editors
+npx gsoc-contrib open --code        # Visual Studio Code
+npx gsoc-contrib open --cursor      # Cursor
+npx gsoc-contrib open --idea        # IntelliJ IDEA
+npx gsoc-contrib open --pycharm     # PyCharm
+npx gsoc-contrib open --webstorm    # WebStorm
+npx gsoc-contrib open --subl        # Sublime Text
 
 # Or open the issue in your default browser
 npx gsoc-contrib open --web
 
-# Or navigate directly via shell evaluation
-cd $(npx gsoc-contrib open -p)
+# Or jump directly into the workspace using the 'gcd' shell shortcut!
+gcd psf__requests__issue_6000
 ```
 
-### 6. Check Active Workspaces
+### 6. Set Up Shell Integration (`gcd` shortcut)
+
+```bash
+# Automatically install 'gcd' shortcut and completions into ~/.zshrc, ~/.bashrc, or $PROFILE:
+npx gsoc-contrib alias --install
+```
+
+### 7. Sync with Upstream & Push to Your Fork
+
+```bash
+# Fetch upstream default branch, rebase feature branch, and push to your personal fork:
+npx gsoc-contrib sync --fork
+```
+
+### 8. Check Active Workspaces
 
 ```bash
 npx gsoc-contrib status
 ```
 
-### 7. Clean Up When Done
+### 9. Clean Up When Done
 
 ```bash
 npx gsoc-contrib cleanup psf__requests__issue_6000
@@ -119,8 +144,17 @@ npx gsoc-contrib start https://github.com/psf/requests/issues/6000
 # Sub-second workspace creation via shared Git worktree
 npx gsoc-contrib start https://github.com/psf/requests/issues/6000 --worktree
 
+# Automatically configure upstream and personal fork remotes
+npx gsoc-contrib start https://github.com/psf/requests/issues/6000 --fork
+
 # Sparse checkout only focused directories
 npx gsoc-contrib start https://github.com/psf/requests/issues/6000 --sparse src/requests
+
+# Operate completely off-grid using local cached metadata and bare git clone
+npx gsoc-contrib start https://github.com/psf/requests/issues/6000 --offline
+
+# Apply Git & SSH identity to workspace
+npx gsoc-contrib start https://github.com/psf/requests/issues/6000 --identity personal
 
 # With custom branch name
 npx gsoc-contrib start https://github.com/psf/requests/issues/6000 -b fix-bug-123
@@ -130,85 +164,45 @@ npx gsoc-contrib start https://github.com/psf/requests/issues/6000 -b fix-bug-12
 Smart shorthand alias for starting a workspace. Supports full URLs, repository shorthands (`owner/repo#123`), and repo targets (`owner/repo`).
 
 ```bash
-npx gsoc-contrib contribute facebook/react#24000 --worktree
-```
-
-### `analyze <url>`
-Fetch issue metadata and scan the issue body for referenced source files, modules, and labels.
-
-```bash
-npx gsoc-contrib analyze https://github.com/psf/requests/issues/6000
-```
-
-### `search [query]`
-Search GitHub for open issues to contribute to.
-
-```bash
-# Search good first issues in a repository
-npx gsoc-contrib search "good first issue" --repo psf/requests
-
-# Search with label filter
-npx gsoc-contrib search --label "help wanted" --limit 5
-```
-
-### `browse [query]`
-Interactively search and select candidate GitHub issues with a number picker to launch workspaces instantly.
-
-```bash
-npx gsoc-contrib browse --repo psf/requests
-```
-
-### `doctor [id]` *(alias: `info`)*
-Run health diagnostics on your environment (Node, Git, GitHub Auth, Rate Limits, Storage, Cache) or inspect a specific workspace for uncommitted changes, stack detection, and remotes.
-
-```bash
-npx gsoc-contrib doctor
+npx gsoc-contrib contribute facebook/react#24000 --worktree --fork
 ```
 
 ### `sync [id]`
-Fetch upstream changes and automatically rebase your active issue branch against `upstream/main` to resolve drift.
+Pull upstream changes, rebase your local feature branch against `upstream/main`, and optionally push updated commits to your personal fork.
 
 ```bash
+# Rebase feature branch on upstream/main
 npx gsoc-contrib sync
-```
 
-### `diff [id]`
-Inspect the git diff of code changes on your issue branch against the base branch.
-
-```bash
-# View diff summary
-npx gsoc-contrib diff
-
-# Export formatted Markdown diff for PR description
-npx gsoc-contrib diff --markdown
-```
-
-### `setup [id]`
-Automatically detect the workspace runtime and install dependencies (`npm install`, `uv sync`, `poetry install`, `cargo fetch`, etc.).
-
-```bash
-npx gsoc-contrib setup
+# Rebase from upstream and push to personal fork (origin) in one action
+npx gsoc-contrib sync --fork
+npx gsoc-contrib sync -p
 ```
 
 ### `open [options] [id]`
 Open a contribution workspace directly in your preferred editor or launch the corresponding GitHub issue/PR in your browser.
 
 ```bash
-# Auto-open active or single workspace in detected editor (Antigravity IDE, VS Code, Cursor, $EDITOR)
+# Auto-open active workspace in detected default editor
 npx gsoc-contrib open
 
 # Open in Antigravity IDE (aliases: --agy, --ide)
 npx gsoc-contrib open psf/requests#6000 --antigravity
-npx gsoc-contrib open psf/requests#6000 --agy
 
-# Open in Visual Studio Code
+# Power-user editors
+npx gsoc-contrib open psf/requests#6000 --nvim
+npx gsoc-contrib open psf/requests#6000 --vim
+npx gsoc-contrib open psf/requests#6000 --helix
+npx gsoc-contrib open psf/requests#6000 --zed
+npx gsoc-contrib open psf/requests#6000 --idea
+npx gsoc-contrib open psf/requests#6000 --pycharm
+npx gsoc-contrib open psf/requests#6000 --webstorm
+npx gsoc-contrib open psf/requests#6000 --subl
 npx gsoc-contrib open psf/requests#6000 --code
-
-# Open in Cursor
 npx gsoc-contrib open psf/requests#6000 --cursor
 
-# Open in custom editor (e.g. nvim, vim, subl, idea)
-npx gsoc-contrib open psf/requests#6000 --editor nvim
+# Open custom editor
+npx gsoc-contrib open psf/requests#6000 --editor nano
 
 # Open the issue specification (.contrib/ISSUE.md) directly
 npx gsoc-contrib open psf/requests#6000 --issue
@@ -218,6 +212,72 @@ npx gsoc-contrib open psf/requests#6000 --web
 
 # Print path only (for shell navigation/piping)
 cd $(npx gsoc-contrib open psf/requests#6000 --print)
+```
+
+### `shell-init [shell]` & `alias`
+Native shell integration for instant workspace jumping via `gcd` and tab auto-completion across Bash, Zsh, Fish, and PowerShell.
+
+```bash
+# Quick session evaluation:
+eval "$(npx gsoc-contrib shell-init zsh)"          # Zsh
+eval "$(npx gsoc-contrib shell-init bash)"         # Bash
+npx gsoc-contrib shell-init fish | source          # Fish
+npx gsoc-contrib shell-init pwsh | Out-String | iex # PowerShell
+
+# Or install permanently into shell profile:
+npx gsoc-contrib alias --install
+
+# Jump directly into any workspace!
+gcd <workspace-id>
+```
+
+### `dashboard` *(aliases: `dash`, `tui`)*
+Launch the interactive full-screen TUI workspace dashboard. Zero third-party dependencies, instant load times, and single-keystroke navigation.
+
+```bash
+# Launch the interactive terminal UI
+npx gsoc-contrib dashboard
+
+# Or shorthand
+npx gsoc-contrib dash
+```
+
+* **Keyboard Navigation**:
+  * `↑ / k` or `↓ / j`: Move cursor up and down through active workspaces.
+  * `Enter` or `o`: Open workspace in default editor.
+  * `a`: Open in Antigravity IDE.
+  * `c`: Open in Visual Studio Code.
+  * `n`: Open in Neovim.
+  * `s`: Sync with upstream and rebase feature branch.
+  * `d`: View interactive git diff.
+  * `x`: Clean up workspace safely.
+  * `q` / `Esc`: Exit dashboard.
+
+### `identity [action] [name]`
+Manage multiple Git/SSH identities and switch them across contribution workspaces. Never accidentally commit with your corporate email again!
+
+```bash
+# 1. Add identities
+npx gsoc-contrib identity add personal \
+  --name "Anand M" \
+  --email "anand@personal.me" \
+  --ssh-host "github-personal"
+
+npx gsoc-contrib identity add work \
+  --name "Anand M (Enterprise)" \
+  --email "anand@company.corp"
+
+# 2. List configured identities
+npx gsoc-contrib identity list
+
+# 3. Apply an identity when creating a workspace
+npx gsoc-contrib start facebook/react#24000 --identity personal
+
+# 4. Switch identity in an existing workspace
+npx gsoc-contrib identity use work
+
+# 5. Remove an identity
+npx gsoc-contrib identity remove work
 ```
 
 ### `stats`
@@ -275,8 +335,12 @@ npx gsoc-contrib init
 
 When a contribution workspace is initialized, `gsoc-contrib` automatically generates:
 1. **`.contrib/ISSUE.md`**: Complete issue briefing with title, description, state, labels, candidate files, and test commands.
-2. **`.contrib/AI_PROMPT.md`**: Tailored role-based prompt for AI coding assistants (Antigravity, Cursor, Copilot, Claude Code) with problem description, candidate files, and verification commands.
-3. **`.contrib/context.json`**: Machine-readable metadata for IDE extensions and scripts.
+2. **`.contrib/AI_PROMPT.md` (v2 Context Engine)**: Surgical instructions for AI coding assistants (Antigravity, Cursor, Copilot, Claude Code) with:
+   - Extracted testing and style guidelines from repository `CONTRIBUTING.md` or `DEVELOPMENT.md`.
+   - Quality checks from detected linters & formatters (ESLint, Prettier, Biome, Ruff, Black, Mypy, Clippy, rustfmt, golangci-lint).
+   - Pull Request checklist extracted from `.github/PULL_REQUEST_TEMPLATE.md`.
+   - Explicit verification commands and surgical coding rules.
+3. **`.contrib/context.json`**: Machine-readable metadata for IDE extensions, scripts, and automations.
 
 The `.contrib/` folder is automatically excluded in `.git/info/exclude` so your git working tree stays clean!
 
@@ -288,6 +352,7 @@ Workspaces, cache, and registry are organized under `~/.contrib`:
 ```text
 ~/.contrib/
 ├── registry.json     # Workspace registry tracking active sessions
+├── identities.json   # Configured Git and SSH user profiles
 ├── cache/
 │   ├── api/          # Offline & rate-limit cached GitHub API responses
 │   └── git/          # Shared bare repositories for instant git worktrees
@@ -308,6 +373,10 @@ Workspaces, cache, and registry are organized under `~/.contrib`:
    Workspaces are tracked centrally in `~/.contrib/registry.json`. If you revisit an issue, `contrib` checks out the existing workspace instead of re-downloading.
 3. **Strict Safety Sandboxing**:
    The `cleanup` command verifies that the target directory is strictly located inside the managed workspaces directory before deletion, preventing accidental or malicious file removal.
+4. **Smart Offline Engine**:
+   Caches GitHub API metadata and git bare repositories indefinitely, allowing developers to create workspaces, context files, and branches completely off-grid.
+5. **Git Identity Isolation**:
+   Isolates contributor names, emails, and SSH host configurations locally per workspace, avoiding corporate credential contamination.
 
 ---
 

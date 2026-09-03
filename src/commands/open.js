@@ -13,7 +13,7 @@ import {
   openInEditor,
   openInBrowser,
   detectDefaultEditor,
-  isCommandAvailable,
+  resolveRequestedEditor,
 } from '../utils/opener.js';
 
 /**
@@ -117,15 +117,8 @@ export async function handleOpen(idOrTarget, options = {}) {
     }
 
     // If user only specified --web, exit here
-    if (
-      !options.antigravity &&
-      !options.agy &&
-      !options.ide &&
-      !options.code &&
-      !options.cursor &&
-      !options.editor &&
-      !options.issue
-    ) {
+    const requestedEditor = resolveRequestedEditor(options);
+    if (!requestedEditor && !options.editor && !options.issue) {
       return 0;
     }
   }
@@ -140,26 +133,7 @@ export async function handleOpen(idOrTarget, options = {}) {
   }
 
   // Determine which editor to launch
-  let editor = null;
-  if (options.antigravity || options.agy || options.ide) {
-    if (isCommandAvailable('antigravity-ide')) {
-      editor = 'antigravity-ide';
-    } else if (isCommandAvailable('antigravity')) {
-      editor = 'antigravity';
-    } else if (isCommandAvailable('agy')) {
-      editor = 'agy';
-    } else {
-      editor = 'antigravity-ide';
-    }
-  } else if (options.code) {
-    editor = 'code';
-  } else if (options.cursor) {
-    editor = 'cursor';
-  } else if (options.editor) {
-    editor = options.editor;
-  } else {
-    editor = detectDefaultEditor();
-  }
+  const editor = resolveRequestedEditor(options) || detectDefaultEditor();
 
   if (editor) {
     logger.info(`Opening workspace in ${editor}...`);

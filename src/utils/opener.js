@@ -22,6 +22,85 @@ const TERMINAL_EDITORS = new Set([
   'pico',
 ]);
 
+export const EDITOR_CANDIDATES = {
+  antigravity: ['antigravity-ide', 'antigravity', 'agy'],
+  code: ['code', 'code.cmd'],
+  cursor: ['cursor', 'cursor.cmd'],
+  nvim: ['nvim', 'nvim.exe'],
+  vim: ['vim', 'vim.exe'],
+  helix: ['hx', 'helix'],
+  zed: ['zed', 'zedit'],
+  sublime: ['subl', 'sublime_text'],
+  idea: ['idea', 'idea64.exe', 'idea.cmd'],
+  pycharm: ['pycharm', 'pycharm64.exe', 'pycharm.cmd'],
+  webstorm: ['webstorm', 'webstorm64.exe', 'webstorm.cmd'],
+};
+
+/**
+ * Resolve an editor key or name to an available system binary.
+ * @param {string} editorKeyOrName
+ * @returns {string}
+ */
+export function resolveEditorBinary(editorKeyOrName) {
+  if (!editorKeyOrName || typeof editorKeyOrName !== 'string') return 'code';
+  const key = editorKeyOrName.toLowerCase().trim();
+  const candidates = EDITOR_CANDIDATES[key] || [editorKeyOrName.trim()];
+  for (const candidate of candidates) {
+    if (isCommandAvailable(candidate)) {
+      return candidate;
+    }
+  }
+  return candidates[0];
+}
+
+/**
+ * Resolve the requested editor from CLI option flags.
+ * @param {Record<string, any>} options
+ * @returns {string | null}
+ */
+export function resolveRequestedEditor(options = {}) {
+  if (options.antigravity || options.agy || options.ide) {
+    return resolveEditorBinary('antigravity');
+  }
+  if (options.code) {
+    return resolveEditorBinary('code');
+  }
+  if (options.cursor) {
+    return resolveEditorBinary('cursor');
+  }
+  if (options.nvim) {
+    return resolveEditorBinary('nvim');
+  }
+  if (options.vim) {
+    return resolveEditorBinary('vim');
+  }
+  if (options.helix || options.hx) {
+    return resolveEditorBinary('helix');
+  }
+  if (options.zed) {
+    return resolveEditorBinary('zed');
+  }
+  if (options.subl || options.sublime) {
+    return resolveEditorBinary('sublime');
+  }
+  if (options.idea) {
+    return resolveEditorBinary('idea');
+  }
+  if (options.pycharm) {
+    return resolveEditorBinary('pycharm');
+  }
+  if (options.webstorm) {
+    return resolveEditorBinary('webstorm');
+  }
+  if (options.editor && typeof options.editor === 'string') {
+    return resolveEditorBinary(options.editor);
+  }
+  if (options.open) {
+    return detectDefaultEditor();
+  }
+  return null;
+}
+
 /**
  * Check if a command executable is available in PATH.
  * @param {string} cmd
@@ -44,7 +123,7 @@ export function isCommandAvailable(cmd) {
 
 /**
  * Detect the preferred default editor on the current system.
- * Checks $VISUAL, $EDITOR, code (VS Code), and cursor.
+ * Checks $VISUAL, $EDITOR, Antigravity, VS Code, Cursor, Zed, Sublime, Neovim, Vim, Helix.
  * @returns {string | null}
  */
 export function detectDefaultEditor() {
@@ -56,17 +135,21 @@ export function detectDefaultEditor() {
     const editor = process.env.EDITOR.trim();
     if (isCommandAvailable(editor)) return editor;
   }
-  if (isCommandAvailable('antigravity-ide')) {
-    return 'antigravity-ide';
-  }
-  if (isCommandAvailable('antigravity')) {
-    return 'antigravity';
-  }
-  if (isCommandAvailable('code')) {
-    return 'code';
-  }
-  if (isCommandAvailable('cursor')) {
-    return 'cursor';
+  const defaultPriority = [
+    'antigravity-ide',
+    'antigravity',
+    'code',
+    'cursor',
+    'zed',
+    'subl',
+    'nvim',
+    'vim',
+    'hx',
+  ];
+  for (const ed of defaultPriority) {
+    if (isCommandAvailable(ed)) {
+      return ed;
+    }
   }
   return null;
 }

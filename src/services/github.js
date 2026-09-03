@@ -35,7 +35,7 @@ const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
  *   clone_url: string
  * }>}
  */
-export async function fetchIssueMetadata(urlOrTarget) {
+export async function fetchIssueMetadata(urlOrTarget, options = {}) {
   const parsed = validateGitHubUrl(urlOrTarget);
   const owner = parsed.owner;
   const repo = parsed.repo;
@@ -52,6 +52,7 @@ export async function fetchIssueMetadata(urlOrTarget) {
     state: 'open',
     author: '',
     clone_url: `https://github.com/${owner}/${repo}.git`,
+    offline: Boolean(options.offline),
   };
 
   if (!issueNum) {
@@ -69,12 +70,19 @@ export async function fetchIssueMetadata(urlOrTarget) {
       const cachedRaw = fs.readFileSync(cacheFile, 'utf-8');
       const cached = JSON.parse(cachedRaw);
       const isFresh = cached.cached_at && Date.now() - cached.cached_at < CACHE_TTL_MS;
-      if (isFresh && cached.data) {
-        return { ...metadata, ...cached.data };
+      if ((isFresh || options.offline) && cached.data) {
+        return { ...metadata, ...cached.data, offline: Boolean(options.offline) };
       }
     } catch {
       // cache corrupted, continue
     }
+  }
+
+  // If explicit offline requested and not in cache, return fallback offline metadata without network calls
+  if (options.offline) {
+    metadata.title = `[Offline] ${owner}/${repo} #${issueNum}`;
+    metadata.body = '_Workspace initialized in offline mode without network sync._';
+    return metadata;
   }
 
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issueNum}`;
@@ -174,6 +182,7 @@ export async function getUserFork(owner, repo) {
       ) {
         return {
           hasFork: true,
+          exists: true,
           forkUrl: forkData.clone_url || `https://github.com/${username}/${repo}.git`,
           forkOwner: username,
         };
@@ -183,7 +192,7 @@ export async function getUserFork(owner, repo) {
     // ignore
   }
 
-  return { hasFork: false, forkUrl: null, forkOwner: null };
+  return { hasFork: false, exists: false, forkUrl: null, forkOwner: null };
 }
 
 /**

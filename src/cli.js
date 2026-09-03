@@ -25,6 +25,9 @@ import { handleSetup } from './commands/setup.js';
 import { handleStats } from './commands/stats.js';
 import { handleBrowse } from './commands/browse.js';
 import { handleOpen } from './commands/open.js';
+import { handleShellInit, handleAlias } from './commands/shell.js';
+import { handleIdentity } from './commands/identity.js';
+import { handleDashboard } from './commands/dashboard.js';
 import {
   SecurityError,
   UserError,
@@ -83,7 +86,19 @@ Examples:
     .option('-a, --antigravity', 'Open workspace in Antigravity IDE after creation')
     .option('--ide', 'Alias for --antigravity (open in Antigravity IDE after creation)')
     .option('--agy', 'Alias for --antigravity (open in Antigravity IDE after creation)')
-    .option('--fork', 'Automatically configure remote for user fork')
+    .option('-c, --code', 'Open workspace in Visual Studio Code after creation')
+    .option('--cursor', 'Open workspace in Cursor after creation')
+    .option('-n, --nvim', 'Open workspace in Neovim after creation')
+    .option('--vim', 'Open workspace in Vim after creation')
+    .option('--helix, --hx', 'Open workspace in Helix after creation')
+    .option('-z, --zed', 'Open workspace in Zed after creation')
+    .option('--idea', 'Open workspace in IntelliJ IDEA after creation')
+    .option('--pycharm', 'Open workspace in PyCharm after creation')
+    .option('--webstorm', 'Open workspace in WebStorm after creation')
+    .option('--subl, --sublime', 'Open workspace in Sublime Text after creation')
+    .option('--fork [fork]', 'Configure remote tracking for user fork (auto-detects or accepts user/repo)')
+    .option('--identity <name>', 'Apply configured Git/SSH identity (e.g. personal, work)')
+    .option('--offline', 'Operate completely offline without fetching GitHub API or remote git operations')
     .action(async (url, options) => {
       process.exitCode = await handleStart(url, options);
     });
@@ -101,7 +116,19 @@ Examples:
     .option('-a, --antigravity', 'Open workspace in Antigravity IDE after creation')
     .option('--ide', 'Alias for --antigravity (open in Antigravity IDE after creation)')
     .option('--agy', 'Alias for --antigravity (open in Antigravity IDE after creation)')
-    .option('--fork', 'Automatically configure remote for user fork')
+    .option('-c, --code', 'Open workspace in Visual Studio Code after creation')
+    .option('--cursor', 'Open workspace in Cursor after creation')
+    .option('-n, --nvim', 'Open workspace in Neovim after creation')
+    .option('--vim', 'Open workspace in Vim after creation')
+    .option('--helix, --hx', 'Open workspace in Helix after creation')
+    .option('-z, --zed', 'Open workspace in Zed after creation')
+    .option('--idea', 'Open workspace in IntelliJ IDEA after creation')
+    .option('--pycharm', 'Open workspace in PyCharm after creation')
+    .option('--webstorm', 'Open workspace in WebStorm after creation')
+    .option('--subl, --sublime', 'Open workspace in Sublime Text after creation')
+    .option('--fork [fork]', 'Configure remote tracking for user fork (auto-detects or accepts user/repo)')
+    .option('--identity <name>', 'Apply configured Git/SSH identity (e.g. personal, work)')
+    .option('--offline', 'Operate completely offline without fetching GitHub API or remote git operations')
     .action(async (target, options) => {
       process.exitCode = await handleContribute(target, options);
     });
@@ -129,16 +156,19 @@ Examples:
   program
     .command('status')
     .description('List all active contribution workspaces.')
-    .action(async () => {
-      process.exitCode = await handleStatus();
+    .option('--ids', 'Output only workspace IDs (for autocompletion and scripts)')
+    .action(async (options) => {
+      process.exitCode = await handleStatus(options);
     });
 
   // Command: sync
   program
     .command('sync [id]')
     .description('Pull upstream changes and rebase your working contribution branch.')
-    .action(async (id) => {
-      process.exitCode = await handleSync(id);
+    .option('-p, --push', 'Push rebased branch to your personal fork (origin) after syncing')
+    .option('--fork', 'Ensure fork remote is configured and push updated branch')
+    .action(async (id, options) => {
+      process.exitCode = await handleSync(id, options);
     });
 
   // Command: diff
@@ -168,6 +198,14 @@ Examples:
     .option('--agy', 'Alias for --antigravity (open in Antigravity IDE)')
     .option('-c, --code', 'Open workspace in Visual Studio Code')
     .option('--cursor', 'Open workspace in Cursor')
+    .option('-n, --nvim', 'Open workspace in Neovim')
+    .option('--vim', 'Open workspace in Vim')
+    .option('--helix, --hx', 'Open workspace in Helix')
+    .option('-z, --zed', 'Open workspace in Zed')
+    .option('--idea', 'Open workspace in IntelliJ IDEA')
+    .option('--pycharm', 'Open workspace in PyCharm')
+    .option('--webstorm', 'Open workspace in WebStorm')
+    .option('--subl, --sublime', 'Open workspace in Sublime Text')
     .option('-e, --editor <editor>', 'Open workspace in custom editor (e.g. nvim, vim, subl, idea)')
     .option('-i, --issue', 'Open .contrib/ISSUE.md specification file directly')
     .option('-p, --print', 'Print only the workspace path to stdout (for shell navigation/piping)')
@@ -233,6 +271,48 @@ Examples:
     .description('Initialize and inspect local contribution environment.')
     .action(async () => {
       process.exitCode = await handleInit();
+    });
+
+  // Command: shell-init
+  program
+    .command('shell-init [shell]')
+    .description('Generate shell integration script (bash, zsh, fish, powershell) for gcd workspace jumping.')
+    .action(async (shell) => {
+      process.exitCode = await handleShellInit(shell);
+    });
+
+  // Command: alias
+  program
+    .command('alias')
+    .description('Set up gcd shell shortcut and auto-completion for instant workspace jumping.')
+    .option('-i, --install', 'Automatically install into user shell profile')
+    .option('-s, --shell <shell>', 'Target shell (bash, zsh, fish, powershell)')
+    .action(async (options) => {
+      process.exitCode = await handleAlias(options);
+    });
+
+  // Command: dashboard (interactive TUI)
+  program
+    .command('dashboard')
+    .alias('dash')
+    .alias('tui')
+    .description('Launch interactive full-screen TUI workspace dashboard.')
+    .action(async () => {
+      process.exitCode = await handleDashboard();
+    });
+
+  // Command: identity (Git & SSH multi-account manager)
+  program
+    .command('identity [action] [name]')
+    .description('Manage Git/SSH identities and switch them across contribution workspaces.')
+    .option('-n, --name <name>', 'Full name for git config user.name')
+    .option('-e, --email <email>', 'Email address for git config user.email')
+    .option('--ssh-host <host>', 'Custom SSH Host alias (e.g. github-personal)')
+    .option('--ssh-key <path>', 'Path to private SSH key')
+    .option('--signing-key <key>', 'GPG signing key ID')
+    .option('-w, --workspace <id>', 'Target workspace ID (defaults to current)')
+    .action(async (action, name, options) => {
+      process.exitCode = await handleIdentity(action, name, options);
     });
 
   return program;

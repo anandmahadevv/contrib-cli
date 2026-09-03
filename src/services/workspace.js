@@ -16,6 +16,13 @@ import {
 } from '../config/index.js';
 import { fetchIssueMetadata, getUserFork } from './github.js';
 import {
+  scanContributingGuidelines,
+  scanPullRequestTemplate,
+  scanLintersAndFormatters,
+  generateAiPromptV2,
+} from './context.js';
+import { applyIdentityToWorkspace } from './identity.js';
+import {
   sanitizeWorkspaceName,
   isPathInside,
   SecurityError,
@@ -86,38 +93,21 @@ export function writeWorkspaceContextFiles(wsPath, meta, targetBranch, focusArea
 
   fs.writeFileSync(path.join(contribDir, 'ISSUE.md'), issueMdContent, 'utf-8');
 
-  // AI Prompt generation for coding agents
-  const aiPromptContent = [
-    `# AI Agent Instructions for Issue #${meta.issue_number || 'N/A'}`,
-    '',
-    `## Context`,
-    `- **Repository:** ${meta.owner}/${meta.repo}`,
-    `- **Issue Title:** ${meta.title || 'N/A'}`,
-    `- **Issue URL:** ${meta.url}`,
-    `- **Working Branch:** ${targetBranch}`,
-    `- **Tech Stack:** ${stack.type || 'Generic'} (${stack.packageManager || 'unknown'})`,
-    '',
-    `## Task`,
-    `You are tasked with resolving the following GitHub issue:`,
-    '',
-    `### Issue Description`,
-    meta.body ? meta.body : '_No description provided._',
-    '',
-    `## Candidate Files & Focus Areas`,
-    focusAreas.length > 0
-      ? focusAreas.map((f) => `- \`${f}\``).join('\n')
-      : '- Search for symbols or error strings referenced in the issue.',
-    '',
-    `## Verification Steps`,
-    stack.testCommand ? `- Run test suite: \`${stack.testCommand}\`` : '- Run repository tests',
-    `- Check git status: \`git status\``,
-    '',
-    `## Guidelines`,
-    `1. Maintain documentation and code style conventions.`,
-    `2. Ensure all existing tests pass before and after making changes.`,
-    `3. Write minimal, surgical code changes targeting this issue.`,
-    '',
-  ].join('\n');
+  // Scan repository for contributing guidelines, PR templates, and quality tools
+  const contributing = scanContributingGuidelines(wsPath);
+  const prTemplate = scanPullRequestTemplate(wsPath);
+  const qualityTools = scanLintersAndFormatters(wsPath, stack);
+
+  // Generate surgical v2 AI prompt for coding agents
+  const aiPromptContent = generateAiPromptV2({
+    meta,
+    stack,
+    targetBranch,
+    focusAreas,
+    contributing,
+    prTemplate,
+    qualityTools,
+  });
 
   fs.writeFileSync(path.join(contribDir, 'AI_PROMPT.md'), aiPromptContent, 'utf-8');
 
@@ -132,6 +122,9 @@ export function writeWorkspaceContextFiles(wsPath, meta, targetBranch, focusArea
     branch: targetBranch,
     focus_areas: focusAreas,
     stack,
+    contributing_file: contributing ? contributing.path : null,
+    pr_template_file: prTemplate ? prTemplate.path : null,
+    quality_tools: qualityTools || [],
     created_at: new Date().toISOString(),
   };
 
@@ -184,12 +177,12 @@ export function writeWorkspaceContextFiles(wsPath, meta, targetBranch, focusArea
  * }>}
  */
 export async function createWorkspace(target, options = {}) {
-  const meta = await fetchIssueMetadata(target);
+  const meta = await fetchIssueMetadata(target, options);
   const owner = meta.owner;
   const repo = meta.repo;
   const issueNum = meta.issue_number || 'main';
 
-  const analysis = await analyzeIssue(target);
+  const analysis = await analyzeIssue(target, options);
   const focusAreas = analysis.suggested_focus_areas || [];
 
   const wsId = sanitizeWorkspaceName(`${owner}__${repo}__issue_${issueNum}`);
@@ -200,18 +193,26 @@ export async function createWorkspace(target, options = {}) {
   const cloneMode = useWorktree ? 'worktree' : (options.mode || 'blobless');
 
   let isNew = false;
+  let configuredFork = null;
+  let appliedIdentity = options.identity || null;
 
   if (!fs.existsSync(wsPath)) {
     isNew = true;
 
     try {
+      const bareCacheDir = path.join(getGitCacheDir(), `${owner.toLowerCase()}__${repo.toLowerCase()}.git`);
+
       if (useWorktree) {
         // Shared Bare Repo Cache & Git Worktree
-        const bareCacheDir = path.join(getGitCacheDir(), `${owner.toLowerCase()}__${repo.toLowerCase()}.git`);
         if (!fs.existsSync(bareCacheDir)) {
+          if (options.offline) {
+            throw new UserError(
+              `Cannot create workspace in offline mode: repository '${owner}/${repo}' is not cached locally. Run online first to cache the repository.`
+            );
+          }
           fs.mkdirSync(path.dirname(bareCacheDir), { recursive: true });
           await runGitCommand(['clone', '--bare', '--filter=blob:none', meta.clone_url, bareCacheDir]);
-        } else {
+        } else if (!options.offline) {
           try {
             await runGitCommand(['fetch', 'origin'], { cwd: bareCacheDir, timeout: 15000 });
           } catch {
@@ -219,21 +220,44 @@ export async function createWorkspace(target, options = {}) {
           }
         }
 
+        // Determine starting point branch from bare cache
+        let startPoint = 'HEAD';
+        try {
+          const { stdout: branchOut } = await runGitCommand(['branch'], { cwd: bareCacheDir });
+          const branches = branchOut.split('\n').map((b) => b.trim().replace(/^\*\s*/, '')).filter(Boolean);
+          if (branches.includes('main')) startPoint = 'main';
+          else if (branches.includes('master')) startPoint = 'master';
+          else if (branches.length > 0) startPoint = branches[0];
+        } catch {
+          // ignore
+        }
+
         // Add git worktree
         fs.mkdirSync(path.dirname(wsPath), { recursive: true });
         await runGitCommand(
-          ['worktree', 'add', '-b', targetBranch, wsPath],
+          ['worktree', 'add', '-b', targetBranch, wsPath, startPoint],
           { cwd: bareCacheDir }
         );
       } else {
         // Standard Blobless / Treeless / Shallow clone
         fs.mkdirSync(wsPath, { recursive: true });
 
-        let cloneArgs = ['clone', '--filter=blob:none', meta.clone_url, wsPath];
+        let cloneSource = meta.clone_url;
+        if (options.offline) {
+          if (fs.existsSync(bareCacheDir)) {
+            cloneSource = bareCacheDir;
+          } else {
+            throw new UserError(
+              `Cannot create workspace in offline mode: repository '${owner}/${repo}' is not cached locally. Run online first to cache the repository.`
+            );
+          }
+        }
+
+        let cloneArgs = ['clone', '--filter=blob:none', cloneSource, wsPath];
         if (cloneMode === 'treeless') {
-          cloneArgs = ['clone', '--filter=tree:0', meta.clone_url, wsPath];
+          cloneArgs = ['clone', '--filter=tree:0', cloneSource, wsPath];
         } else if (cloneMode === 'shallow') {
-          cloneArgs = ['clone', '--depth', '1', meta.clone_url, wsPath];
+          cloneArgs = ['clone', '--depth', '1', cloneSource, wsPath];
         }
 
         await runGitCommand(cloneArgs);
@@ -251,13 +275,41 @@ export async function createWorkspace(target, options = {}) {
         }
       }
 
-      // Configure fork remotes if requested
+      // Configure fork remotes if requested or specified
       if (options.fork) {
         try {
-          const forkInfo = await getUserFork(owner, repo);
-          if (forkInfo.hasFork && forkInfo.forkUrl) {
-            await runGitCommand(['remote', 'rename', 'origin', 'upstream'], { cwd: wsPath });
-            await runGitCommand(['remote', 'add', 'origin', forkInfo.forkUrl], { cwd: wsPath });
+          let forkUrl = null;
+          let forkOwner = null;
+          if (typeof options.fork === 'string' && options.fork.trim()) {
+            const trimmedFork = options.fork.trim();
+            if (trimmedFork.startsWith('http') || trimmedFork.startsWith('git@')) {
+              forkUrl = trimmedFork;
+            } else if (trimmedFork.includes('/')) {
+              forkUrl = `https://github.com/${trimmedFork}.git`;
+              forkOwner = trimmedFork.split('/')[0];
+            } else {
+              forkUrl = `https://github.com/${trimmedFork}/${repo}.git`;
+              forkOwner = trimmedFork;
+            }
+          } else {
+            const forkInfo = await getUserFork(owner, repo);
+            if (forkInfo && forkInfo.exists && forkInfo.forkUrl) {
+              forkUrl = forkInfo.forkUrl;
+              forkOwner = forkInfo.forkOwner;
+            }
+          }
+
+          if (forkUrl) {
+            const { stdout: remotes } = await runGitCommand(['remote'], { cwd: wsPath });
+            if (!remotes.includes('upstream')) {
+              await runGitCommand(['remote', 'rename', 'origin', 'upstream'], { cwd: wsPath });
+            }
+            if (!remotes.includes('origin')) {
+              await runGitCommand(['remote', 'add', 'origin', forkUrl], { cwd: wsPath });
+            } else {
+              await runGitCommand(['remote', 'set-url', 'origin', forkUrl], { cwd: wsPath });
+            }
+            configuredFork = { url: forkUrl, owner: forkOwner };
           }
         } catch {
           // ignore fork auto-setup error
@@ -270,6 +322,12 @@ export async function createWorkspace(target, options = {}) {
         await runGitCommand(['config', 'pack.threads', '0'], { cwd: wsPath });
       } catch {
         // non-fatal
+      }
+
+      // Configure user Git/SSH identity if requested
+      if (options.identity) {
+        const idRes = await applyIdentityToWorkspace(wsPath, options.identity);
+        appliedIdentity = idRes.id || options.identity;
       }
     } catch (err) {
       // Clean up incomplete directory on failure
@@ -321,6 +379,9 @@ export async function createWorkspace(target, options = {}) {
     isWorktree: useWorktree,
     stack,
     installed,
+    fork: configuredFork,
+    identity: appliedIdentity,
+    offline: Boolean(options.offline),
     created_at: new Date().toISOString(),
     status: 'active',
   };
@@ -469,10 +530,12 @@ export async function analyzeIssue(target) {
 
 /**
  * Sync and rebase a workspace branch against upstream/origin main branch.
+ * Supports multi-remote fork syncing and push to fork.
  * @param {string} idOrTarget
- * @returns {Promise<{ id: string, branch: string, baseBranch: string, synced: boolean, message: string }>}
+ * @param {{ push?: boolean, fork?: boolean }} options
+ * @returns {Promise<{ id: string, branch: string, baseBranch: string, synced: boolean, pushed?: boolean, message: string }>}
  */
-export async function syncWorkspace(idOrTarget) {
+export async function syncWorkspace(idOrTarget, options = {}) {
   const ws = getWorkspace(idOrTarget);
   if (!ws) {
     throw new UserError(`Workspace not found for: '${idOrTarget}'.`);
@@ -482,12 +545,32 @@ export async function syncWorkspace(idOrTarget) {
     throw new UserError(`Workspace directory does not exist on disk: ${ws.path}`);
   }
 
+  // If --fork requested and workspace doesn't have upstream remote yet, configure it
+  if (options.fork) {
+    try {
+      const { stdout: remotes } = await runGitCommand(['remote'], { cwd: ws.path });
+      if (!remotes.includes('upstream')) {
+        const forkInfo = await getUserFork(ws.owner, ws.repo);
+        if (forkInfo && forkInfo.exists && forkInfo.forkUrl) {
+          await runGitCommand(['remote', 'rename', 'origin', 'upstream'], { cwd: ws.path });
+          await runGitCommand(['remote', 'add', 'origin', forkInfo.forkUrl], { cwd: ws.path });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   // Determine remotes
   let remoteName = 'origin';
+  let hasOrigin = false;
   try {
     const { stdout: remotes } = await runGitCommand(['remote'], { cwd: ws.path });
     if (remotes.includes('upstream')) {
       remoteName = 'upstream';
+    }
+    if (remotes.includes('origin')) {
+      hasOrigin = true;
     }
   } catch {
     // ignore
@@ -520,13 +603,6 @@ export async function syncWorkspace(idOrTarget) {
   // Rebase onto remote default branch
   try {
     await runGitCommand(['rebase', `${remoteName}/${defaultBranch}`], { cwd: ws.path });
-    return {
-      id: ws.id,
-      branch: ws.branch,
-      baseBranch: `${remoteName}/${defaultBranch}`,
-      synced: true,
-      message: `Successfully rebased '${ws.branch}' onto '${remoteName}/${defaultBranch}'.`,
-    };
   } catch {
     // If rebase failed, abort rebase to leave workspace in clean state
     try {
@@ -538,6 +614,30 @@ export async function syncWorkspace(idOrTarget) {
       `Sync failed due to merge conflicts while rebasing onto ${remoteName}/${defaultBranch}. Rebase was aborted.`
     );
   }
+
+  // Push to personal fork if requested or configured
+  let pushed = false;
+  let pushMessage = '';
+  if (options.push || options.fork) {
+    if (hasOrigin && remoteName === 'upstream') {
+      try {
+        await runGitCommand(['push', 'origin', ws.branch, '--force-with-lease'], { cwd: ws.path });
+        pushed = true;
+        pushMessage = ` and pushed to 'origin/${ws.branch}'`;
+      } catch (pushErr) {
+        pushMessage = ` (push to fork failed: ${pushErr.message})`;
+      }
+    }
+  }
+
+  return {
+    id: ws.id,
+    branch: ws.branch,
+    baseBranch: `${remoteName}/${defaultBranch}`,
+    synced: true,
+    pushed,
+    message: `Successfully rebased '${ws.branch}' onto '${remoteName}/${defaultBranch}'${pushMessage}.`,
+  };
 }
 
 /**

@@ -13,7 +13,7 @@ describe('CLI Entry Point', () => {
     try {
       const code = await runCli(['node', 'contrib', '--version']);
       assert.strictEqual(code, 0);
-      assert.match(output, /gsoc-contrib 0\.2\.0/);
+      assert.match(output, /gsoc-contrib 0\.4\.0/);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -119,6 +119,47 @@ describe('CLI Entry Point', () => {
   test('open exits gracefully when no workspace provided or active', async () => {
     const code = await runCli(['node', 'contrib', 'open', 'non_existent_ws']);
     assert.strictEqual(code, 1);
+  });
+
+  test('runs shell-init command successfully for bash and powershell', async () => {
+    const codeBash = await runCli(['node', 'contrib', 'shell-init', 'bash']);
+    assert.strictEqual(codeBash, 0);
+
+    const codePs = await runCli(['node', 'contrib', 'shell-init', 'powershell']);
+    assert.strictEqual(codePs, 0);
+  });
+
+  test('runs alias command successfully', async () => {
+    const code = await runCli(['node', 'contrib', 'alias']);
+    assert.strictEqual(code, 0);
+  });
+
+  test('runs status with --ids flag', async () => {
+    const code = await runCli(['node', 'contrib', 'status', '--ids']);
+    assert.strictEqual(code, 0);
+  });
+
+  test('runs identity list and add commands successfully', async () => {
+    const codeList = await runCli(['node', 'contrib', 'identity', 'list']);
+    assert.strictEqual(codeList, 0);
+
+    const codeAdd = await runCli([
+      'node',
+      'contrib',
+      'identity',
+      'add',
+      'work-cli',
+      '--name',
+      'Work User',
+      '--email',
+      'work@corp.com',
+    ]);
+    assert.strictEqual(codeAdd, 0);
+  });
+
+  test('runs dashboard command in non-TTY environment gracefully', async () => {
+    const code = await runCli(['node', 'contrib', 'dashboard']);
+    assert.strictEqual(code, 0);
   });
 });
 

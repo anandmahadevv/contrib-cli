@@ -36,6 +36,12 @@ export {
   loadRegistry,
   saveRegistry,
   removeRegistryEntry,
+  getIdentitiesFile,
+  loadIdentities,
+  saveIdentities,
+  getIdentity,
+  setIdentity,
+  removeIdentity,
 } from './config/index.js';
 
 export {
@@ -66,12 +72,33 @@ export {
 } from './utils/env.js';
 
 export {
+  scanContributingGuidelines,
+  scanPullRequestTemplate,
+  scanLintersAndFormatters,
+  generateAiPromptV2,
+} from './services/context.js';
+
+export {
   openInEditor,
   openInBrowser,
   isCommandAvailable,
   detectDefaultEditor,
+  resolveRequestedEditor,
+  resolveEditorBinary,
+  EDITOR_CANDIDATES,
 } from './utils/opener.js';
 
+export {
+  detectShell,
+  getShellIntegrationScript,
+  getShellConfigFile,
+  handleShellInit,
+  handleAlias,
+} from './commands/shell.js';
+
+export { applyIdentityToWorkspace } from './services/identity.js';
+export { handleIdentity } from './commands/identity.js';
+export { handleDashboard } from './commands/dashboard.js';
 export { handleOpen } from './commands/open.js';
 export { logger } from './utils/logger.js';
 export { createProgram, runCli } from './cli.js';
