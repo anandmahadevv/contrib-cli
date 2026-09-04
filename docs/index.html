@@ -52,16 +52,29 @@
       background-color: #ffffff;
       color: #0f172a;
       -webkit-font-smoothing: antialiased;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    html.dark {
+      color-scheme: dark;
     }
 
     html.dark body {
-      background-color: #020617;
-      color: #f8fafc;
+      background-color: #090d16;
+      color: #f1f5f9;
     }
 
     code, pre {
       font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* High-contrast dark mode global fallback guarantees */
+    html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+      color: #ffffff;
+    }
+
+    html.dark p, html.dark li {
+      color: #cbd5e1;
     }
 
     /* Custom scrollbar */
@@ -85,6 +98,34 @@
     }
     html.dark ::-webkit-scrollbar-thumb:hover {
       background: #475569;
+    }
+
+    /* In-page Find Highlights */
+    .gdoc-match-active {
+      background-color: #fbbf24 !important;
+      color: #090d16 !important;
+      font-weight: 700 !important;
+      box-shadow: 0 0 0 2px #f59e0b;
+      border-radius: 2px;
+      z-index: 10;
+      position: relative;
+    }
+
+    html.dark .gdoc-match-active {
+      background-color: #facc15 !important;
+      color: #000000 !important;
+      box-shadow: 0 0 0 2px #eab308, 0 0 10px rgba(250, 204, 21, 0.5) !important;
+    }
+
+    .gdoc-match-normal {
+      background-color: rgba(254, 240, 138, 0.9) !important;
+      color: #0f172a !important;
+      border-radius: 2px;
+    }
+
+    html.dark .gdoc-match-normal {
+      background-color: rgba(234, 179, 8, 0.35) !important;
+      color: #fef08a !important;
     }
   </style>
 </head>
@@ -213,8 +254,8 @@
       };
 
       return (
-        <div className="relative my-4 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 overflow-hidden font-mono text-sm shadow-xs group">
-          <div className="flex items-center justify-between px-4 py-2 bg-slate-950/60 border-b border-slate-800 text-xs text-slate-400">
+        <div className="relative my-4 rounded-xl bg-slate-900 dark:bg-slate-950/90 border border-slate-800 dark:border-slate-800 text-slate-100 overflow-hidden font-mono text-sm shadow-md group">
+          <div className="flex items-center justify-between px-4 py-2 bg-slate-950/80 dark:bg-slate-900/90 border-b border-slate-800 text-xs text-slate-400 dark:text-slate-300">
             <span>{language}</span>
             <button
               onClick={onCopy}
@@ -242,10 +283,10 @@
 
     const Callout = ({ type = "note", title, children }) => {
       const styles = {
-        note: "bg-blue-50/60 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60 text-blue-900 dark:text-blue-200",
-        tip: "bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-900 dark:text-emerald-200",
-        warning: "bg-amber-50/60 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60 text-amber-900 dark:text-amber-200",
-        security: "bg-purple-50/60 dark:bg-purple-950/40 border-purple-200 dark:border-purple-900/60 text-purple-900 dark:text-purple-200",
+        note: "bg-blue-50/70 dark:bg-blue-950/60 border-blue-300 dark:border-blue-500/40 text-blue-950 dark:text-blue-100",
+        tip: "bg-emerald-50/70 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-500/40 text-emerald-950 dark:text-emerald-100",
+        warning: "bg-amber-50/70 dark:bg-amber-950/60 border-amber-300 dark:border-amber-500/40 text-amber-950 dark:text-amber-100",
+        security: "bg-purple-50/70 dark:bg-purple-950/60 border-purple-300 dark:border-purple-500/40 text-purple-950 dark:text-purple-100",
       };
 
       return (
@@ -730,10 +771,10 @@
           parts.forEach(part => {
             if (part.toLowerCase() === clean.toLowerCase()) {
               const mark = document.createElement('mark');
-              mark.className = `gdoc-match px-0.5 rounded transition-all duration-150 ${
+              mark.className = `gdoc-match px-0.5 transition-all duration-150 ${
                 count === targetIdx 
-                  ? 'bg-amber-400 text-slate-900 font-bold ring-2 ring-amber-500 ring-offset-1 z-10 relative shadow-xs' 
-                  : 'bg-amber-200/90 text-slate-900'
+                  ? 'gdoc-match-active' 
+                  : 'gdoc-match-normal'
               }`;
               mark.dataset.matchIndex = count;
               mark.textContent = part;
@@ -785,10 +826,10 @@
         const marks = main.querySelectorAll('mark.gdoc-match');
         marks.forEach((mark, idx) => {
           if (idx === newIndex) {
-            mark.className = 'gdoc-match px-0.5 rounded transition-all duration-150 bg-amber-400 text-slate-900 font-bold ring-2 ring-amber-500 ring-offset-1 z-10 relative shadow-xs';
+            mark.className = 'gdoc-match px-0.5 transition-all duration-150 gdoc-match-active';
             mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
           } else {
-            mark.className = 'gdoc-match px-0.5 rounded transition-all duration-150 bg-amber-200/90 text-slate-900';
+            mark.className = 'gdoc-match px-0.5 transition-all duration-150 gdoc-match-normal';
           }
         });
       };
@@ -1140,10 +1181,10 @@
                             <a
                               href={`#${item.id}`}
                               onClick={() => handleSelectSection(item.id)}
-                              className={`block text-xs py-1.5 px-2.5 rounded-lg transition-colors ${
+                              className={`block text-xs py-1.5 px-2.5 rounded-lg transition-all ${
                                 activeSection === item.id
-                                  ? 'bg-slate-100 dark:bg-slate-800/90 font-semibold text-slate-900 dark:text-white'
-                                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-900'
+                                  ? 'bg-blue-50 dark:bg-blue-950/50 font-semibold text-blue-700 dark:text-blue-300 border-l-2 border-blue-600 dark:border-blue-400 shadow-2xs'
+                                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                               }`}
                             >
                               {item.label}
@@ -1164,37 +1205,37 @@
                 <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono">
                   Getting Started
                 </div>
-                <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-4">
+                <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">
                   gsoc-contrib (`contrib`) Documentation
                 </h1>
-                <p className="text-base text-slate-600 leading-relaxed mb-6">
+                <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                   A fast, lightweight contribution workspace manager for GitHub issues and pull requests
                   designed for open-source contributors (such as Google Summer of Code, Hacktoberfest, and day-to-day open-source maintainers).
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
                     <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">94.2%</div>
                     <div className="text-xs text-slate-600 dark:text-slate-400">Bandwidth saved via blobless trees</div>
                   </div>
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
                     <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">1.2s</div>
                     <div className="text-xs text-slate-600 dark:text-slate-400">Sub-second workspace setup</div>
                   </div>
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
                     <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Zero</div>
                     <div className="text-xs text-slate-600 dark:text-slate-400">Telemetry, cookies, or tracking</div>
                   </div>
                 </div>
 
-                <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-3">The Problem</h2>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-10 mb-3">The Problem</h2>
+                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
                   When contributing to open-source repositories, developers frequently clone massive git repositories (often 1GB–10GB) just to fix a single bug or submit a small pull request.
                   This leads to wasted bandwidth downloading years of untouched blobs, redundant copies filling local hard drives, and slow onboarding.
                 </p>
 
-                <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-3">The Solution</h2>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-10 mb-3">The Solution</h2>
+                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
                   <code className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1.5 py-0.5 rounded font-mono">gsoc-contrib</code> creates instant, isolated, lightweight workspaces using Git blobless checkouts (<code className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1.5 py-0.5 rounded font-mono">--filter=blob:none</code>) and Git worktrees. It automatically parses issue metadata, detects your tech stack, generates relevant context files, and manages pull request rebases and submissions.
                 </p>
               </section>
@@ -1204,19 +1245,19 @@
                 <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono">
                   Setup
                 </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-4">Installation</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Installation</h2>
                 
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Option 1: Run instantly with npx (No install required)</h3>
-                <p className="text-sm text-slate-600 mb-2">The fastest way to use contrib is through npx:</p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Option 1: Run instantly with npx (No install required)</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">The fastest way to use contrib is through npx:</p>
                 <CodeBlock code="npx gsoc-contrib <command>" />
 
-                <h3 className="text-lg font-semibold text-slate-900 mt-8 mb-2">Option 2: Install globally via npm</h3>
-                <p className="text-sm text-slate-600 mb-2">To have the `contrib` and `gsoc-contrib` binaries in your system PATH:</p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-8 mb-2">Option 2: Install globally via npm</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">To have the `contrib` and `gsoc-contrib` binaries in your system PATH:</p>
                 <CodeBlock code="npm install -g gsoc-contrib" />
-                <p className="text-xs text-slate-500 mt-1">Once installed globally, you can invoke either <code className="font-mono">contrib</code> or <code className="font-mono">gsoc-contrib</code>.</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Once installed globally, you can invoke either <code className="font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded">contrib</code> or <code className="font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded">gsoc-contrib</code>.</p>
 
-                <h3 className="text-lg font-semibold text-slate-900 mt-8 mb-2">System Prerequisites</h3>
-                <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-8 mb-2">System Prerequisites</h3>
+                <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-300 space-y-1">
                   <li><strong>Node.js</strong>: v18.0.0 or higher</li>
                   <li><strong>Git</strong>: v2.25.0 or higher (with blobless and sparse-checkout support)</li>
                   <li><strong>OS</strong>: Linux, macOS, or Windows (PowerShell/CMD/WSL)</li>
@@ -1228,42 +1269,42 @@
                 <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono">
                   Tutorial
                 </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-4">Quick Start Tutorial</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Quick Start Tutorial</h2>
 
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 mb-1">1. Verify Environment</h3>
-                    <p className="text-sm text-slate-600 mb-2">Run init to inspect Node.js, Git, storage paths, and GitHub API rate limits:</p>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">1. Verify Environment</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Run init to inspect Node.js, Git, storage paths, and GitHub API rate limits:</p>
                     <CodeBlock code="contrib init" />
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 mb-1">2. Search for First Contribution Tasks</h3>
-                    <p className="text-sm text-slate-600 mb-2">Find beginner-friendly issues in any open-source repo:</p>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">2. Search for First Contribution Tasks</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Find beginner-friendly issues in any open-source repo:</p>
                     <CodeBlock code='contrib search "good first issue" --repo psf/requests' />
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 mb-1">3. Spawn an Instant Workspace</h3>
-                    <p className="text-sm text-slate-600 mb-2">Create an isolated blobless workspace with auto-generated context:</p>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">3. Spawn an Instant Workspace</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Create an isolated blobless workspace with auto-generated context:</p>
                     <CodeBlock code="contrib start https://github.com/psf/requests/issues/6000 --worktree --install" />
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 mb-1">4. Open in Your Favorite Editor</h3>
-                    <p className="text-sm text-slate-600 mb-2">Launch directly into VS Code, Cursor, Antigravity IDE, or terminal editors:</p>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">4. Open in Your Favorite Editor</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Launch directly into VS Code, Cursor, Antigravity IDE, or terminal editors:</p>
                     <CodeBlock code="contrib open --cursor" />
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 mb-1">5. Synchronize with Upstream Changes</h3>
-                    <p className="text-sm text-slate-600 mb-2">Fetch and rebase your branch on upstream/main at any time:</p>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">5. Synchronize with Upstream Changes</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Fetch and rebase your branch on upstream/main at any time:</p>
                     <CodeBlock code="contrib sync --push" />
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 mb-1">6. Submit Your Pull Request</h3>
-                    <p className="text-sm text-slate-600 mb-2">Verify clean working trees and generate a 1-click GitHub PR link:</p>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">6. Submit Your Pull Request</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Verify clean working trees and generate a 1-click GitHub PR link:</p>
                     <CodeBlock code="contrib submit" />
                   </div>
                 </div>
@@ -1274,72 +1315,72 @@
                 <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono">
                   Command Reference
                 </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2 font-mono">contrib start</h2>
-                <div className="text-xs text-slate-500 font-mono mb-4">Alias: contrib contribute</div>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib start</h2>
+                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-4">Alias: contrib contribute</div>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   Initializes a dedicated workspace for a specific GitHub issue or pull request. Downloads only commit trees, creates an isolated branch, parses the issue text to detect candidate source files, and writes <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">.contrib/ISSUE.md</code> and <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">.contrib/AI_PROMPT.md</code>.
                 </p>
 
                 <CodeBlock code="contrib start <url-or-shorthand> [options]" />
 
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mt-6 mb-3">Options & Flags</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-6 mb-3">Options & Flags</h4>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left border border-slate-200 dark:border-slate-800 rounded-lg">
-                    <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-semibold">
+                  <table className="w-full text-xs text-left border border-slate-200 dark:border-slate-700/80 rounded-lg overflow-hidden">
+                    <thead className="bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-bold">
                       <tr>
                         <th className="p-2.5">Flag</th>
                         <th className="p-2.5">Description</th>
                         <th className="p-2.5">Default</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 font-mono">
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">-b, --branch &lt;name&gt;</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-b, --branch &lt;name&gt;</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Custom branch name to create</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">issue_&lt;num&gt;</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">-w, --worktree</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-w, --worktree</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Use shared bare repository cache with git worktree for sub-second setup</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">-s, --sparse [dirs]</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-s, --sparse [dirs]</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Enable cone sparse checkout for specific directories</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">auto</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">-m, --mode &lt;mode&gt;</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-m, --mode &lt;mode&gt;</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Clone mode: blobless, treeless, shallow, or worktree</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">blobless</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">-i, --install</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-i, --install</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Automatically detect stack and install dependencies</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">-o, --open</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-o, --open</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Open workspace in default editor immediately</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">-a, --antigravity</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-a, --antigravity</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Open in Google Antigravity IDE (--ide, --agy)</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">-c, --code</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-c, --code</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Open in Visual Studio Code</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">--cursor</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">--cursor</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Open in Cursor</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">--offline</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">--offline</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Operate completely offline using cached metadata and bare mirrors</td>
                         <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
                       </tr>
@@ -1348,53 +1389,53 @@
                 </div>
 
                 <div className="mt-4">
-                  <span className="text-xs font-semibold text-slate-700">Example:</span>
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Example:</span>
                   <CodeBlock code="contrib start psf/requests#6000 --worktree --install --cursor" />
                 </div>
               </section>
 
               {/* Command: open */}
               <section id="cmd-open" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2 font-mono">contrib open</h2>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib open</h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   Launches your active contribution workspace in an editor or browser. When run inside an active workspace, automatically detects the current workspace. When multiple exist, provides interactive selection.
                 </p>
                 <CodeBlock code="contrib open [workspace-id] [options]" />
 
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mt-4 mb-2">Supported Editor Flags</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono text-slate-700">
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200">--code (VS Code)</div>
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200">--cursor (Cursor)</div>
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200">--antigravity (AGY)</div>
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200">--nvim (Neovim)</div>
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200">--vim (Vim)</div>
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200">--helix (Helix)</div>
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200">--zed (Zed)</div>
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200">--web (Browser)</div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-4 mb-2">Supported Editor Flags</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono text-slate-700 dark:text-slate-300">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--code (VS Code)</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--cursor (Cursor)</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--antigravity (AGY)</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--nvim (Neovim)</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--vim (Vim)</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--helix (Helix)</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--zed (Zed)</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--web (Browser)</div>
                 </div>
 
                 <Callout type="tip" title="Shell Integration Tip">
                   Use <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">contrib open -p</code> to print only the path. You can jump directly in your terminal using:
-                  <code className="block mt-1 font-mono text-xs bg-white/70 p-1.5 rounded">cd $(contrib open psf/requests#6000 -p)</code>
+                  <code className="block mt-1 font-mono text-xs bg-white/70 dark:bg-slate-900/90 dark:text-sky-300 p-1.5 rounded border border-slate-200/60 dark:border-slate-700">cd $(contrib open psf/requests#6000 -p)</code>
                 </Callout>
               </section>
 
               {/* Command: dashboard */}
               <section id="cmd-dashboard" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2 font-mono">contrib dashboard</h2>
-                <div className="text-xs text-slate-500 font-mono mb-4">Aliases: contrib dash, contrib tui</div>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib dashboard</h2>
+                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-4">Aliases: contrib dash, contrib tui</div>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   A zero-dependency, full-screen interactive Terminal User Interface (TUI) with single-keystroke operations.
                 </p>
                 <CodeBlock code="contrib dashboard" />
 
-                <div className="bg-slate-950 text-slate-200 p-4 rounded-xl font-mono text-xs my-4 leading-relaxed">
-                  <div className="text-slate-400 border-b border-slate-800 pb-2 mb-2 font-bold">
+                <div className="bg-slate-950 text-slate-200 p-4 rounded-xl font-mono text-xs my-4 leading-relaxed border border-slate-800">
+                  <div className="text-slate-300 border-b border-slate-800 pb-2 mb-2 font-bold">
                     CONTRIB WORKSPACE DASHBOARD (Active: 3)
                   </div>
-                  <div>❯ [1] psf__requests__issue_6000  (branch: fix-header) [Clean]  14.2 MB</div>
-                  <div className="text-slate-500">  [2] facebook__react__issue_24000 (branch: use-hook)   [Dirty]  28.1 MB</div>
-                  <div className="text-slate-500">  [3] torvalds__linux__issue_100   (branch: memory-fix) [Clean]  120 MB</div>
+                  <div className="text-emerald-400 font-semibold">❯ [1] psf__requests__issue_6000  (branch: fix-header) [Clean]  14.2 MB</div>
+                  <div className="text-slate-400">  [2] facebook__react__issue_24000 (branch: use-hook)   [Dirty]  28.1 MB</div>
+                  <div className="text-slate-400">  [3] torvalds__linux__issue_100   (branch: memory-fix) [Clean]  120 MB</div>
                   <div className="mt-4 pt-2 border-t border-slate-800 text-slate-400 text-[11px]">
                     [o] Open Editor | [s] Sync Upstream | [d] Diff | [c] Cleanup | [q] Quit
                   </div>
@@ -1403,19 +1444,19 @@
 
               {/* Command: sync */}
               <section id="cmd-sync" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2 font-mono">contrib sync</h2>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib sync</h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   Fetches the latest upstream commits from GitHub and cleanly rebases your issue branch on top of `upstream/main` (or default branch). Automatically aborts safely if merge conflicts occur.
                 </p>
                 <CodeBlock code="contrib sync [workspace-id] [--push]" />
-                <p className="text-xs text-slate-500">Passing <code className="font-mono">--push</code> automatically pushes the rebased branch to your personal fork (<code className="font-mono">origin</code>).</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Passing <code className="font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded">--push</code> automatically pushes the rebased branch to your personal fork (<code className="font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded">origin</code>).</p>
               </section>
 
               {/* Command: submit */}
               <section id="cmd-submit" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2 font-mono">contrib submit</h2>
-                <div className="text-xs text-slate-500 font-mono mb-4">Alias: contrib pr</div>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib submit</h2>
+                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-4">Alias: contrib pr</div>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   Assists in submitting your work as a GitHub Pull Request. Verifies working tree status, prompts you to commit uncommitted files, pushes your branch to your personal fork, and generates a pre-filled PR link or GitHub CLI command.
                 </p>
                 <CodeBlock code="contrib submit [workspace-id] [--title <title>] [--body <body>]" />
@@ -1423,22 +1464,22 @@
 
               {/* Command: identity */}
               <section id="cmd-identity" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2 font-mono">contrib identity</h2>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib identity</h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   Manage multiple Git and SSH identities (e.g. personal, company, open-source) and apply them on a per-workspace basis without altering your global `~/.gitconfig`.
                 </p>
 
                 <div className="space-y-4">
                   <div>
-                    <span className="text-xs font-semibold text-slate-700">1. Add an identity:</span>
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">1. Add an identity:</span>
                     <CodeBlock code='contrib identity add personal --name "Jane Doe" --email "jane@personal.com" --ssh-key ~/.ssh/id_ed25519_personal' />
                   </div>
                   <div>
-                    <span className="text-xs font-semibold text-slate-700">2. Apply to current workspace:</span>
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">2. Apply to current workspace:</span>
                     <CodeBlock code="contrib identity use personal" />
                   </div>
                   <div>
-                    <span className="text-xs font-semibold text-slate-700">3. List all configured identities:</span>
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">3. List all configured identities:</span>
                     <CodeBlock code="contrib identity list" />
                   </div>
                 </div>
@@ -1446,13 +1487,13 @@
 
               {/* Command: doctor */}
               <section id="cmd-doctor" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2 font-mono">contrib doctor</h2>
-                <div className="text-xs text-slate-500 font-mono mb-4">Alias: contrib info</div>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib doctor</h2>
+                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-4">Alias: contrib info</div>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   Runs complete diagnostic health checks across your environment, git version, storage sizes, and GitHub API authentication.
                 </p>
                 <CodeBlock code="contrib doctor [workspace-id]" />
-                <ul className="list-disc list-inside text-xs text-slate-600 space-y-1">
+                <ul className="list-disc list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1">
                   <li>Checks Node.js runtime and Git executable in PATH</li>
                   <li>Inspects GitHub authentication tokens and remaining hourly rate limits</li>
                   <li>Calculates exact disk usage in `~/.contrib/workspaces` and `~/.contrib/cache`</li>
@@ -1462,12 +1503,12 @@
 
               {/* Command: alias */}
               <section id="cmd-alias" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2 font-mono">contrib alias / shell-init</h2>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib alias / shell-init</h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   Generates the <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">gcd</code> shell function for instant workspace jumping and shell tab-autocompletion across Bash, Zsh, Fish, and PowerShell.
                 </p>
                 <CodeBlock code="contrib alias --install" />
-                <p className="text-xs text-slate-500 mb-2">Once installed, jump into any workspace with tab completion:</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Once installed, jump into any workspace with tab completion:</p>
                 <CodeBlock code="gcd requests<TAB> # instantly cd's to ~/.contrib/workspaces/psf__requests__issue_6000" />
               </section>
 
@@ -1476,29 +1517,29 @@
                 <div className="text-xs font-semibold uppercase tracking-wider text-purple-600 mb-1 font-mono">
                   Context Intelligence
                 </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-4">Auto-Generated Workspace Files</h2>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Auto-Generated Workspace Files</h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   Every workspace automatically generates a hidden <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">.contrib/</code> directory (excluded from git commits via <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">.git/info/exclude</code>) containing:
                 </p>
 
                 <div className="space-y-4">
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                    <div className="font-mono font-bold text-sm text-slate-900 mb-1">.contrib/ISSUE.md</div>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
+                    <div className="font-mono font-bold text-sm text-slate-900 dark:text-white mb-1">.contrib/ISSUE.md</div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                       Complete Markdown representation of the GitHub issue, author, labels, description, extracted candidate file paths, and quick contribution commands.
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                    <div className="font-mono font-bold text-sm text-slate-900 mb-1">.contrib/AI_PROMPT.md</div>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
+                    <div className="font-mono font-bold text-sm text-slate-900 dark:text-white mb-1">.contrib/AI_PROMPT.md</div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                       Pre-formatted context prompt tailored for AI coding assistants (Claude Code, Antigravity, Cursor, Copilot) with repository contributing guidelines, style guides, and test scripts.
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                    <div className="font-mono font-bold text-sm text-slate-900 mb-1">.contrib/context.json</div>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
+                    <div className="font-mono font-bold text-sm text-slate-900 dark:text-white mb-1">.contrib/context.json</div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                       Machine-readable JSON schema tracking issue metadata, repository timestamps, and stack configurations.
                     </p>
                   </div>
@@ -1510,13 +1551,13 @@
                 <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-1 font-mono">
                   Security Guarantee
                 </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-4">Privacy & Security Policy</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Privacy & Security Policy</h2>
                 
                 <Callout type="security" title="Zero Telemetry & Local Containment">
                   `gsoc-contrib` is built with a strict privacy-first, local-first architecture. It does NOT collect, transmit, store, or log personal information, IP addresses, tracking metrics, or crash telemetry.
                 </Callout>
 
-                <div className="space-y-3 text-sm text-slate-600 leading-relaxed mt-4">
+                <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-4">
                   <p>
                     <strong>No External Backend:</strong> There are no servers, telemetry beacons, or databases operated by this project. Repository contents and diffs are never transmitted to any third-party server.
                   </p>
@@ -1534,51 +1575,51 @@
 
               {/* Network Audit Table */}
               <section id="network-audit" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h3 className="text-xl font-bold text-slate-900 mb-3">Network Request Audit</h3>
-                <p className="text-xs text-slate-500 mb-4">All outbound network requests are strictly limited to official GitHub endpoints or Git remotes:</p>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Network Request Audit</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">All outbound network requests are strictly limited to official GitHub endpoints or Git remotes:</p>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left border border-slate-200 dark:border-slate-800 rounded-lg">
-                    <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-semibold">
+                  <table className="w-full text-xs text-left border border-slate-200 dark:border-slate-700/80 rounded-lg overflow-hidden">
+                    <thead className="bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-bold">
                       <tr>
                         <th className="p-2.5">Endpoint / Operation</th>
                         <th className="p-2.5">Protocol</th>
                         <th className="p-2.5">Why It Exists</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 font-mono">
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">GET /repos/{'{owner}/{repo}'}/issues/{'{num}'}</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /repos/{'{owner}/{repo}'}/issues/{'{num}'}</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Retrieves public issue title, description body, labels, and author</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">GET /user</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /user</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Identifies authenticated username to check for existing personal forks</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">GET /repos/{'{user}/{repo}'}</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /repos/{'{user}/{repo}'}</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Checks if the user has a fork of the target repo to wire remotes</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">POST /repos/{'{owner}/{repo}'}/forks</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">POST /repos/{'{owner}/{repo}'}/forks</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Creates a user fork on GitHub when --fork is specified</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">GET /search/issues</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /search/issues</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Powers `contrib search` and `contrib browse` for good first issues</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">GET /rate_limit</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /rate_limit</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Powers `contrib init` and `contrib doctor` to display remaining quota</td>
                       </tr>
                       <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">git clone / fetch / push</td>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">git clone / fetch / push</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Git/SSH/HTTPS</td>
                         <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Standard Git operations communicating directly with target GitHub repository</td>
                       </tr>
