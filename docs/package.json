@@ -1,0 +1,13 @@
+{
+  "name": "contrib-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Official documentation portal for gsoc-contrib (contrib) CLI",
+  "scripts": {
+    "dev": "npx -y serve -l 5173 .",
+    "start": "npx -y serve -l 5173 ."
+  },
+  "keywords": ["documentation", "docs", "developer-tools", "gsoc-contrib", "cli"],
+  "author": "Anand",
+  "license": "MIT"
+}
