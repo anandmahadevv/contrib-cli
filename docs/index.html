@@ -42,7 +42,6 @@
   <!-- React 18 & Babel Standalone -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
     body {
@@ -132,1524 +131,1594 @@
 <body class="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
   <div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
-
-    // Icons
-    const StarIcon = ({ className = "w-4 h-4" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
-    );
-
-    const SunIcon = ({ className = "w-4 h-4" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="5" />
-        <line x1="12" y1="1" x2="12" y2="3" />
-        <line x1="12" y1="21" x2="12" y2="23" />
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-        <line x1="1" y1="12" x2="3" y2="12" />
-        <line x1="21" y1="12" x2="23" y2="12" />
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-      </svg>
-    );
-
-    const MoonIcon = ({ className = "w-4 h-4" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-      </svg>
-    );
-
-    const GithubIcon = ({ className = "w-4 h-4" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-      </svg>
-    );
-
-    const SearchIcon = ({ className = "w-4 h-4" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-      </svg>
-    );
-
-    const CloseIcon = ({ className = "w-4 h-4" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-      </svg>
-    );
-
-    const CornerDownLeftIcon = ({ className = "w-3.5 h-3.5" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="9 10 4 15 9 20" /><path d="M20 4v7a4 4 0 0 1-4 4H4" />
-      </svg>
-    );
-
-    const TerminalIcon = ({ className = "w-3.5 h-3.5" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" />
-      </svg>
-    );
-
-    const DocumentIcon = ({ className = "w-3.5 h-3.5" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-      </svg>
-    );
-
-    const ChevronUpIcon = ({ className = "w-3.5 h-3.5" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="18 15 12 9 6 15" />
-      </svg>
-    );
-
-    const ChevronDownIcon = ({ className = "w-3.5 h-3.5" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="6 9 12 15 18 9" />
-      </svg>
-    );
-
-    const HighlightText = ({ text, highlight }) => {
-      if (!highlight || !highlight.trim()) return <span>{text}</span>;
-      const terms = highlight.trim().split(/\s+/).filter(Boolean).map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-      if (terms.length === 0) return <span>{text}</span>;
-      const regex = new RegExp(`(${terms.join('|')})`, 'gi');
-      const parts = text.split(regex);
-      return (
-        <span>
-          {parts.map((part, i) =>
-            regex.test(part) ? (
-              <mark key={i} className="bg-amber-200/90 dark:bg-amber-400/30 text-slate-900 dark:text-amber-200 font-semibold px-0.5 rounded-xs">
-                {part}
-              </mark>
-            ) : (
-              part
-            )
-          )}
-        </span>
-      );
-    };
-
-    const CopyIcon = ({ className = "w-3.5 h-3.5" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-      </svg>
-    );
-
-    const CheckIcon = ({ className = "w-3.5 h-3.5" }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-    );
-
-    const CodeBlock = ({ code, language = "bash" }) => {
-      const [copied, setCopied] = useState(false);
-
-      const onCopy = () => {
-        navigator.clipboard.writeText(code);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      };
-
-      return (
-        <div className="relative my-4 rounded-xl bg-slate-900 dark:bg-slate-950/90 border border-slate-800 dark:border-slate-800 text-slate-100 overflow-hidden font-mono text-sm shadow-md group">
-          <div className="flex items-center justify-between px-4 py-2 bg-slate-950/80 dark:bg-slate-900/90 border-b border-slate-800 text-xs text-slate-400 dark:text-slate-300">
-            <span>{language}</span>
-            <button
-              onClick={onCopy}
-              className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors py-0.5 px-2 rounded hover:bg-slate-800"
-            >
-              {copied ? (
-                <>
-                  <CheckIcon className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-400">Copied</span>
-                </>
-              ) : (
-                <>
-                  <CopyIcon className="w-3.5 h-3.5" />
-                  <span>Copy</span>
-                </>
-              )}
-            </button>
-          </div>
-          <pre className="p-4 overflow-x-auto text-xs sm:text-sm leading-relaxed">
-            <code>{code}</code>
-          </pre>
-        </div>
-      );
-    };
-
-    const Callout = ({ type = "note", title, children }) => {
-      const styles = {
-        note: "bg-blue-50/70 dark:bg-blue-950/60 border-blue-300 dark:border-blue-500/40 text-blue-950 dark:text-blue-100",
-        tip: "bg-emerald-50/70 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-500/40 text-emerald-950 dark:text-emerald-100",
-        warning: "bg-amber-50/70 dark:bg-amber-950/60 border-amber-300 dark:border-amber-500/40 text-amber-950 dark:text-amber-100",
-        security: "bg-purple-50/70 dark:bg-purple-950/60 border-purple-300 dark:border-purple-500/40 text-purple-950 dark:text-purple-100",
-      };
-
-      return (
-        <div className={`my-5 p-4 rounded-xl border ${styles[type]} text-sm leading-relaxed`}>
-          {title && <div className="font-semibold mb-1 text-xs uppercase tracking-wider">{title}</div>}
-          <div>{children}</div>
-        </div>
-      );
-    };
-
-    const SEARCH_INDEX = [
-      {
-        id: "overview",
-        title: "Overview & Problem Statement",
-        category: "Getting Started",
-        badge: "Concept",
-        keywords: "gsoc open source disk space bandwidth blobless worktree clone 94.2% sub-second monorepo problems",
-        description: "Why gsoc-contrib was built: massive disk savings, blobless clones, and sub-second workspace isolation."
-      },
-      {
-        id: "installation",
-        title: "Installation & Setup",
-        category: "Getting Started",
-        badge: "Setup",
-        keywords: "npm install -g gsoc-contrib npx python pip contrib-cli binary global package",
-        description: "Install globally via npm, run on demand with npx, or install Python package via pip."
-      },
-      {
-        id: "quickstart",
-        title: "Quick Start Tutorial",
-        category: "Getting Started",
-        badge: "Tutorial",
-        keywords: "quickstart workflow tutorial start work sync submit pull request pr 4 steps",
-        description: "4-step contribution workflow from picking an issue URL to published pull request."
-      },
-      {
-        id: "cmd-start",
-        title: "contrib start <issue-or-repo>",
-        category: "Workspace Commands",
-        badge: "Command",
-        keywords: "start clone sparse branch fork clean dry-run no-open editor issue url blobless worktree",
-        description: "Create an isolated blobless git worktree workspace linked directly to a GitHub issue."
-      },
-      {
-        id: "cmd-open",
-        title: "contrib open [workspace-id]",
-        category: "Workspace Commands",
-        badge: "Command",
-        keywords: "open ide editor cursor vscode zed nvim vim subl idea antigravity print launch",
-        description: "Launch your workspace in Cursor, VS Code, Zed, Neovim, JetBrains, or Antigravity."
-      },
-      {
-        id: "cmd-dashboard",
-        title: "contrib dashboard",
-        category: "Workspace Commands",
-        badge: "Command",
-        keywords: "dashboard web ui browser port localhost disk monitor active workspaces visual",
-        description: "Open local interactive web dashboard monitoring active workspaces and disk usage."
-      },
-      {
-        id: "cmd-status",
-        title: "contrib status",
-        category: "Workspace Commands",
-        badge: "Command",
-        keywords: "status list all json full branches dirty uncommitted active workspaces table",
-        description: "List all active contribution workspaces, dirty git status, branch names, and paths."
-      },
-      {
-        id: "cmd-cleanup",
-        title: "contrib cleanup [workspace-id]",
-        category: "Workspace Commands",
-        badge: "Command",
-        keywords: "cleanup remove delete delete-workspace force all dry-run disk free prune worktree",
-        description: "Safely remove workspace worktrees, prune git references, and reclaim disk space."
-      },
-      {
-        id: "cmd-sync",
-        title: "contrib sync",
-        category: "Git & PR Flow",
-        badge: "Command",
-        keywords: "sync upstream fetch rebase pull main default branch update ours theirs merge",
-        description: "Fetch upstream repository and cleanly rebase or merge changes into your branch."
-      },
-      {
-        id: "cmd-diff",
-        title: "contrib diff",
-        category: "Git & PR Flow",
-        badge: "Command",
-        keywords: "diff stat cached changes inspect modified patch staged unstaged upstream",
-        description: "Inspect staged, unstaged, or upstream diffs for your current workspace."
-      },
-      {
-        id: "cmd-submit",
-        title: "contrib submit / contrib pr",
-        category: "Git & PR Flow",
-        badge: "Command",
-        keywords: "submit pr pull-request draft title body issue push fork automated github",
-        description: "Push commits to your fork and automatically open a pull request linking the issue."
-      },
-      {
-        id: "cmd-identity",
-        title: "contrib identity",
-        category: "Git & PR Flow",
-        badge: "Command",
-        keywords: "identity ssh git user name email signing personal work switch add list use remove",
-        description: "Manage multiple Git and SSH author identities (personal, work, GSoC) seamlessly."
-      },
-      {
-        id: "cmd-search",
-        title: "contrib search <query>",
-        category: "Discovery & Heuristics",
-        badge: "Command",
-        keywords: "search find issues github label good-first-issue help-wanted language limit query",
-        description: "Search open GitHub issues by labels, keywords, languages, and difficulty."
-      },
-      {
-        id: "cmd-browse",
-        title: "contrib browse",
-        category: "Discovery & Heuristics",
-        badge: "Command",
-        keywords: "browse tui interactive terminal keyboard select issue filter curses interface",
-        description: "Interactive full-terminal browser for exploring and picking issues to start on."
-      },
-      {
-        id: "cmd-analyze",
-        title: "contrib analyze [path]",
-        category: "Discovery & Heuristics",
-        badge: "Command",
-        keywords: "analyze ai gemini groq heuristics guidelines contributing linter prompt context",
-        description: "Scan repository guidelines, linters, PR templates, and produce AI contribution prompts."
-      },
-      {
-        id: "cmd-stats",
-        title: "contrib stats",
-        category: "Discovery & Heuristics",
-        badge: "Command",
-        keywords: "stats disk savings bandwidth time metrics json reset lifetime numbers",
-        description: "View lifetime disk savings, clones avoided, and hours saved by blobless checkouts."
-      },
-      {
-        id: "context-files",
-        title: "Context Files (.contrib/ISSUE.md)",
-        category: "Discovery & Heuristics",
-        badge: "Guide",
-        keywords: "context files issue.md context.json ai prompt llm instructions stack auto-generated",
-        description: "Automated issue metadata, reproduction steps, and stack context generated in every workspace."
-      },
-      {
-        id: "cmd-doctor",
-        title: "contrib doctor",
-        category: "Diagnostics & Environment",
-        badge: "Command",
-        keywords: "doctor diagnostics git gh node ssh disk connectivity check environment rate-limit",
-        description: "Verify git, GitHub CLI, SSH keys, disk capacity, and network connectivity health."
-      },
-      {
-        id: "cmd-init",
-        title: "contrib init",
-        category: "Diagnostics & Environment",
-        badge: "Command",
-        keywords: "init configure setup token editor root path directory storage wizard",
-        description: "Interactive initial configuration setup for storage paths, editors, and tokens."
-      },
-      {
-        id: "cmd-alias",
-        title: "contrib alias (gcd)",
-        category: "Diagnostics & Environment",
-        badge: "Command",
-        keywords: "alias gcd shell integration bash zsh fish powershell cd navigation fast shortcut",
-        description: "Shell integration enabling `gcd <workspace>` instant terminal directory switching."
-      },
-      {
-        id: "offline-engine",
-        title: "Smart Offline Engine",
-        category: "Diagnostics & Environment",
-        badge: "Guide",
-        keywords: "offline cache no-network bare repo fallback airplane mode metadata sync disconnected",
-        description: "Work offline without internet access using local bare repository mirrors and cached metadata."
-      },
-      {
-        id: "architecture",
-        title: "Blobless Git Architecture",
-        category: "Architecture",
-        badge: "Architecture",
-        keywords: "architecture blobless filter blob none worktree bare repo git objects shared disk savings",
-        description: "How contrib achieves 95% disk savings with shared bare repositories and git worktrees."
-      },
-      {
-        id: "privacy-security",
-        title: "Privacy & Security Policy",
-        category: "Security & Policy",
-        badge: "Security",
-        keywords: "privacy security zero telemetry token redacting local credentials no tracking audit sandboxed",
-        description: "Strict zero-telemetry commitment, automatic token redacting, and sandboxed storage."
-      },
-      {
-        id: "network-audit",
-        title: "Audited Network Requests",
-        category: "Security & Policy",
-        badge: "Security",
-        keywords: "network audit api.github.com endpoints https requests transparent privacy inspect",
-        description: "Exhaustive documentation of all external network requests initiated by the CLI."
-      }
-    ];
-
-    const SearchModal = ({ isOpen, onClose, onSelect, onOpenFindInPage }) => {
-      const [query, setQuery] = useState('');
-      const [selectedCategory, setSelectedCategory] = useState('All');
-      const [selectedIndex, setSelectedIndex] = useState(0);
-      const inputRef = useRef(null);
-
-      const categories = ['All', 'Workspace', 'Git & PR', 'Discovery', 'Diagnostics', 'Architecture', 'Security'];
-
-      useEffect(() => {
-        if (isOpen) {
-          setQuery('');
-          setSelectedCategory('All');
-          setSelectedIndex(0);
-          setTimeout(() => inputRef.current?.focus(), 50);
-        }
-      }, [isOpen]);
-
-      const results = useMemo(() => {
-        let pool = SEARCH_INDEX;
-        if (selectedCategory !== 'All') {
-          pool = pool.filter(x => x.category.toLowerCase().includes(selectedCategory.toLowerCase()));
-        }
-
-        const q = query.trim().toLowerCase();
-        if (!q) {
-          return pool.slice(0, 6);
-        }
-
-        const terms = q.split(/\s+/).filter(Boolean);
-        return pool.filter(item => {
-          const haystack = `${item.title} ${item.category} ${item.keywords} ${item.description}`.toLowerCase();
-          return terms.every(t => haystack.includes(t));
-        }).slice(0, 8);
-      }, [query, selectedCategory]);
-
-      useEffect(() => {
-        setSelectedIndex(0);
-      }, [results]);
-
-      const handleKeyDown = (e) => {
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          setSelectedIndex(prev => (prev + 1) % Math.max(1, results.length));
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          setSelectedIndex(prev => (prev - 1 + results.length) % Math.max(1, results.length));
-        } else if (e.key === 'Enter') {
-          e.preventDefault();
-          if (results[selectedIndex]) {
-            onSelect(results[selectedIndex].id);
-          }
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          onClose();
-        }
-      };
-
-      if (!isOpen) return null;
-
-      return (
-        <div 
-          className="fixed inset-0 z-50 bg-slate-900/40 dark:bg-black/70 backdrop-blur-md flex items-start justify-center pt-16 sm:pt-24 px-4"
-          onClick={onClose}
-        >
-          <div 
-            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl overflow-hidden flex flex-col max-h-[85vh] transition-all"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={handleKeyDown}
-          >
-            {/* Search Input Row */}
-            <div className="flex items-center px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 gap-3">
-              <SearchIcon className="w-5 h-5 text-slate-400 shrink-0" />
-              <input
-                ref={inputRef}
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search commands, flags, architecture, guides..."
-                className="w-full bg-transparent text-sm sm:text-base text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
-              />
-              {query && (
-                <button 
-                  onClick={() => setQuery('')}
-                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                  title="Clear search"
-                >
-                  <CloseIcon className="w-4 h-4" />
-                </button>
-              )}
-              <kbd className="hidden sm:inline-block text-[10px] font-mono font-semibold bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-700">
-                ESC
-              </kbd>
-            </div>
-
-            {/* Category Filter Tabs */}
-            <div className="flex items-center gap-1.5 px-4 py-2 bg-slate-50/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800 overflow-x-auto text-xs">
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-2.5 py-1 rounded-lg font-medium transition-all text-[11px] whitespace-nowrap cursor-pointer ${
-                    selectedCategory === cat 
-                      ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-2xs' 
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* Results Header */}
-            <div className="px-4 py-1.5 bg-slate-100/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              <span>{query.trim() ? `Found ${results.length} results` : 'Popular Searches & Topics'}</span>
-              <span className="font-mono text-slate-400 dark:text-slate-500 lowercase font-normal">{selectedCategory}</span>
-            </div>
-
-            {/* Results List */}
-            <div className="overflow-y-auto p-2 divide-y divide-slate-50 dark:divide-slate-800/60 max-h-96">
-              {results.length === 0 ? (
-                <div className="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
-                  <div className="text-slate-400 dark:text-slate-500 mb-2 font-medium">No documentation found for "{query}"</div>
-                  <div className="text-xs text-slate-400 dark:text-slate-500">
-                    Try searching for <span className="text-slate-700 dark:text-slate-300 font-mono">start</span>, <span className="text-slate-700 dark:text-slate-300 font-mono">sparse</span>, <span className="text-slate-700 dark:text-slate-300 font-mono">worktree</span>, <span className="text-slate-700 dark:text-slate-300 font-mono">doctor</span>, or switch category.
-                  </div>
-                </div>
-              ) : (
-                results.map((item, idx) => (
-                  <button
-                    key={item.id}
-                    onClick={() => onSelect(item.id)}
-                    onMouseEnter={() => setSelectedIndex(idx)}
-                    className={`w-full text-left p-3 rounded-xl transition-all flex items-start gap-3 group cursor-pointer ${
-                      idx === selectedIndex 
-                        ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-xs' 
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-800 dark:text-slate-200'
-                    }`}
-                  >
-                    <div className={`mt-0.5 p-2 rounded-lg shrink-0 ${
-                      idx === selectedIndex 
-                        ? 'bg-slate-800 dark:bg-blue-700 text-white' 
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                    }`}>
-                      {item.badge === 'Command' ? (
-                        <TerminalIcon className="w-4 h-4" />
-                      ) : (
-                        <DocumentIcon className="w-4 h-4" />
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded font-mono uppercase tracking-wider ${
-                          idx === selectedIndex 
-                            ? 'bg-slate-800 dark:bg-blue-700 text-slate-300 dark:text-blue-100' 
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                        }`}>
-                          {item.category}
-                        </span>
-                        <h4 className="text-sm font-semibold truncate tracking-tight">
-                          <HighlightText text={item.title} highlight={query} />
-                        </h4>
-                      </div>
-                      <p className={`text-xs line-clamp-1 leading-normal ${
-                        idx === selectedIndex ? 'text-slate-300 dark:text-blue-100' : 'text-slate-500 dark:text-slate-400'
-                      }`}>
-                        <HighlightText text={item.description} highlight={query} />
-                      </p>
-                    </div>
-
-                    <div className={`shrink-0 self-center ${
-                      idx === selectedIndex ? 'text-slate-200' : 'text-slate-300 dark:text-slate-600 group-hover:text-slate-500 dark:group-hover:text-slate-300'
-                    }`}>
-                      <CornerDownLeftIcon className="w-4 h-4" />
-                    </div>
-                  </button>
-                ))
-              )}
-            </div>
-
-            {/* Modal Footer with Google Docs Find switch */}
-            <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1">
-                  <kbd className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1 rounded shadow-2xs font-mono text-[10px] text-slate-600 dark:text-slate-300">↑</kbd>
-                  <kbd className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1 rounded shadow-2xs font-mono text-[10px] text-slate-600 dark:text-slate-300">↓</kbd>
-                  <span>navigate</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  <kbd className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1 rounded shadow-2xs font-mono text-[10px] text-slate-600 dark:text-slate-300">↵</kbd>
-                  <span>select</span>
-                </span>
-              </div>
-              <button
-                onClick={() => { onClose(); onOpenFindInPage(); }}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold flex items-center gap-1 cursor-pointer"
-              >
-                <span>Find in text (Ctrl+F)</span>
-                <span>↗</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    const GoogleDocsFindBar = ({ isOpen, onClose }) => {
-      const [findText, setFindText] = useState('');
-      const [matchCount, setMatchCount] = useState(0);
-      const [currentMatch, setCurrentMatch] = useState(0);
-      const findInputRef = useRef(null);
-
-      useEffect(() => {
-        if (isOpen) {
-          setTimeout(() => {
-            findInputRef.current?.focus();
-            findInputRef.current?.select();
-          }, 50);
-        } else {
-          clearHighlights();
-          setFindText('');
-          setMatchCount(0);
-          setCurrentMatch(0);
-        }
-      }, [isOpen]);
-
-      const clearHighlights = () => {
-        const main = document.querySelector('main');
-        if (!main) return;
-        const marks = main.querySelectorAll('mark.gdoc-match');
-        marks.forEach(mark => {
-          const parent = mark.parentNode;
-          if (parent) {
-            parent.replaceChild(document.createTextNode(mark.textContent), mark);
-            parent.normalize();
-          }
-        });
-      };
-
-      const performSearch = (text, targetIdx = 0) => {
-        clearHighlights();
-        const clean = text.trim();
-        if (!clean || clean.length < 2) {
-          setMatchCount(0);
-          setCurrentMatch(0);
-          return;
-        }
-
-        const main = document.querySelector('main');
-        if (!main) return;
-
-        const regex = new RegExp(`(${clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-        const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
-          acceptNode(node) {
-            if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
-            const tag = node.parentElement?.tagName;
-            if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'BUTTON' || tag === 'INPUT' || tag === 'TEXTAREA') {
-              return NodeFilter.FILTER_REJECT;
-            }
-            return regex.test(node.textContent) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-          }
-        });
-
-        const textNodes = [];
-        while (walker.nextNode()) {
-          textNodes.push(walker.currentNode);
-        }
-
-        let count = 0;
-        textNodes.forEach(node => {
-          const parent = node.parentNode;
-          if (!parent) return;
-          const textVal = node.textContent;
-          const parts = textVal.split(regex);
-          const fragment = document.createDocumentFragment();
-
-          parts.forEach(part => {
-            if (part.toLowerCase() === clean.toLowerCase()) {
-              const mark = document.createElement('mark');
-              mark.className = `gdoc-match px-0.5 transition-all duration-150 ${
-                count === targetIdx 
-                  ? 'gdoc-match-active' 
-                  : 'gdoc-match-normal'
-              }`;
-              mark.dataset.matchIndex = count;
-              mark.textContent = part;
-              fragment.appendChild(mark);
-              count++;
-            } else if (part) {
-              fragment.appendChild(document.createTextNode(part));
-            }
-          });
-
-          parent.replaceChild(fragment, node);
-        });
-
-        setMatchCount(count);
-        if (count > 0) {
-          const boundedIndex = Math.min(targetIdx, count - 1);
-          setCurrentMatch(boundedIndex);
-          const activeEl = main.querySelector(`mark.gdoc-match[data-match-index="${boundedIndex}"]`);
-          if (activeEl) {
-            activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        } else {
-          setCurrentMatch(0);
-        }
-      };
-
-      const handleTextChange = (e) => {
-        const val = e.target.value;
-        setFindText(val);
-        performSearch(val, 0);
-      };
-
-      const goToNext = () => {
-        if (matchCount === 0) return;
-        const nextIndex = (currentMatch + 1) % matchCount;
-        updateActiveMatch(nextIndex);
-      };
-
-      const goToPrev = () => {
-        if (matchCount === 0) return;
-        const prevIndex = (currentMatch - 1 + matchCount) % matchCount;
-        updateActiveMatch(prevIndex);
-      };
-
-      const updateActiveMatch = (newIndex) => {
-        setCurrentMatch(newIndex);
-        const main = document.querySelector('main');
-        if (!main) return;
-        const marks = main.querySelectorAll('mark.gdoc-match');
-        marks.forEach((mark, idx) => {
-          if (idx === newIndex) {
-            mark.className = 'gdoc-match px-0.5 transition-all duration-150 gdoc-match-active';
-            mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          } else {
-            mark.className = 'gdoc-match px-0.5 transition-all duration-150 gdoc-match-normal';
-          }
-        });
-      };
-
-      const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          if (e.shiftKey) {
-            goToPrev();
-          } else {
-            goToNext();
-          }
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          onClose();
-        }
-      };
-
-      if (!isOpen) return null;
-
-      return (
-        <div className="fixed top-20 right-4 sm:right-8 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-300 dark:border-slate-700 shadow-2xl rounded-xl p-2 flex items-center gap-2 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
-          <div className="flex items-center gap-1.5 pl-2 pr-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
-            <SearchIcon className="w-3.5 h-3.5 text-slate-400" />
-            <input
-              ref={findInputRef}
-              type="text"
-              value={findText}
-              onChange={handleTextChange}
-              onKeyDown={handleKeyDown}
-              placeholder="Find in document..."
-              className="w-32 sm:w-48 bg-transparent text-xs text-slate-900 dark:text-slate-100 focus:outline-none placeholder-slate-400 dark:placeholder-slate-500"
-            />
-            {findText && (
-              <button
-                onClick={() => { setFindText(''); clearHighlights(); setMatchCount(0); setCurrentMatch(0); }}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 cursor-pointer"
-                title="Clear"
-              >
-                <CloseIcon className="w-3 h-3" />
-              </button>
-            )}
-          </div>
-
-          <div className="text-[11px] font-mono font-semibold px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-700 dark:text-slate-300 min-w-[58px] text-center select-none">
-            {findText.trim().length >= 2 ? (
-              matchCount > 0 ? `${currentMatch + 1}/${matchCount}` : '0 of 0'
-            ) : (
-              '0 found'
-            )}
-          </div>
-
-          <div className="flex items-center gap-0.5 border-l border-slate-200 dark:border-slate-700 pl-1">
-            <button
-              onClick={goToPrev}
-              disabled={matchCount === 0}
-              className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent rounded cursor-pointer transition-colors"
-              title="Previous match (Shift+Enter)"
-            >
-              <ChevronUpIcon className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={goToNext}
-              disabled={matchCount === 0}
-              className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent rounded cursor-pointer transition-colors"
-              title="Next match (Enter)"
-            >
-              <ChevronDownIcon className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded ml-1 cursor-pointer transition-colors"
-            title="Close find bar (Esc)"
-          >
-            <CloseIcon className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      );
-    };
-
-    function DocsApp() {
-      const [theme, setTheme] = useState(() => {
-        try {
-          const saved = localStorage.getItem('contrib_theme');
-          if (saved === 'dark' || saved === 'light') return saved;
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return 'dark';
-          }
-        } catch (e) {}
-        return 'light';
-      });
-      const [activeSection, setActiveSection] = useState('overview');
-      const [isSearchOpen, setIsSearchOpen] = useState(false);
-      const [isFindBarOpen, setIsFindBarOpen] = useState(false);
-      const [sidebarFilter, setSidebarFilter] = useState('');
-
-      useEffect(() => {
-        const root = document.documentElement;
-        if (theme === 'dark') {
-          root.classList.add('dark');
-        } else {
-          root.classList.remove('dark');
-        }
-        try {
-          localStorage.setItem('contrib_theme', theme);
-        } catch (e) {}
-      }, [theme]);
-
-      // Global keyboard shortcuts (Cmd+K / Ctrl+K, Cmd+F / Ctrl+F, /)
-      useEffect(() => {
-        const handleKeyDown = (e) => {
-          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-            e.preventDefault();
-            setIsSearchOpen(prev => !prev);
-          } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
-            e.preventDefault();
-            setIsFindBarOpen(true);
-          } else if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-            e.preventDefault();
-            setIsSearchOpen(true);
-          }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-      }, []);
-
-      const handleSelectSection = (id) => {
-        setIsSearchOpen(false);
-        setActiveSection(id);
-        window.location.hash = id;
-        setTimeout(() => {
-          const el = document.getElementById(id);
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            el.classList.add('ring-2', 'ring-blue-500', 'ring-offset-8', 'transition-all', 'duration-300', 'rounded-xl');
-            setTimeout(() => {
-              el.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-8');
-            }, 1800);
-          }
-        }, 50);
-      };
-
-      const navSections = [
-        {
-          group: "Getting Started",
-          items: [
-            { id: "overview", label: "Overview & Problem" },
-            { id: "installation", label: "Installation & Setup" },
-            { id: "quickstart", label: "Quick Start Tutorial" },
-          ]
-        },
-        {
-          group: "Workspace Management",
-          items: [
-            { id: "cmd-start", label: "contrib start" },
-            { id: "cmd-open", label: "contrib open" },
-            { id: "cmd-dashboard", label: "contrib dashboard" },
-            { id: "cmd-status", label: "contrib status" },
-            { id: "cmd-cleanup", label: "contrib cleanup" },
-          ]
-        },
-        {
-          group: "Git & Pull Request Flow",
-          items: [
-            { id: "cmd-sync", label: "contrib sync" },
-            { id: "cmd-diff", label: "contrib diff" },
-            { id: "cmd-submit", label: "contrib submit / pr" },
-            { id: "cmd-identity", label: "contrib identity" },
-          ]
-        },
-        {
-          group: "Discovery & AI Heuristics",
-          items: [
-            { id: "cmd-search", label: "contrib search" },
-            { id: "cmd-browse", label: "contrib browse" },
-            { id: "cmd-analyze", label: "contrib analyze" },
-            { id: "cmd-stats", label: "contrib stats" },
-            { id: "context-files", label: "Auto Context (.contrib/)" },
-          ]
-        },
-        {
-          group: "Diagnostics & Environment",
-          items: [
-            { id: "cmd-doctor", label: "contrib doctor" },
-            { id: "cmd-init", label: "contrib init" },
-            { id: "cmd-alias", label: "contrib alias (gcd)" },
-            { id: "offline-engine", label: "Smart Offline Engine" },
-          ]
-        },
-        {
-          group: "Architecture & Security",
-          items: [
-            { id: "architecture", label: "Blobless Git Architecture" },
-            { id: "privacy-security", label: "Privacy & Security Policy" },
-            { id: "network-audit", label: "Network Request Audit" },
-          ]
-        }
-      ];
-
-      const filteredNavSections = useMemo(() => {
-        if (!sidebarFilter.trim()) return navSections;
-        const q = sidebarFilter.trim().toLowerCase();
-        return navSections.map(group => ({
-          ...group,
-          items: group.items.filter(item => 
-            item.label.toLowerCase().includes(q) || item.id.toLowerCase().includes(q)
-          )
-        })).filter(group => group.items.length > 0);
-      }, [sidebarFilter, navSections]);
-
-      return (
-        <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
-          {/* Top Navbar */}
-          <header className="sticky top-0 z-30 h-16 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <a href="#overview" className="flex items-center gap-2.5">
-                <div className="w-7 h-7 bg-slate-900 dark:bg-blue-600 text-white rounded-lg flex items-center justify-center">
-                  <StarIcon className="w-3.5 h-3.5 fill-white text-white" />
-                </div>
-                <span className="font-bold tracking-tight text-slate-900 dark:text-white text-base">gsoc-contrib</span>
-                <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono px-2 py-0.5 rounded-full">v0.4.0</span>
-              </a>
-
-              <div className="hidden lg:flex items-center gap-5 text-sm font-medium text-slate-600 dark:text-slate-400">
-                <a href="#overview" className="text-slate-900 dark:text-white hover:text-black dark:hover:text-white font-semibold">Documentation</a>
-                <a href="#cmd-start" className="hover:text-black dark:hover:text-white">CLI Reference</a>
-                <a href="#privacy-security" className="hover:text-black dark:hover:text-white">Security Policy</a>
-                <a href="#architecture" className="hover:text-black dark:hover:text-white">Architecture</a>
-              </div>
-            </div>
-
-            {/* Right Tools & Search */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsSearchOpen(true)}
-                className="flex items-center gap-2 w-36 sm:w-56 pl-3 pr-2 py-1.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 rounded-lg text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors border border-slate-200/60 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 group cursor-pointer"
-                title="Search documentation (⌘K / Ctrl+K)"
-              >
-                <SearchIcon className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 shrink-0" />
-                <span className="flex-1 text-left truncate">Search docs...</span>
-                <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 rounded shadow-2xs">
-                  <span>⌘</span><span>K</span>
-                </kbd>
-              </button>
-
-              <button
-                onClick={() => setIsFindBarOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white border border-slate-200/60 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors cursor-pointer"
-                title="Find in page like Google Docs (Ctrl+F)"
-              >
-                <span>Find</span>
-                <kbd className="hidden md:inline text-[9px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1 py-0.5 rounded text-slate-500 dark:text-slate-400">
-                  Ctrl+F
-                </kbd>
-              </button>
-
-              {/* Dark Theme Toggle Button */}
-              <button
-                onClick={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
-                className="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? (
-                  <SunIcon className="w-4 h-4 text-amber-400" />
-                ) : (
-                  <MoonIcon className="w-4 h-4 text-slate-600" />
-                )}
-              </button>
-
-              <a
-                href="https://github.com/anandmahadevv/contrib-cli"
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 px-3 py-1.5 rounded-lg"
-              >
-                <GithubIcon className="w-3.5 h-3.5" />
-                <span>GitHub</span>
-              </a>
-
-              <a
-                href="https://www.npmjs.com/package/gsoc-contrib"
-                target="_blank"
-                rel="noreferrer"
-                className="hidden md:flex items-center gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-900/50 px-3 py-1.5 rounded-lg"
-              >
-                <span>npm</span>
-              </a>
-            </div>
-          </header>
-
-          {/* Search Modal */}
-          <SearchModal 
-            isOpen={isSearchOpen} 
-            onClose={() => setIsSearchOpen(false)} 
-            onSelect={handleSelectSection} 
-            onOpenFindInPage={() => setIsFindBarOpen(true)}
-          />
-
-          {/* Google Docs In-Page Find Bar */}
-          <GoogleDocsFindBar 
-            isOpen={isFindBarOpen}
-            onClose={() => setIsFindBarOpen(false)}
-          />
-
-          {/* Docs Container */}
-          <div className="flex-1 max-w-7xl mx-auto w-full flex px-4 sm:px-6 lg:px-8">
-            {/* Left Sidebar */}
-            <aside className="w-64 shrink-0 hidden md:block py-8 pr-6 border-r border-slate-100 dark:border-slate-800/80 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
-              {/* In-sidebar Quick Filter */}
-              <div className="mb-6">
-                <div className="relative">
-                  <SearchIcon className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Filter navigation..."
-                    value={sidebarFilter}
-                    onChange={(e) => setSidebarFilter(e.target.value)}
-                    className="w-full pl-8 pr-7 py-1.5 bg-slate-50 hover:bg-slate-100 focus:bg-white dark:bg-slate-900 dark:hover:bg-slate-850 dark:focus:bg-slate-900 text-xs border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-blue-500 transition-all placeholder-slate-400 dark:placeholder-slate-500 text-slate-900 dark:text-slate-100"
-                  />
-                  {sidebarFilter && (
-                    <button 
-                      onClick={() => setSidebarFilter('')}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                    >
-                      <CloseIcon className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-7">
-                {filteredNavSections.length === 0 ? (
-                  <div className="text-xs text-slate-400 dark:text-slate-500 py-4 text-center">
-                    No matching topics.
-                  </div>
-                ) : (
-                  filteredNavSections.map((group, gIdx) => (
-                    <div key={gIdx}>
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-                        {group.group}
-                      </div>
-                      <ul className="space-y-1">
-                        {group.items.map((item) => (
-                          <li key={item.id}>
-                            <a
-                              href={`#${item.id}`}
-                              onClick={() => handleSelectSection(item.id)}
-                              className={`block text-xs py-1.5 px-2.5 rounded-lg transition-all ${
-                                activeSection === item.id
-                                  ? 'bg-blue-50 dark:bg-blue-950/50 font-semibold text-blue-700 dark:text-blue-300 border-l-2 border-blue-600 dark:border-blue-400 shadow-2xs'
-                                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                              }`}
-                            >
-                              {item.label}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))
-                )}
-              </div>
-            </aside>
-
-            {/* Main Documentation Content */}
-            <main className="flex-1 min-w-0 py-8 md:px-12">
-              {/* Overview */}
-              <section id="overview" className="mb-16 scroll-mt-24">
-                <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono">
-                  Getting Started
-                </div>
-                <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">
-                  gsoc-contrib (`contrib`) Documentation
-                </h1>
-                <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
-                  A fast, lightweight contribution workspace manager for GitHub issues and pull requests
-                  designed for open-source contributors (such as Google Summer of Code, Hacktoberfest, and day-to-day open-source maintainers).
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">94.2%</div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">Bandwidth saved via blobless trees</div>
-                  </div>
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">1.2s</div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">Sub-second workspace setup</div>
-                  </div>
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Zero</div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">Telemetry, cookies, or tracking</div>
-                  </div>
-                </div>
-
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-10 mb-3">The Problem</h2>
-                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
-                  When contributing to open-source repositories, developers frequently clone massive git repositories (often 1GB–10GB) just to fix a single bug or submit a small pull request.
-                  This leads to wasted bandwidth downloading years of untouched blobs, redundant copies filling local hard drives, and slow onboarding.
-                </p>
-
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-10 mb-3">The Solution</h2>
-                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
-                  <code className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1.5 py-0.5 rounded font-mono">gsoc-contrib</code> creates instant, isolated, lightweight workspaces using Git blobless checkouts (<code className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1.5 py-0.5 rounded font-mono">--filter=blob:none</code>) and Git worktrees. It automatically parses issue metadata, detects your tech stack, generates relevant context files, and manages pull request rebases and submissions.
-                </p>
-              </section>
-
-              {/* Installation */}
-              <section id="installation" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono">
-                  Setup
-                </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Installation</h2>
-                
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Option 1: Run instantly with npx (No install required)</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">The fastest way to use contrib is through npx:</p>
-                <CodeBlock code="npx gsoc-contrib <command>" />
-
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-8 mb-2">Option 2: Install globally via npm</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">To have the `contrib` and `gsoc-contrib` binaries in your system PATH:</p>
-                <CodeBlock code="npm install -g gsoc-contrib" />
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Once installed globally, you can invoke either <code className="font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded">contrib</code> or <code className="font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded">gsoc-contrib</code>.</p>
-
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-8 mb-2">System Prerequisites</h3>
-                <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-300 space-y-1">
-                  <li><strong>Node.js</strong>: v18.0.0 or higher</li>
-                  <li><strong>Git</strong>: v2.25.0 or higher (with blobless and sparse-checkout support)</li>
-                  <li><strong>OS</strong>: Linux, macOS, or Windows (PowerShell/CMD/WSL)</li>
-                </ul>
-              </section>
-
-              {/* Quickstart */}
-              <section id="quickstart" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono">
-                  Tutorial
-                </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Quick Start Tutorial</h2>
-
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">1. Verify Environment</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Run init to inspect Node.js, Git, storage paths, and GitHub API rate limits:</p>
-                    <CodeBlock code="contrib init" />
-                  </div>
-
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">2. Search for First Contribution Tasks</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Find beginner-friendly issues in any open-source repo:</p>
-                    <CodeBlock code='contrib search "good first issue" --repo psf/requests' />
-                  </div>
-
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">3. Spawn an Instant Workspace</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Create an isolated blobless workspace with auto-generated context:</p>
-                    <CodeBlock code="contrib start https://github.com/psf/requests/issues/6000 --worktree --install" />
-                  </div>
-
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">4. Open in Your Favorite Editor</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Launch directly into VS Code, Cursor, Antigravity IDE, or terminal editors:</p>
-                    <CodeBlock code="contrib open --cursor" />
-                  </div>
-
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">5. Synchronize with Upstream Changes</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Fetch and rebase your branch on upstream/main at any time:</p>
-                    <CodeBlock code="contrib sync --push" />
-                  </div>
-
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">6. Submit Your Pull Request</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Verify clean working trees and generate a 1-click GitHub PR link:</p>
-                    <CodeBlock code="contrib submit" />
-                  </div>
-                </div>
-              </section>
-
-              {/* Command: start */}
-              <section id="cmd-start" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono">
-                  Command Reference
-                </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib start</h2>
-                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-4">Alias: contrib contribute</div>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  Initializes a dedicated workspace for a specific GitHub issue or pull request. Downloads only commit trees, creates an isolated branch, parses the issue text to detect candidate source files, and writes <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">.contrib/ISSUE.md</code> and <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">.contrib/AI_PROMPT.md</code>.
-                </p>
-
-                <CodeBlock code="contrib start <url-or-shorthand> [options]" />
-
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-6 mb-3">Options & Flags</h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left border border-slate-200 dark:border-slate-700/80 rounded-lg overflow-hidden">
-                    <thead className="bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-bold">
-                      <tr>
-                        <th className="p-2.5">Flag</th>
-                        <th className="p-2.5">Description</th>
-                        <th className="p-2.5">Default</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 font-mono">
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-b, --branch &lt;name&gt;</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Custom branch name to create</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">issue_&lt;num&gt;</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-w, --worktree</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Use shared bare repository cache with git worktree for sub-second setup</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-s, --sparse [dirs]</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Enable cone sparse checkout for specific directories</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">auto</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-m, --mode &lt;mode&gt;</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Clone mode: blobless, treeless, shallow, or worktree</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">blobless</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-i, --install</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Automatically detect stack and install dependencies</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-o, --open</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Open workspace in default editor immediately</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-a, --antigravity</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Open in Google Antigravity IDE (--ide, --agy)</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">-c, --code</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Open in Visual Studio Code</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">--cursor</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Open in Cursor</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">--offline</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Operate completely offline using cached metadata and bare mirrors</td>
-                        <td className="p-2.5 text-slate-500 dark:text-slate-400">false</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-4">
-                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Example:</span>
-                  <CodeBlock code="contrib start psf/requests#6000 --worktree --install --cursor" />
-                </div>
-              </section>
-
-              {/* Command: open */}
-              <section id="cmd-open" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib open</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  Launches your active contribution workspace in an editor or browser. When run inside an active workspace, automatically detects the current workspace. When multiple exist, provides interactive selection.
-                </p>
-                <CodeBlock code="contrib open [workspace-id] [options]" />
-
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-4 mb-2">Supported Editor Flags</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono text-slate-700 dark:text-slate-300">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--code (VS Code)</div>
-                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--cursor (Cursor)</div>
-                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--antigravity (AGY)</div>
-                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--nvim (Neovim)</div>
-                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--vim (Vim)</div>
-                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--helix (Helix)</div>
-                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--zed (Zed)</div>
-                  <div className="p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800">--web (Browser)</div>
-                </div>
-
-                <Callout type="tip" title="Shell Integration Tip">
-                  Use <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">contrib open -p</code> to print only the path. You can jump directly in your terminal using:
-                  <code className="block mt-1 font-mono text-xs bg-white/70 dark:bg-slate-900/90 dark:text-sky-300 p-1.5 rounded border border-slate-200/60 dark:border-slate-700">cd $(contrib open psf/requests#6000 -p)</code>
-                </Callout>
-              </section>
-
-              {/* Command: dashboard */}
-              <section id="cmd-dashboard" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib dashboard</h2>
-                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-4">Aliases: contrib dash, contrib tui</div>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  A zero-dependency, full-screen interactive Terminal User Interface (TUI) with single-keystroke operations.
-                </p>
-                <CodeBlock code="contrib dashboard" />
-
-                <div className="bg-slate-950 text-slate-200 p-4 rounded-xl font-mono text-xs my-4 leading-relaxed border border-slate-800">
-                  <div className="text-slate-300 border-b border-slate-800 pb-2 mb-2 font-bold">
-                    CONTRIB WORKSPACE DASHBOARD (Active: 3)
-                  </div>
-                  <div className="text-emerald-400 font-semibold">❯ [1] psf__requests__issue_6000  (branch: fix-header) [Clean]  14.2 MB</div>
-                  <div className="text-slate-400">  [2] facebook__react__issue_24000 (branch: use-hook)   [Dirty]  28.1 MB</div>
-                  <div className="text-slate-400">  [3] torvalds__linux__issue_100   (branch: memory-fix) [Clean]  120 MB</div>
-                  <div className="mt-4 pt-2 border-t border-slate-800 text-slate-400 text-[11px]">
-                    [o] Open Editor | [s] Sync Upstream | [d] Diff | [c] Cleanup | [q] Quit
-                  </div>
-                </div>
-              </section>
-
-              {/* Command: sync */}
-              <section id="cmd-sync" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib sync</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  Fetches the latest upstream commits from GitHub and cleanly rebases your issue branch on top of `upstream/main` (or default branch). Automatically aborts safely if merge conflicts occur.
-                </p>
-                <CodeBlock code="contrib sync [workspace-id] [--push]" />
-                <p className="text-xs text-slate-500 dark:text-slate-400">Passing <code className="font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded">--push</code> automatically pushes the rebased branch to your personal fork (<code className="font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded">origin</code>).</p>
-              </section>
-
-              {/* Command: submit */}
-              <section id="cmd-submit" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib submit</h2>
-                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-4">Alias: contrib pr</div>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  Assists in submitting your work as a GitHub Pull Request. Verifies working tree status, prompts you to commit uncommitted files, pushes your branch to your personal fork, and generates a pre-filled PR link or GitHub CLI command.
-                </p>
-                <CodeBlock code="contrib submit [workspace-id] [--title <title>] [--body <body>]" />
-              </section>
-
-              {/* Command: identity */}
-              <section id="cmd-identity" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib identity</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  Manage multiple Git and SSH identities (e.g. personal, company, open-source) and apply them on a per-workspace basis without altering your global `~/.gitconfig`.
-                </p>
-
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">1. Add an identity:</span>
-                    <CodeBlock code='contrib identity add personal --name "Jane Doe" --email "jane@personal.com" --ssh-key ~/.ssh/id_ed25519_personal' />
-                  </div>
-                  <div>
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">2. Apply to current workspace:</span>
-                    <CodeBlock code="contrib identity use personal" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">3. List all configured identities:</span>
-                    <CodeBlock code="contrib identity list" />
-                  </div>
-                </div>
-              </section>
-
-              {/* Command: doctor */}
-              <section id="cmd-doctor" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib doctor</h2>
-                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-4">Alias: contrib info</div>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  Runs complete diagnostic health checks across your environment, git version, storage sizes, and GitHub API authentication.
-                </p>
-                <CodeBlock code="contrib doctor [workspace-id]" />
-                <ul className="list-disc list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                  <li>Checks Node.js runtime and Git executable in PATH</li>
-                  <li>Inspects GitHub authentication tokens and remaining hourly rate limits</li>
-                  <li>Calculates exact disk usage in `~/.contrib/workspaces` and `~/.contrib/cache`</li>
-                  <li>Detects project tech stack (Node, Python, Rust, Go) and test commands</li>
-                </ul>
-              </section>
-
-              {/* Command: alias */}
-              <section id="cmd-alias" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono">contrib alias / shell-init</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  Generates the <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">gcd</code> shell function for instant workspace jumping and shell tab-autocompletion across Bash, Zsh, Fish, and PowerShell.
-                </p>
-                <CodeBlock code="contrib alias --install" />
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Once installed, jump into any workspace with tab completion:</p>
-                <CodeBlock code="gcd requests<TAB> # instantly cd's to ~/.contrib/workspaces/psf__requests__issue_6000" />
-              </section>
-
-              {/* Context Files */}
-              <section id="context-files" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <div className="text-xs font-semibold uppercase tracking-wider text-purple-600 mb-1 font-mono">
-                  Context Intelligence
-                </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Auto-Generated Workspace Files</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                  Every workspace automatically generates a hidden <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">.contrib/</code> directory (excluded from git commits via <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">.git/info/exclude</code>) containing:
-                </p>
-
-                <div className="space-y-4">
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
-                    <div className="font-mono font-bold text-sm text-slate-900 dark:text-white mb-1">.contrib/ISSUE.md</div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Complete Markdown representation of the GitHub issue, author, labels, description, extracted candidate file paths, and quick contribution commands.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
-                    <div className="font-mono font-bold text-sm text-slate-900 dark:text-white mb-1">.contrib/AI_PROMPT.md</div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Pre-formatted context prompt tailored for AI coding assistants (Claude Code, Antigravity, Cursor, Copilot) with repository contributing guidelines, style guides, and test scripts.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs">
-                    <div className="font-mono font-bold text-sm text-slate-900 dark:text-white mb-1">.contrib/context.json</div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Machine-readable JSON schema tracking issue metadata, repository timestamps, and stack configurations.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Privacy & Security */}
-              <section id="privacy-security" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-1 font-mono">
-                  Security Guarantee
-                </div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">Privacy & Security Policy</h2>
-                
-                <Callout type="security" title="Zero Telemetry & Local Containment">
-                  `gsoc-contrib` is built with a strict privacy-first, local-first architecture. It does NOT collect, transmit, store, or log personal information, IP addresses, tracking metrics, or crash telemetry.
-                </Callout>
-
-                <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-4">
-                  <p>
-                    <strong>No External Backend:</strong> There are no servers, telemetry beacons, or databases operated by this project. Repository contents and diffs are never transmitted to any third-party server.
-                  </p>
-                  <p>
-                    <strong>In-Memory Token Lifecycle:</strong> GitHub authentication tokens (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">GITHUB_TOKEN</code>, <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">GH_TOKEN</code>, or <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">gh auth token</code>) are held in memory only for the duration of the command and transmitted strictly over HTTPS directly to GitHub's official REST API (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">https://api.github.com</code>).
-                  </p>
-                  <p>
-                    <strong>Automated Credential Redaction:</strong> Built-in scrubbers automatically redact GitHub Personal Access Tokens (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">ghp_*</code>), fine-grained tokens (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">github_pat_*</code>), and embedded git credentials from all logs, error messages, and terminal outputs.
-                  </p>
-                  <p>
-                    <strong>Strict Argument Parameterization:</strong> All Git and subprocess invocations execute with <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded">shell: false</code> to prevent shell injection attacks.
-                  </p>
-                </div>
-              </section>
-
-              {/* Network Audit Table */}
-              <section id="network-audit" className="mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Network Request Audit</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">All outbound network requests are strictly limited to official GitHub endpoints or Git remotes:</p>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left border border-slate-200 dark:border-slate-700/80 rounded-lg overflow-hidden">
-                    <thead className="bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-bold">
-                      <tr>
-                        <th className="p-2.5">Endpoint / Operation</th>
-                        <th className="p-2.5">Protocol</th>
-                        <th className="p-2.5">Why It Exists</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 font-mono">
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /repos/{'{owner}/{repo}'}/issues/{'{num}'}</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Retrieves public issue title, description body, labels, and author</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /user</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Identifies authenticated username to check for existing personal forks</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /repos/{'{user}/{repo}'}</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Checks if the user has a fork of the target repo to wire remotes</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">POST /repos/{'{owner}/{repo}'}/forks</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Creates a user fork on GitHub when --fork is specified</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /search/issues</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Powers `contrib search` and `contrib browse` for good first issues</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">GET /rate_limit</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">HTTPS</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Powers `contrib init` and `contrib doctor` to display remaining quota</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2.5 font-bold text-slate-900 dark:text-sky-300">git clone / fetch / push</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Git/SSH/HTTPS</td>
-                        <td className="p-2.5 font-sans text-slate-600 dark:text-slate-300">Standard Git operations communicating directly with target GitHub repository</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </main>
-          </div>
-
-          {/* Docs Footer */}
-          <footer className="border-t border-slate-200 dark:border-slate-800 py-8 px-6 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950">
-            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <StarIcon className="w-3.5 h-3.5 text-slate-900 dark:text-slate-100 fill-slate-900 dark:fill-slate-100" />
-                <span className="font-semibold text-slate-800 dark:text-slate-200">gsoc-contrib (`contrib`)</span>
-                <span>— Open source contribution workspace manager under MIT License</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <a href="https://github.com/anandmahadevv/contrib-cli" className="hover:underline hover:text-slate-800 dark:hover:text-slate-200">GitHub</a>
-                <a href="https://www.npmjs.com/package/gsoc-contrib" className="hover:underline hover:text-slate-800 dark:hover:text-slate-200">npm</a>
-                <a href="https://github.com/anandmahadevv/contrib-cli/blob/main/SECURITY.md" className="hover:underline hover:text-slate-800 dark:hover:text-slate-200">Security</a>
-              </div>
-            </div>
-          </footer>
-        </div>
-      );
+  <script>
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef
+} = React;
+
+// Icons
+const StarIcon = ({
+  className = "w-4 h-4"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "currentColor"
+}, /*#__PURE__*/React.createElement("polygon", {
+  points: "12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+}));
+const SunIcon = ({
+  className = "w-4 h-4"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, /*#__PURE__*/React.createElement("circle", {
+  cx: "12",
+  cy: "12",
+  r: "5"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "12",
+  y1: "1",
+  x2: "12",
+  y2: "3"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "12",
+  y1: "21",
+  x2: "12",
+  y2: "23"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "4.22",
+  y1: "4.22",
+  x2: "5.64",
+  y2: "5.64"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "18.36",
+  y1: "18.36",
+  x2: "19.78",
+  y2: "19.78"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "1",
+  y1: "12",
+  x2: "3",
+  y2: "12"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "21",
+  y1: "12",
+  x2: "23",
+  y2: "12"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "4.22",
+  y1: "19.78",
+  x2: "5.64",
+  y2: "18.36"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "18.36",
+  y1: "5.64",
+  x2: "19.78",
+  y2: "4.22"
+}));
+const MoonIcon = ({
+  className = "w-4 h-4"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, /*#__PURE__*/React.createElement("path", {
+  d: "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+}));
+const GithubIcon = ({
+  className = "w-4 h-4"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "currentColor"
+}, /*#__PURE__*/React.createElement("path", {
+  fillRule: "evenodd",
+  clipRule: "evenodd",
+  d: "M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+}));
+const SearchIcon = ({
+  className = "w-4 h-4"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, /*#__PURE__*/React.createElement("circle", {
+  cx: "11",
+  cy: "11",
+  r: "8"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "m21 21-4.3-4.3"
+}));
+const CloseIcon = ({
+  className = "w-4 h-4"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, /*#__PURE__*/React.createElement("line", {
+  x1: "18",
+  y1: "6",
+  x2: "6",
+  y2: "18"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "6",
+  y1: "6",
+  x2: "18",
+  y2: "18"
+}));
+const CornerDownLeftIcon = ({
+  className = "w-3.5 h-3.5"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, /*#__PURE__*/React.createElement("polyline", {
+  points: "9 10 4 15 9 20"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M20 4v7a4 4 0 0 1-4 4H4"
+}));
+const TerminalIcon = ({
+  className = "w-3.5 h-3.5"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, /*#__PURE__*/React.createElement("polyline", {
+  points: "4 17 10 11 4 5"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "12",
+  y1: "19",
+  x2: "20",
+  y2: "19"
+}));
+const DocumentIcon = ({
+  className = "w-3.5 h-3.5"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, /*#__PURE__*/React.createElement("path", {
+  d: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+}), /*#__PURE__*/React.createElement("polyline", {
+  points: "14 2 14 8 20 8"
+}));
+const ChevronUpIcon = ({
+  className = "w-3.5 h-3.5"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, /*#__PURE__*/React.createElement("polyline", {
+  points: "18 15 12 9 6 15"
+}));
+const ChevronDownIcon = ({
+  className = "w-3.5 h-3.5"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+}, /*#__PURE__*/React.createElement("polyline", {
+  points: "6 9 12 15 18 9"
+}));
+const HighlightText = ({
+  text,
+  highlight
+}) => {
+  if (!highlight || !highlight.trim()) return /*#__PURE__*/React.createElement("span", null, text);
+  const terms = highlight.trim().split(/\s+/).filter(Boolean).map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  if (terms.length === 0) return /*#__PURE__*/React.createElement("span", null, text);
+  const regex = new RegExp(`(${terms.join('|')})`, 'gi');
+  const parts = text.split(regex);
+  return /*#__PURE__*/React.createElement("span", null, parts.map((part, i) => regex.test(part) ? /*#__PURE__*/React.createElement("mark", {
+    key: i,
+    className: "bg-amber-200/90 dark:bg-amber-400/30 text-slate-900 dark:text-amber-200 font-semibold px-0.5 rounded-xs"
+  }, part) : part));
+};
+const CopyIcon = ({
+  className = "w-3.5 h-3.5"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2"
+}, /*#__PURE__*/React.createElement("rect", {
+  width: "14",
+  height: "14",
+  x: "8",
+  y: "8",
+  rx: "2",
+  ry: "2"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+}));
+const CheckIcon = ({
+  className = "w-3.5 h-3.5"
+}) => /*#__PURE__*/React.createElement("svg", {
+  className: className,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2"
+}, /*#__PURE__*/React.createElement("polyline", {
+  points: "20 6 9 17 4 12"
+}));
+const CodeBlock = ({
+  code,
+  language = "bash"
+}) => {
+  const [copied, setCopied] = useState(false);
+  const onCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "relative my-4 rounded-xl bg-slate-900 dark:bg-slate-950/90 border border-slate-800 dark:border-slate-800 text-slate-100 overflow-hidden font-mono text-sm shadow-md group"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between px-4 py-2 bg-slate-950/80 dark:bg-slate-900/90 border-b border-slate-800 text-xs text-slate-400 dark:text-slate-300"
+  }, /*#__PURE__*/React.createElement("span", null, language), /*#__PURE__*/React.createElement("button", {
+    onClick: onCopy,
+    className: "flex items-center gap-1 text-slate-400 hover:text-white transition-colors py-0.5 px-2 rounded hover:bg-slate-800"
+  }, copied ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(CheckIcon, {
+    className: "w-3.5 h-3.5 text-emerald-400"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "text-emerald-400"
+  }, "Copied")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(CopyIcon, {
+    className: "w-3.5 h-3.5"
+  }), /*#__PURE__*/React.createElement("span", null, "Copy")))), /*#__PURE__*/React.createElement("pre", {
+    className: "p-4 overflow-x-auto text-xs sm:text-sm leading-relaxed"
+  }, /*#__PURE__*/React.createElement("code", null, code)));
+};
+const Callout = ({
+  type = "note",
+  title,
+  children
+}) => {
+  const styles = {
+    note: "bg-blue-50/70 dark:bg-blue-950/60 border-blue-300 dark:border-blue-500/40 text-blue-950 dark:text-blue-100",
+    tip: "bg-emerald-50/70 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-500/40 text-emerald-950 dark:text-emerald-100",
+    warning: "bg-amber-50/70 dark:bg-amber-950/60 border-amber-300 dark:border-amber-500/40 text-amber-950 dark:text-amber-100",
+    security: "bg-purple-50/70 dark:bg-purple-950/60 border-purple-300 dark:border-purple-500/40 text-purple-950 dark:text-purple-100"
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: `my-5 p-4 rounded-xl border ${styles[type]} text-sm leading-relaxed`
+  }, title && /*#__PURE__*/React.createElement("div", {
+    className: "font-semibold mb-1 text-xs uppercase tracking-wider"
+  }, title), /*#__PURE__*/React.createElement("div", null, children));
+};
+const SEARCH_INDEX = [{
+  id: "overview",
+  title: "Overview & Problem Statement",
+  category: "Getting Started",
+  badge: "Concept",
+  keywords: "gsoc open source disk space bandwidth blobless worktree clone 94.2% sub-second monorepo problems",
+  description: "Why gsoc-contrib was built: massive disk savings, blobless clones, and sub-second workspace isolation."
+}, {
+  id: "installation",
+  title: "Installation & Setup",
+  category: "Getting Started",
+  badge: "Setup",
+  keywords: "npm install -g gsoc-contrib npx python pip contrib-cli binary global package",
+  description: "Install globally via npm, run on demand with npx, or install Python package via pip."
+}, {
+  id: "quickstart",
+  title: "Quick Start Tutorial",
+  category: "Getting Started",
+  badge: "Tutorial",
+  keywords: "quickstart workflow tutorial start work sync submit pull request pr 4 steps",
+  description: "4-step contribution workflow from picking an issue URL to published pull request."
+}, {
+  id: "cmd-start",
+  title: "contrib start <issue-or-repo>",
+  category: "Workspace Commands",
+  badge: "Command",
+  keywords: "start clone sparse branch fork clean dry-run no-open editor issue url blobless worktree",
+  description: "Create an isolated blobless git worktree workspace linked directly to a GitHub issue."
+}, {
+  id: "cmd-open",
+  title: "contrib open [workspace-id]",
+  category: "Workspace Commands",
+  badge: "Command",
+  keywords: "open ide editor cursor vscode zed nvim vim subl idea antigravity print launch",
+  description: "Launch your workspace in Cursor, VS Code, Zed, Neovim, JetBrains, or Antigravity."
+}, {
+  id: "cmd-dashboard",
+  title: "contrib dashboard",
+  category: "Workspace Commands",
+  badge: "Command",
+  keywords: "dashboard web ui browser port localhost disk monitor active workspaces visual",
+  description: "Open local interactive web dashboard monitoring active workspaces and disk usage."
+}, {
+  id: "cmd-status",
+  title: "contrib status",
+  category: "Workspace Commands",
+  badge: "Command",
+  keywords: "status list all json full branches dirty uncommitted active workspaces table",
+  description: "List all active contribution workspaces, dirty git status, branch names, and paths."
+}, {
+  id: "cmd-cleanup",
+  title: "contrib cleanup [workspace-id]",
+  category: "Workspace Commands",
+  badge: "Command",
+  keywords: "cleanup remove delete delete-workspace force all dry-run disk free prune worktree",
+  description: "Safely remove workspace worktrees, prune git references, and reclaim disk space."
+}, {
+  id: "cmd-sync",
+  title: "contrib sync",
+  category: "Git & PR Flow",
+  badge: "Command",
+  keywords: "sync upstream fetch rebase pull main default branch update ours theirs merge",
+  description: "Fetch upstream repository and cleanly rebase or merge changes into your branch."
+}, {
+  id: "cmd-diff",
+  title: "contrib diff",
+  category: "Git & PR Flow",
+  badge: "Command",
+  keywords: "diff stat cached changes inspect modified patch staged unstaged upstream",
+  description: "Inspect staged, unstaged, or upstream diffs for your current workspace."
+}, {
+  id: "cmd-submit",
+  title: "contrib submit / contrib pr",
+  category: "Git & PR Flow",
+  badge: "Command",
+  keywords: "submit pr pull-request draft title body issue push fork automated github",
+  description: "Push commits to your fork and automatically open a pull request linking the issue."
+}, {
+  id: "cmd-identity",
+  title: "contrib identity",
+  category: "Git & PR Flow",
+  badge: "Command",
+  keywords: "identity ssh git user name email signing personal work switch add list use remove",
+  description: "Manage multiple Git and SSH author identities (personal, work, GSoC) seamlessly."
+}, {
+  id: "cmd-search",
+  title: "contrib search <query>",
+  category: "Discovery & Heuristics",
+  badge: "Command",
+  keywords: "search find issues github label good-first-issue help-wanted language limit query",
+  description: "Search open GitHub issues by labels, keywords, languages, and difficulty."
+}, {
+  id: "cmd-browse",
+  title: "contrib browse",
+  category: "Discovery & Heuristics",
+  badge: "Command",
+  keywords: "browse tui interactive terminal keyboard select issue filter curses interface",
+  description: "Interactive full-terminal browser for exploring and picking issues to start on."
+}, {
+  id: "cmd-analyze",
+  title: "contrib analyze [path]",
+  category: "Discovery & Heuristics",
+  badge: "Command",
+  keywords: "analyze ai gemini groq heuristics guidelines contributing linter prompt context",
+  description: "Scan repository guidelines, linters, PR templates, and produce AI contribution prompts."
+}, {
+  id: "cmd-stats",
+  title: "contrib stats",
+  category: "Discovery & Heuristics",
+  badge: "Command",
+  keywords: "stats disk savings bandwidth time metrics json reset lifetime numbers",
+  description: "View lifetime disk savings, clones avoided, and hours saved by blobless checkouts."
+}, {
+  id: "context-files",
+  title: "Context Files (.contrib/ISSUE.md)",
+  category: "Discovery & Heuristics",
+  badge: "Guide",
+  keywords: "context files issue.md context.json ai prompt llm instructions stack auto-generated",
+  description: "Automated issue metadata, reproduction steps, and stack context generated in every workspace."
+}, {
+  id: "cmd-doctor",
+  title: "contrib doctor",
+  category: "Diagnostics & Environment",
+  badge: "Command",
+  keywords: "doctor diagnostics git gh node ssh disk connectivity check environment rate-limit",
+  description: "Verify git, GitHub CLI, SSH keys, disk capacity, and network connectivity health."
+}, {
+  id: "cmd-init",
+  title: "contrib init",
+  category: "Diagnostics & Environment",
+  badge: "Command",
+  keywords: "init configure setup token editor root path directory storage wizard",
+  description: "Interactive initial configuration setup for storage paths, editors, and tokens."
+}, {
+  id: "cmd-alias",
+  title: "contrib alias (gcd)",
+  category: "Diagnostics & Environment",
+  badge: "Command",
+  keywords: "alias gcd shell integration bash zsh fish powershell cd navigation fast shortcut",
+  description: "Shell integration enabling `gcd <workspace>` instant terminal directory switching."
+}, {
+  id: "offline-engine",
+  title: "Smart Offline Engine",
+  category: "Diagnostics & Environment",
+  badge: "Guide",
+  keywords: "offline cache no-network bare repo fallback airplane mode metadata sync disconnected",
+  description: "Work offline without internet access using local bare repository mirrors and cached metadata."
+}, {
+  id: "architecture",
+  title: "Blobless Git Architecture",
+  category: "Architecture",
+  badge: "Architecture",
+  keywords: "architecture blobless filter blob none worktree bare repo git objects shared disk savings",
+  description: "How contrib achieves 95% disk savings with shared bare repositories and git worktrees."
+}, {
+  id: "privacy-security",
+  title: "Privacy & Security Policy",
+  category: "Security & Policy",
+  badge: "Security",
+  keywords: "privacy security zero telemetry token redacting local credentials no tracking audit sandboxed",
+  description: "Strict zero-telemetry commitment, automatic token redacting, and sandboxed storage."
+}, {
+  id: "network-audit",
+  title: "Audited Network Requests",
+  category: "Security & Policy",
+  badge: "Security",
+  keywords: "network audit api.github.com endpoints https requests transparent privacy inspect",
+  description: "Exhaustive documentation of all external network requests initiated by the CLI."
+}];
+const SearchModal = ({
+  isOpen,
+  onClose,
+  onSelect,
+  onOpenFindInPage
+}) => {
+  const [query, setQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const inputRef = useRef(null);
+  const categories = ['All', 'Workspace', 'Git & PR', 'Discovery', 'Diagnostics', 'Architecture', 'Security'];
+  useEffect(() => {
+    if (isOpen) {
+      setQuery('');
+      setSelectedCategory('All');
+      setSelectedIndex(0);
+      setTimeout(() => inputRef.current?.focus(), 50);
     }
+  }, [isOpen]);
+  const results = useMemo(() => {
+    let pool = SEARCH_INDEX;
+    if (selectedCategory !== 'All') {
+      pool = pool.filter(x => x.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+    }
+    const q = query.trim().toLowerCase();
+    if (!q) {
+      return pool.slice(0, 6);
+    }
+    const terms = q.split(/\s+/).filter(Boolean);
+    return pool.filter(item => {
+      const haystack = `${item.title} ${item.category} ${item.keywords} ${item.description}`.toLowerCase();
+      return terms.every(t => haystack.includes(t));
+    }).slice(0, 8);
+  }, [query, selectedCategory]);
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [results]);
+  const handleKeyDown = e => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev + 1) % Math.max(1, results.length));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev - 1 + results.length) % Math.max(1, results.length));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (results[selectedIndex]) {
+        onSelect(results[selectedIndex].id);
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onClose();
+    }
+  };
+  if (!isOpen) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 bg-slate-900/40 dark:bg-black/70 backdrop-blur-md flex items-start justify-center pt-16 sm:pt-24 px-4",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl overflow-hidden flex flex-col max-h-[85vh] transition-all",
+    onClick: e => e.stopPropagation(),
+    onKeyDown: handleKeyDown
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 gap-3"
+  }, /*#__PURE__*/React.createElement(SearchIcon, {
+    className: "w-5 h-5 text-slate-400 shrink-0"
+  }), /*#__PURE__*/React.createElement("input", {
+    ref: inputRef,
+    type: "text",
+    value: query,
+    onChange: e => setQuery(e.target.value),
+    placeholder: "Search commands, flags, architecture, guides...",
+    className: "w-full bg-transparent text-sm sm:text-base text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
+  }), query && /*#__PURE__*/React.createElement("button", {
+    onClick: () => setQuery(''),
+    className: "p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer",
+    title: "Clear search"
+  }, /*#__PURE__*/React.createElement(CloseIcon, {
+    className: "w-4 h-4"
+  })), /*#__PURE__*/React.createElement("kbd", {
+    className: "hidden sm:inline-block text-[10px] font-mono font-semibold bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-700"
+  }, "ESC")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 px-4 py-2 bg-slate-50/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800 overflow-x-auto text-xs"
+  }, categories.map(cat => /*#__PURE__*/React.createElement("button", {
+    key: cat,
+    onClick: () => setSelectedCategory(cat),
+    className: `px-2.5 py-1 rounded-lg font-medium transition-all text-[11px] whitespace-nowrap cursor-pointer ${selectedCategory === cat ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'}`
+  }, cat))), /*#__PURE__*/React.createElement("div", {
+    className: "px-4 py-1.5 bg-slate-100/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("span", null, query.trim() ? `Found ${results.length} results` : 'Popular Searches & Topics'), /*#__PURE__*/React.createElement("span", {
+    className: "font-mono text-slate-400 dark:text-slate-500 lowercase font-normal"
+  }, selectedCategory)), /*#__PURE__*/React.createElement("div", {
+    className: "overflow-y-auto p-2 divide-y divide-slate-50 dark:divide-slate-800/60 max-h-96"
+  }, results.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "py-12 text-center text-sm text-slate-500 dark:text-slate-400"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-slate-400 dark:text-slate-500 mb-2 font-medium"
+  }, "No documentation found for \"", query, "\""), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-400 dark:text-slate-500"
+  }, "Try searching for ", /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-700 dark:text-slate-300 font-mono"
+  }, "start"), ", ", /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-700 dark:text-slate-300 font-mono"
+  }, "sparse"), ", ", /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-700 dark:text-slate-300 font-mono"
+  }, "worktree"), ", ", /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-700 dark:text-slate-300 font-mono"
+  }, "doctor"), ", or switch category.")) : results.map((item, idx) => /*#__PURE__*/React.createElement("button", {
+    key: item.id,
+    onClick: () => onSelect(item.id),
+    onMouseEnter: () => setSelectedIndex(idx),
+    className: `w-full text-left p-3 rounded-xl transition-all flex items-start gap-3 group cursor-pointer ${idx === selectedIndex ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-xs' : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-800 dark:text-slate-200'}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: `mt-0.5 p-2 rounded-lg shrink-0 ${idx === selectedIndex ? 'bg-slate-800 dark:bg-blue-700 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`
+  }, item.badge === 'Command' ? /*#__PURE__*/React.createElement(TerminalIcon, {
+    className: "w-4 h-4"
+  }) : /*#__PURE__*/React.createElement(DocumentIcon, {
+    className: "w-4 h-4"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 mb-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: `text-[10px] font-bold px-1.5 py-0.5 rounded font-mono uppercase tracking-wider ${idx === selectedIndex ? 'bg-slate-800 dark:bg-blue-700 text-slate-300 dark:text-blue-100' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`
+  }, item.category), /*#__PURE__*/React.createElement("h4", {
+    className: "text-sm font-semibold truncate tracking-tight"
+  }, /*#__PURE__*/React.createElement(HighlightText, {
+    text: item.title,
+    highlight: query
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: `text-xs line-clamp-1 leading-normal ${idx === selectedIndex ? 'text-slate-300 dark:text-blue-100' : 'text-slate-500 dark:text-slate-400'}`
+  }, /*#__PURE__*/React.createElement(HighlightText, {
+    text: item.description,
+    highlight: query
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: `shrink-0 self-center ${idx === selectedIndex ? 'text-slate-200' : 'text-slate-300 dark:text-slate-600 group-hover:text-slate-500 dark:group-hover:text-slate-300'}`
+  }, /*#__PURE__*/React.createElement(CornerDownLeftIcon, {
+    className: "w-4 h-4"
+  }))))), /*#__PURE__*/React.createElement("div", {
+    className: "px-4 py-2.5 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement("kbd", {
+    className: "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1 rounded shadow-2xs font-mono text-[10px] text-slate-600 dark:text-slate-300"
+  }, "\u2191"), /*#__PURE__*/React.createElement("kbd", {
+    className: "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1 rounded shadow-2xs font-mono text-[10px] text-slate-600 dark:text-slate-300"
+  }, "\u2193"), /*#__PURE__*/React.createElement("span", null, "navigate")), /*#__PURE__*/React.createElement("span", {
+    className: "flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement("kbd", {
+    className: "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1 rounded shadow-2xs font-mono text-[10px] text-slate-600 dark:text-slate-300"
+  }, "\u21B5"), /*#__PURE__*/React.createElement("span", null, "select"))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      onClose();
+      onOpenFindInPage();
+    },
+    className: "text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold flex items-center gap-1 cursor-pointer"
+  }, /*#__PURE__*/React.createElement("span", null, "Find in text (Ctrl+F)"), /*#__PURE__*/React.createElement("span", null, "\u2197")))));
+};
+const GoogleDocsFindBar = ({
+  isOpen,
+  onClose
+}) => {
+  const [findText, setFindText] = useState('');
+  const [matchCount, setMatchCount] = useState(0);
+  const [currentMatch, setCurrentMatch] = useState(0);
+  const findInputRef = useRef(null);
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        findInputRef.current?.focus();
+        findInputRef.current?.select();
+      }, 50);
+    } else {
+      clearHighlights();
+      setFindText('');
+      setMatchCount(0);
+      setCurrentMatch(0);
+    }
+  }, [isOpen]);
+  const clearHighlights = () => {
+    const main = document.querySelector('main');
+    if (!main) return;
+    const marks = main.querySelectorAll('mark.gdoc-match');
+    marks.forEach(mark => {
+      const parent = mark.parentNode;
+      if (parent) {
+        parent.replaceChild(document.createTextNode(mark.textContent), mark);
+        parent.normalize();
+      }
+    });
+  };
+  const performSearch = (text, targetIdx = 0) => {
+    clearHighlights();
+    const clean = text.trim();
+    if (!clean || clean.length < 2) {
+      setMatchCount(0);
+      setCurrentMatch(0);
+      return;
+    }
+    const main = document.querySelector('main');
+    if (!main) return;
+    const regex = new RegExp(`(${clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+        const tag = node.parentElement?.tagName;
+        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'BUTTON' || tag === 'INPUT' || tag === 'TEXTAREA') {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return regex.test(node.textContent) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    const textNodes = [];
+    while (walker.nextNode()) {
+      textNodes.push(walker.currentNode);
+    }
+    let count = 0;
+    textNodes.forEach(node => {
+      const parent = node.parentNode;
+      if (!parent) return;
+      const textVal = node.textContent;
+      const parts = textVal.split(regex);
+      const fragment = document.createDocumentFragment();
+      parts.forEach(part => {
+        if (part.toLowerCase() === clean.toLowerCase()) {
+          const mark = document.createElement('mark');
+          mark.className = `gdoc-match px-0.5 transition-all duration-150 ${count === targetIdx ? 'gdoc-match-active' : 'gdoc-match-normal'}`;
+          mark.dataset.matchIndex = count;
+          mark.textContent = part;
+          fragment.appendChild(mark);
+          count++;
+        } else if (part) {
+          fragment.appendChild(document.createTextNode(part));
+        }
+      });
+      parent.replaceChild(fragment, node);
+    });
+    setMatchCount(count);
+    if (count > 0) {
+      const boundedIndex = Math.min(targetIdx, count - 1);
+      setCurrentMatch(boundedIndex);
+      const activeEl = main.querySelector(`mark.gdoc-match[data-match-index="${boundedIndex}"]`);
+      if (activeEl) {
+        activeEl.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }
+    } else {
+      setCurrentMatch(0);
+    }
+  };
+  const handleTextChange = e => {
+    const val = e.target.value;
+    setFindText(val);
+    performSearch(val, 0);
+  };
+  const goToNext = () => {
+    if (matchCount === 0) return;
+    const nextIndex = (currentMatch + 1) % matchCount;
+    updateActiveMatch(nextIndex);
+  };
+  const goToPrev = () => {
+    if (matchCount === 0) return;
+    const prevIndex = (currentMatch - 1 + matchCount) % matchCount;
+    updateActiveMatch(prevIndex);
+  };
+  const updateActiveMatch = newIndex => {
+    setCurrentMatch(newIndex);
+    const main = document.querySelector('main');
+    if (!main) return;
+    const marks = main.querySelectorAll('mark.gdoc-match');
+    marks.forEach((mark, idx) => {
+      if (idx === newIndex) {
+        mark.className = 'gdoc-match px-0.5 transition-all duration-150 gdoc-match-active';
+        mark.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      } else {
+        mark.className = 'gdoc-match px-0.5 transition-all duration-150 gdoc-match-normal';
+      }
+    });
+  };
+  const handleKeyDown = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        goToPrev();
+      } else {
+        goToNext();
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onClose();
+    }
+  };
+  if (!isOpen) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed top-20 right-4 sm:right-8 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-300 dark:border-slate-700 shadow-2xl rounded-xl p-2 flex items-center gap-2 text-xs animate-in fade-in slide-in-from-top-2 duration-150"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 pl-2 pr-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all"
+  }, /*#__PURE__*/React.createElement(SearchIcon, {
+    className: "w-3.5 h-3.5 text-slate-400"
+  }), /*#__PURE__*/React.createElement("input", {
+    ref: findInputRef,
+    type: "text",
+    value: findText,
+    onChange: handleTextChange,
+    onKeyDown: handleKeyDown,
+    placeholder: "Find in document...",
+    className: "w-32 sm:w-48 bg-transparent text-xs text-slate-900 dark:text-slate-100 focus:outline-none placeholder-slate-400 dark:placeholder-slate-500"
+  }), findText && /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setFindText('');
+      clearHighlights();
+      setMatchCount(0);
+      setCurrentMatch(0);
+    },
+    className: "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 cursor-pointer",
+    title: "Clear"
+  }, /*#__PURE__*/React.createElement(CloseIcon, {
+    className: "w-3 h-3"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-mono font-semibold px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-700 dark:text-slate-300 min-w-[58px] text-center select-none"
+  }, findText.trim().length >= 2 ? matchCount > 0 ? `${currentMatch + 1}/${matchCount}` : '0 of 0' : '0 found'), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-0.5 border-l border-slate-200 dark:border-slate-700 pl-1"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: goToPrev,
+    disabled: matchCount === 0,
+    className: "p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent rounded cursor-pointer transition-colors",
+    title: "Previous match (Shift+Enter)"
+  }, /*#__PURE__*/React.createElement(ChevronUpIcon, {
+    className: "w-3.5 h-3.5"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: goToNext,
+    disabled: matchCount === 0,
+    className: "p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent rounded cursor-pointer transition-colors",
+    title: "Next match (Enter)"
+  }, /*#__PURE__*/React.createElement(ChevronDownIcon, {
+    className: "w-3.5 h-3.5"
+  }))), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded ml-1 cursor-pointer transition-colors",
+    title: "Close find bar (Esc)"
+  }, /*#__PURE__*/React.createElement(CloseIcon, {
+    className: "w-3.5 h-3.5"
+  })));
+};
+function DocsApp() {
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('contrib_theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+    } catch (e) {}
+    return 'light';
+  });
+  const [activeSection, setActiveSection] = useState('overview');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isFindBarOpen, setIsFindBarOpen] = useState(false);
+  const [sidebarFilter, setSidebarFilter] = useState('');
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('contrib_theme', theme);
+    } catch (e) {}
+  }, [theme]);
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<DocsApp />);
+  // Global keyboard shortcuts (Cmd+K / Ctrl+K, Cmd+F / Ctrl+F, /)
+  useEffect(() => {
+    const handleKeyDown = e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(prev => !prev);
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        setIsFindBarOpen(true);
+      } else if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+  const handleSelectSection = id => {
+    setIsSearchOpen(false);
+    setActiveSection(id);
+    window.location.hash = id;
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+        el.classList.add('ring-2', 'ring-blue-500', 'ring-offset-8', 'transition-all', 'duration-300', 'rounded-xl');
+        setTimeout(() => {
+          el.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-8');
+        }, 1800);
+      }
+    }, 50);
+  };
+  const navSections = [{
+    group: "Getting Started",
+    items: [{
+      id: "overview",
+      label: "Overview & Problem"
+    }, {
+      id: "installation",
+      label: "Installation & Setup"
+    }, {
+      id: "quickstart",
+      label: "Quick Start Tutorial"
+    }]
+  }, {
+    group: "Workspace Management",
+    items: [{
+      id: "cmd-start",
+      label: "contrib start"
+    }, {
+      id: "cmd-open",
+      label: "contrib open"
+    }, {
+      id: "cmd-dashboard",
+      label: "contrib dashboard"
+    }, {
+      id: "cmd-status",
+      label: "contrib status"
+    }, {
+      id: "cmd-cleanup",
+      label: "contrib cleanup"
+    }]
+  }, {
+    group: "Git & Pull Request Flow",
+    items: [{
+      id: "cmd-sync",
+      label: "contrib sync"
+    }, {
+      id: "cmd-diff",
+      label: "contrib diff"
+    }, {
+      id: "cmd-submit",
+      label: "contrib submit / pr"
+    }, {
+      id: "cmd-identity",
+      label: "contrib identity"
+    }]
+  }, {
+    group: "Discovery & AI Heuristics",
+    items: [{
+      id: "cmd-search",
+      label: "contrib search"
+    }, {
+      id: "cmd-browse",
+      label: "contrib browse"
+    }, {
+      id: "cmd-analyze",
+      label: "contrib analyze"
+    }, {
+      id: "cmd-stats",
+      label: "contrib stats"
+    }, {
+      id: "context-files",
+      label: "Auto Context (.contrib/)"
+    }]
+  }, {
+    group: "Diagnostics & Environment",
+    items: [{
+      id: "cmd-doctor",
+      label: "contrib doctor"
+    }, {
+      id: "cmd-init",
+      label: "contrib init"
+    }, {
+      id: "cmd-alias",
+      label: "contrib alias (gcd)"
+    }, {
+      id: "offline-engine",
+      label: "Smart Offline Engine"
+    }]
+  }, {
+    group: "Architecture & Security",
+    items: [{
+      id: "architecture",
+      label: "Blobless Git Architecture"
+    }, {
+      id: "privacy-security",
+      label: "Privacy & Security Policy"
+    }, {
+      id: "network-audit",
+      label: "Network Request Audit"
+    }]
+  }];
+  const filteredNavSections = useMemo(() => {
+    if (!sidebarFilter.trim()) return navSections;
+    const q = sidebarFilter.trim().toLowerCase();
+    return navSections.map(group => ({
+      ...group,
+      items: group.items.filter(item => item.label.toLowerCase().includes(q) || item.id.toLowerCase().includes(q))
+    })).filter(group => group.items.length > 0);
+  }, [sidebarFilter, navSections]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "min-h-screen flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "sticky top-0 z-30 h-16 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-6"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "#overview",
+    className: "flex items-center gap-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-7 h-7 bg-slate-900 dark:bg-blue-600 text-white rounded-lg flex items-center justify-center"
+  }, /*#__PURE__*/React.createElement(StarIcon, {
+    className: "w-3.5 h-3.5 fill-white text-white"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "font-bold tracking-tight text-slate-900 dark:text-white text-base"
+  }, "gsoc-contrib"), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono px-2 py-0.5 rounded-full"
+  }, "v0.4.0")), /*#__PURE__*/React.createElement("div", {
+    className: "hidden lg:flex items-center gap-5 text-sm font-medium text-slate-600 dark:text-slate-400"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "#overview",
+    className: "text-slate-900 dark:text-white hover:text-black dark:hover:text-white font-semibold"
+  }, "Documentation"), /*#__PURE__*/React.createElement("a", {
+    href: "#cmd-start",
+    className: "hover:text-black dark:hover:text-white"
+  }, "CLI Reference"), /*#__PURE__*/React.createElement("a", {
+    href: "#privacy-security",
+    className: "hover:text-black dark:hover:text-white"
+  }, "Security Policy"), /*#__PURE__*/React.createElement("a", {
+    href: "#architecture",
+    className: "hover:text-black dark:hover:text-white"
+  }, "Architecture"))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsSearchOpen(true),
+    className: "flex items-center gap-2 w-36 sm:w-56 pl-3 pr-2 py-1.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 rounded-lg text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors border border-slate-200/60 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 group cursor-pointer",
+    title: "Search documentation (\u2318K / Ctrl+K)"
+  }, /*#__PURE__*/React.createElement(SearchIcon, {
+    className: "w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 shrink-0"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "flex-1 text-left truncate"
+  }, "Search docs..."), /*#__PURE__*/React.createElement("kbd", {
+    className: "hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 rounded shadow-2xs"
+  }, /*#__PURE__*/React.createElement("span", null, "\u2318"), /*#__PURE__*/React.createElement("span", null, "K"))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsFindBarOpen(true),
+    className: "flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white border border-slate-200/60 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors cursor-pointer",
+    title: "Find in page like Google Docs (Ctrl+F)"
+  }, /*#__PURE__*/React.createElement("span", null, "Find"), /*#__PURE__*/React.createElement("kbd", {
+    className: "hidden md:inline text-[9px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1 py-0.5 rounded text-slate-500 dark:text-slate-400"
+  }, "Ctrl+F")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setTheme(prev => prev === 'dark' ? 'light' : 'dark'),
+    className: "flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer",
+    title: `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
+    "aria-label": "Toggle theme"
+  }, theme === 'dark' ? /*#__PURE__*/React.createElement(SunIcon, {
+    className: "w-4 h-4 text-amber-400"
+  }) : /*#__PURE__*/React.createElement(MoonIcon, {
+    className: "w-4 h-4 text-slate-600"
+  })), /*#__PURE__*/React.createElement("a", {
+    href: "https://github.com/anandmahadevv/contrib-cli",
+    target: "_blank",
+    rel: "noreferrer",
+    className: "flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 px-3 py-1.5 rounded-lg"
+  }, /*#__PURE__*/React.createElement(GithubIcon, {
+    className: "w-3.5 h-3.5"
+  }), /*#__PURE__*/React.createElement("span", null, "GitHub")), /*#__PURE__*/React.createElement("a", {
+    href: "https://www.npmjs.com/package/gsoc-contrib",
+    target: "_blank",
+    rel: "noreferrer",
+    className: "hidden md:flex items-center gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-900/50 px-3 py-1.5 rounded-lg"
+  }, /*#__PURE__*/React.createElement("span", null, "npm")))), /*#__PURE__*/React.createElement(SearchModal, {
+    isOpen: isSearchOpen,
+    onClose: () => setIsSearchOpen(false),
+    onSelect: handleSelectSection,
+    onOpenFindInPage: () => setIsFindBarOpen(true)
+  }), /*#__PURE__*/React.createElement(GoogleDocsFindBar, {
+    isOpen: isFindBarOpen,
+    onClose: () => setIsFindBarOpen(false)
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 max-w-7xl mx-auto w-full flex px-4 sm:px-6 lg:px-8"
+  }, /*#__PURE__*/React.createElement("aside", {
+    className: "w-64 shrink-0 hidden md:block py-8 pr-6 border-r border-slate-100 dark:border-slate-800/80 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mb-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative"
+  }, /*#__PURE__*/React.createElement(SearchIcon, {
+    className: "w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+  }), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "Filter navigation...",
+    value: sidebarFilter,
+    onChange: e => setSidebarFilter(e.target.value),
+    className: "w-full pl-8 pr-7 py-1.5 bg-slate-50 hover:bg-slate-100 focus:bg-white dark:bg-slate-900 dark:hover:bg-slate-850 dark:focus:bg-slate-900 text-xs border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-blue-500 transition-all placeholder-slate-400 dark:placeholder-slate-500 text-slate-900 dark:text-slate-100"
+  }), sidebarFilter && /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSidebarFilter(''),
+    className: "absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+  }, /*#__PURE__*/React.createElement(CloseIcon, {
+    className: "w-3 h-3"
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-7"
+  }, filteredNavSections.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-400 dark:text-slate-500 py-4 text-center"
+  }, "No matching topics.") : filteredNavSections.map((group, gIdx) => /*#__PURE__*/React.createElement("div", {
+    key: gIdx
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2"
+  }, group.group), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-1"
+  }, group.items.map(item => /*#__PURE__*/React.createElement("li", {
+    key: item.id
+  }, /*#__PURE__*/React.createElement("a", {
+    href: `#${item.id}`,
+    onClick: () => handleSelectSection(item.id),
+    className: `block text-xs py-1.5 px-2.5 rounded-lg transition-all ${activeSection === item.id ? 'bg-blue-50 dark:bg-blue-950/50 font-semibold text-blue-700 dark:text-blue-300 border-l-2 border-blue-600 dark:border-blue-400 shadow-2xs' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'}`
+  }, item.label)))))))), /*#__PURE__*/React.createElement("main", {
+    className: "flex-1 min-w-0 py-8 md:px-12"
+  }, /*#__PURE__*/React.createElement("section", {
+    id: "overview",
+    className: "mb-16 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono"
+  }, "Getting Started"), /*#__PURE__*/React.createElement("h1", {
+    className: "text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4"
+  }, "gsoc-contrib (`contrib`) Documentation"), /*#__PURE__*/React.createElement("p", {
+    className: "text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-6"
+  }, "A fast, lightweight contribution workspace manager for GitHub issues and pull requests designed for open-source contributors (such as Google Summer of Code, Hacktoberfest, and day-to-day open-source maintainers)."), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-3 gap-4 my-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl font-bold text-slate-900 dark:text-white mb-1"
+  }, "94.2%"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-600 dark:text-slate-400"
+  }, "Bandwidth saved via blobless trees")), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl font-bold text-slate-900 dark:text-white mb-1"
+  }, "1.2s"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-600 dark:text-slate-400"
+  }, "Sub-second workspace setup")), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl font-bold text-slate-900 dark:text-white mb-1"
+  }, "Zero"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-600 dark:text-slate-400"
+  }, "Telemetry, cookies, or tracking"))), /*#__PURE__*/React.createElement("h2", {
+    className: "text-2xl font-bold text-slate-900 dark:text-white mt-10 mb-3"
+  }, "The Problem"), /*#__PURE__*/React.createElement("p", {
+    className: "text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4"
+  }, "When contributing to open-source repositories, developers frequently clone massive git repositories (often 1GB\u201310GB) just to fix a single bug or submit a small pull request. This leads to wasted bandwidth downloading years of untouched blobs, redundant copies filling local hard drives, and slow onboarding."), /*#__PURE__*/React.createElement("h2", {
+    className: "text-2xl font-bold text-slate-900 dark:text-white mt-10 mb-3"
+  }, "The Solution"), /*#__PURE__*/React.createElement("p", {
+    className: "text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4"
+  }, /*#__PURE__*/React.createElement("code", {
+    className: "text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1.5 py-0.5 rounded font-mono"
+  }, "gsoc-contrib"), " creates instant, isolated, lightweight workspaces using Git blobless checkouts (", /*#__PURE__*/React.createElement("code", {
+    className: "text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1.5 py-0.5 rounded font-mono"
+  }, "--filter=blob:none"), ") and Git worktrees. It automatically parses issue metadata, detects your tech stack, generates relevant context files, and manages pull request rebases and submissions.")), /*#__PURE__*/React.createElement("section", {
+    id: "installation",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono"
+  }, "Setup"), /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4"
+  }, "Installation"), /*#__PURE__*/React.createElement("h3", {
+    className: "text-lg font-semibold text-slate-900 dark:text-white mb-2"
+  }, "Option 1: Run instantly with npx (No install required)"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 mb-2"
+  }, "The fastest way to use contrib is through npx:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "npx gsoc-contrib <command>"
+  }), /*#__PURE__*/React.createElement("h3", {
+    className: "text-lg font-semibold text-slate-900 dark:text-white mt-8 mb-2"
+  }, "Option 2: Install globally via npm"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 mb-2"
+  }, "To have the `contrib` and `gsoc-contrib` binaries in your system PATH:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "npm install -g gsoc-contrib"
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 dark:text-slate-400 mt-1"
+  }, "Once installed globally, you can invoke either ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded"
+  }, "contrib"), " or ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded"
+  }, "gsoc-contrib"), "."), /*#__PURE__*/React.createElement("h3", {
+    className: "text-lg font-semibold text-slate-900 dark:text-white mt-8 mb-2"
+  }, "System Prerequisites"), /*#__PURE__*/React.createElement("ul", {
+    className: "list-disc list-inside text-sm text-slate-600 dark:text-slate-300 space-y-1"
+  }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", null, "Node.js"), ": v18.0.0 or higher"), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", null, "Git"), ": v2.25.0 or higher (with blobless and sparse-checkout support)"), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", null, "OS"), ": Linux, macOS, or Windows (PowerShell/CMD/WSL)"))), /*#__PURE__*/React.createElement("section", {
+    id: "quickstart",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono"
+  }, "Tutorial"), /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4"
+  }, "Quick Start Tutorial"), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "text-base font-bold text-slate-900 dark:text-white mb-1"
+  }, "1. Verify Environment"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 mb-2"
+  }, "Run init to inspect Node.js, Git, storage paths, and GitHub API rate limits:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib init"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "text-base font-bold text-slate-900 dark:text-white mb-1"
+  }, "2. Search for First Contribution Tasks"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 mb-2"
+  }, "Find beginner-friendly issues in any open-source repo:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib search \"good first issue\" --repo psf/requests"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "text-base font-bold text-slate-900 dark:text-white mb-1"
+  }, "3. Spawn an Instant Workspace"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 mb-2"
+  }, "Create an isolated blobless workspace with auto-generated context:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib start https://github.com/psf/requests/issues/6000 --worktree --install"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "text-base font-bold text-slate-900 dark:text-white mb-1"
+  }, "4. Open in Your Favorite Editor"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 mb-2"
+  }, "Launch directly into VS Code, Cursor, Antigravity IDE, or terminal editors:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib open --cursor"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "text-base font-bold text-slate-900 dark:text-white mb-1"
+  }, "5. Synchronize with Upstream Changes"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 mb-2"
+  }, "Fetch and rebase your branch on upstream/main at any time:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib sync --push"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "text-base font-bold text-slate-900 dark:text-white mb-1"
+  }, "6. Submit Your Pull Request"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 mb-2"
+  }, "Verify clean working trees and generate a 1-click GitHub PR link:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib submit"
+  })))), /*#__PURE__*/React.createElement("section", {
+    id: "cmd-start",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1 font-mono"
+  }, "Command Reference"), /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono"
+  }, "contrib start"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-500 dark:text-slate-400 font-mono mb-4"
+  }, "Alias: contrib contribute"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "Initializes a dedicated workspace for a specific GitHub issue or pull request. Downloads only commit trees, creates an isolated branch, parses the issue text to detect candidate source files, and writes ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, ".contrib/ISSUE.md"), " and ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, ".contrib/AI_PROMPT.md"), "."), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib start <url-or-shorthand> [options]"
+  }), /*#__PURE__*/React.createElement("h4", {
+    className: "text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-6 mb-3"
+  }, "Options & Flags"), /*#__PURE__*/React.createElement("div", {
+    className: "overflow-x-auto"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "w-full text-xs text-left border border-slate-200 dark:border-slate-700/80 rounded-lg overflow-hidden"
+  }, /*#__PURE__*/React.createElement("thead", {
+    className: "bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-bold"
+  }, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5"
+  }, "Flag"), /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5"
+  }, "Description"), /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5"
+  }, "Default"))), /*#__PURE__*/React.createElement("tbody", {
+    className: "divide-y divide-slate-100 dark:divide-slate-800/80 font-mono"
+  }, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "-b, --branch <name>"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Custom branch name to create"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "issue_<num>")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "-w, --worktree"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Use shared bare repository cache with git worktree for sub-second setup"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "false")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "-s, --sparse [dirs]"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Enable cone sparse checkout for specific directories"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "auto")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "-m, --mode <mode>"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Clone mode: blobless, treeless, shallow, or worktree"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "blobless")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "-i, --install"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Automatically detect stack and install dependencies"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "false")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "-o, --open"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Open workspace in default editor immediately"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "false")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "-a, --antigravity"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Open in Google Antigravity IDE (--ide, --agy)"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "false")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "-c, --code"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Open in Visual Studio Code"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "false")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "--cursor"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Open in Cursor"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "false")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "--offline"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Operate completely offline using cached metadata and bare mirrors"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 text-slate-500 dark:text-slate-400"
+  }, "false"))))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-semibold text-slate-700 dark:text-slate-300"
+  }, "Example:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib start psf/requests#6000 --worktree --install --cursor"
+  }))), /*#__PURE__*/React.createElement("section", {
+    id: "cmd-open",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono"
+  }, "contrib open"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "Launches your active contribution workspace in an editor or browser. When run inside an active workspace, automatically detects the current workspace. When multiple exist, provides interactive selection."), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib open [workspace-id] [options]"
+  }), /*#__PURE__*/React.createElement("h4", {
+    className: "text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-4 mb-2"
+  }, "Supported Editor Flags"), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono text-slate-700 dark:text-slate-300"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800"
+  }, "--code (VS Code)"), /*#__PURE__*/React.createElement("div", {
+    className: "p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800"
+  }, "--cursor (Cursor)"), /*#__PURE__*/React.createElement("div", {
+    className: "p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800"
+  }, "--antigravity (AGY)"), /*#__PURE__*/React.createElement("div", {
+    className: "p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800"
+  }, "--nvim (Neovim)"), /*#__PURE__*/React.createElement("div", {
+    className: "p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800"
+  }, "--vim (Vim)"), /*#__PURE__*/React.createElement("div", {
+    className: "p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800"
+  }, "--helix (Helix)"), /*#__PURE__*/React.createElement("div", {
+    className: "p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800"
+  }, "--zed (Zed)"), /*#__PURE__*/React.createElement("div", {
+    className: "p-2 bg-slate-50 dark:bg-slate-900/90 rounded border border-slate-200 dark:border-slate-800"
+  }, "--web (Browser)")), /*#__PURE__*/React.createElement(Callout, {
+    type: "tip",
+    title: "Shell Integration Tip"
+  }, "Use ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, "contrib open -p"), " to print only the path. You can jump directly in your terminal using:", /*#__PURE__*/React.createElement("code", {
+    className: "block mt-1 font-mono text-xs bg-white/70 dark:bg-slate-900/90 dark:text-sky-300 p-1.5 rounded border border-slate-200/60 dark:border-slate-700"
+  }, "cd $(contrib open psf/requests#6000 -p)"))), /*#__PURE__*/React.createElement("section", {
+    id: "cmd-dashboard",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono"
+  }, "contrib dashboard"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-500 dark:text-slate-400 font-mono mb-4"
+  }, "Aliases: contrib dash, contrib tui"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "A zero-dependency, full-screen interactive Terminal User Interface (TUI) with single-keystroke operations."), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib dashboard"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "bg-slate-950 text-slate-200 p-4 rounded-xl font-mono text-xs my-4 leading-relaxed border border-slate-800"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-slate-300 border-b border-slate-800 pb-2 mb-2 font-bold"
+  }, "CONTRIB WORKSPACE DASHBOARD (Active: 3)"), /*#__PURE__*/React.createElement("div", {
+    className: "text-emerald-400 font-semibold"
+  }, "\u276F [1] psf__requests__issue_6000  (branch: fix-header) [Clean]  14.2 MB"), /*#__PURE__*/React.createElement("div", {
+    className: "text-slate-400"
+  }, "  [2] facebook__react__issue_24000 (branch: use-hook)   [Dirty]  28.1 MB"), /*#__PURE__*/React.createElement("div", {
+    className: "text-slate-400"
+  }, "  [3] torvalds__linux__issue_100   (branch: memory-fix) [Clean]  120 MB"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 pt-2 border-t border-slate-800 text-slate-400 text-[11px]"
+  }, "[o] Open Editor | [s] Sync Upstream | [d] Diff | [c] Cleanup | [q] Quit"))), /*#__PURE__*/React.createElement("section", {
+    id: "cmd-sync",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono"
+  }, "contrib sync"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "Fetches the latest upstream commits from GitHub and cleanly rebases your issue branch on top of `upstream/main` (or default branch). Automatically aborts safely if merge conflicts occur."), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib sync [workspace-id] [--push]"
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 dark:text-slate-400"
+  }, "Passing ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded"
+  }, "--push"), " automatically pushes the rebased branch to your personal fork (", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 px-1 py-0.5 rounded"
+  }, "origin"), ").")), /*#__PURE__*/React.createElement("section", {
+    id: "cmd-submit",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono"
+  }, "contrib submit"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-500 dark:text-slate-400 font-mono mb-4"
+  }, "Alias: contrib pr"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "Assists in submitting your work as a GitHub Pull Request. Verifies working tree status, prompts you to commit uncommitted files, pushes your branch to your personal fork, and generates a pre-filled PR link or GitHub CLI command."), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib submit [workspace-id] [--title <title>] [--body <body>]"
+  })), /*#__PURE__*/React.createElement("section", {
+    id: "cmd-identity",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono"
+  }, "contrib identity"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "Manage multiple Git and SSH identities (e.g. personal, company, open-source) and apply them on a per-workspace basis without altering your global `~/.gitconfig`."), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-semibold text-slate-700 dark:text-slate-300"
+  }, "1. Add an identity:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib identity add personal --name \"Jane Doe\" --email \"jane@personal.com\" --ssh-key ~/.ssh/id_ed25519_personal"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-semibold text-slate-700 dark:text-slate-300"
+  }, "2. Apply to current workspace:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib identity use personal"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-semibold text-slate-700 dark:text-slate-300"
+  }, "3. List all configured identities:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib identity list"
+  })))), /*#__PURE__*/React.createElement("section", {
+    id: "cmd-doctor",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono"
+  }, "contrib doctor"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-500 dark:text-slate-400 font-mono mb-4"
+  }, "Alias: contrib info"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "Runs complete diagnostic health checks across your environment, git version, storage sizes, and GitHub API authentication."), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib doctor [workspace-id]"
+  }), /*#__PURE__*/React.createElement("ul", {
+    className: "list-disc list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1"
+  }, /*#__PURE__*/React.createElement("li", null, "Checks Node.js runtime and Git executable in PATH"), /*#__PURE__*/React.createElement("li", null, "Inspects GitHub authentication tokens and remaining hourly rate limits"), /*#__PURE__*/React.createElement("li", null, "Calculates exact disk usage in `~/.contrib/workspaces` and `~/.contrib/cache`"), /*#__PURE__*/React.createElement("li", null, "Detects project tech stack (Node, Python, Rust, Go) and test commands"))), /*#__PURE__*/React.createElement("section", {
+    id: "cmd-alias",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono"
+  }, "contrib alias / shell-init"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "Generates the ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, "gcd"), " shell function for instant workspace jumping and shell tab-autocompletion across Bash, Zsh, Fish, and PowerShell."), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib alias --install"
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 dark:text-slate-400 mb-2"
+  }, "Once installed, jump into any workspace with tab completion:"), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "gcd requests<TAB> # instantly cd's to ~/.contrib/workspaces/psf__requests__issue_6000"
+  })), /*#__PURE__*/React.createElement("section", {
+    id: "context-files",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-semibold uppercase tracking-wider text-purple-600 mb-1 font-mono"
+  }, "Context Intelligence"), /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4"
+  }, "Auto-Generated Workspace Files"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "Every workspace automatically generates a hidden ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, ".contrib/"), " directory (excluded from git commits via ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, ".git/info/exclude"), ") containing:"), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-mono font-bold text-sm text-slate-900 dark:text-white mb-1"
+  }, ".contrib/ISSUE.md"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-600 dark:text-slate-300 leading-relaxed"
+  }, "Complete Markdown representation of the GitHub issue, author, labels, description, extracted candidate file paths, and quick contribution commands.")), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-mono font-bold text-sm text-slate-900 dark:text-white mb-1"
+  }, ".contrib/AI_PROMPT.md"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-600 dark:text-slate-300 leading-relaxed"
+  }, "Pre-formatted context prompt tailored for AI coding assistants (Claude Code, Antigravity, Cursor, Copilot) with repository contributing guidelines, style guides, and test scripts.")), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 shadow-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-mono font-bold text-sm text-slate-900 dark:text-white mb-1"
+  }, ".contrib/context.json"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-600 dark:text-slate-300 leading-relaxed"
+  }, "Machine-readable JSON schema tracking issue metadata, repository timestamps, and stack configurations.")))), /*#__PURE__*/React.createElement("section", {
+    id: "privacy-security",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-1 font-mono"
+  }, "Security Guarantee"), /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4"
+  }, "Privacy & Security Policy"), /*#__PURE__*/React.createElement(Callout, {
+    type: "security",
+    title: "Zero Telemetry & Local Containment"
+  }, "`gsoc-contrib` is built with a strict privacy-first, local-first architecture. It does NOT collect, transmit, store, or log personal information, IP addresses, tracking metrics, or crash telemetry."), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-4"
+  }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "No External Backend:"), " There are no servers, telemetry beacons, or databases operated by this project. Repository contents and diffs are never transmitted to any third-party server."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "In-Memory Token Lifecycle:"), " GitHub authentication tokens (", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, "GITHUB_TOKEN"), ", ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, "GH_TOKEN"), ", or ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, "gh auth token"), ") are held in memory only for the duration of the command and transmitted strictly over HTTPS directly to GitHub's official REST API (", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, "https://api.github.com"), ")."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "Automated Credential Redaction:"), " Built-in scrubbers automatically redact GitHub Personal Access Tokens (", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, "ghp_*"), "), fine-grained tokens (", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, "github_pat_*"), "), and embedded git credentials from all logs, error messages, and terminal outputs."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "Strict Argument Parameterization:"), " All Git and subprocess invocations execute with ", /*#__PURE__*/React.createElement("code", {
+    className: "font-mono text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1 py-0.5 rounded"
+  }, "shell: false"), " to prevent shell injection attacks."))), /*#__PURE__*/React.createElement("section", {
+    id: "network-audit",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-bold text-slate-900 dark:text-white mb-3"
+  }, "Network Request Audit"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 dark:text-slate-400 mb-4"
+  }, "All outbound network requests are strictly limited to official GitHub endpoints or Git remotes:"), /*#__PURE__*/React.createElement("div", {
+    className: "overflow-x-auto"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "w-full text-xs text-left border border-slate-200 dark:border-slate-700/80 rounded-lg overflow-hidden"
+  }, /*#__PURE__*/React.createElement("thead", {
+    className: "bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-bold"
+  }, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5"
+  }, "Endpoint / Operation"), /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5"
+  }, "Protocol"), /*#__PURE__*/React.createElement("th", {
+    className: "p-2.5"
+  }, "Why It Exists"))), /*#__PURE__*/React.createElement("tbody", {
+    className: "divide-y divide-slate-100 dark:divide-slate-800/80 font-mono"
+  }, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "GET /repos/", '{owner}/{repo}', "/issues/", '{num}'), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "HTTPS"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Retrieves public issue title, description body, labels, and author")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "GET /user"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "HTTPS"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Identifies authenticated username to check for existing personal forks")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "GET /repos/", '{user}/{repo}'), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "HTTPS"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Checks if the user has a fork of the target repo to wire remotes")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "POST /repos/", '{owner}/{repo}', "/forks"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "HTTPS"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Creates a user fork on GitHub when --fork is specified")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "GET /search/issues"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "HTTPS"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Powers `contrib search` and `contrib browse` for good first issues")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "GET /rate_limit"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "HTTPS"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Powers `contrib init` and `contrib doctor` to display remaining quota")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-bold text-slate-900 dark:text-sky-300"
+  }, "git clone / fetch / push"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Git/SSH/HTTPS"), /*#__PURE__*/React.createElement("td", {
+    className: "p-2.5 font-sans text-slate-600 dark:text-slate-300"
+  }, "Standard Git operations communicating directly with target GitHub repository")))))))), /*#__PURE__*/React.createElement("footer", {
+    className: "border-t border-slate-200 dark:border-slate-800 py-8 px-6 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement(StarIcon, {
+    className: "w-3.5 h-3.5 text-slate-900 dark:text-slate-100 fill-slate-900 dark:fill-slate-100"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold text-slate-800 dark:text-slate-200"
+  }, "gsoc-contrib (`contrib`)"), /*#__PURE__*/React.createElement("span", null, "\u2014 Open source contribution workspace manager under MIT License")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-4"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "https://github.com/anandmahadevv/contrib-cli",
+    className: "hover:underline hover:text-slate-800 dark:hover:text-slate-200"
+  }, "GitHub"), /*#__PURE__*/React.createElement("a", {
+    href: "https://www.npmjs.com/package/gsoc-contrib",
+    className: "hover:underline hover:text-slate-800 dark:hover:text-slate-200"
+  }, "npm"), /*#__PURE__*/React.createElement("a", {
+    href: "https://github.com/anandmahadevv/contrib-cli/blob/main/SECURITY.md",
+    className: "hover:underline hover:text-slate-800 dark:hover:text-slate-200"
+  }, "Security")))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render( /*#__PURE__*/React.createElement(DocsApp, null));
   </script>
 </body>
 </html>
