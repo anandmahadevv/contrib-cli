@@ -1,4 +1,4 @@
-﻿pyproject.toml
+pyproject.toml
 *.py
 *.pyc
 __pycache__/
