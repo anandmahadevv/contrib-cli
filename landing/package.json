@@ -1,0 +1,13 @@
+{
+  "name": "stellar-landing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stellar.ai landing page hero section with React, Tailwind CSS, Lucide icons, and interactive overlays",
+  "scripts": {
+    "dev": "npx -y serve -l 5173 .",
+    "start": "npx -y serve -l 5173 ."
+  },
+  "keywords": ["landing-page", "react", "tailwind", "lucide-icons", "stellar-ai", "gsoc-contrib"],
+  "author": "Anand",
+  "license": "MIT"
+}
