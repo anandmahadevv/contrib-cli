@@ -25,38 +25,41 @@ const colors = {
   gray: isColorSupported ? '\x1b[90m' : '',
 };
 
+import { redactSensitiveOutput } from './security.js';
+
 export const logger = {
   colors,
 
   info(msg) {
-    console.log(`${colors.blue}[*]${colors.reset} ${msg}`);
+    console.log(`${colors.blue}[*]${colors.reset} ${redactSensitiveOutput(msg)}`);
   },
 
   success(msg) {
-    console.log(`${colors.green}[+]${colors.reset} ${msg}`);
+    console.log(`${colors.green}[+]${colors.reset} ${redactSensitiveOutput(msg)}`);
   },
 
   warn(msg) {
-    console.warn(`${colors.yellow}[!]${colors.reset} ${msg}`);
+    console.warn(`${colors.yellow}[!]${colors.reset} ${redactSensitiveOutput(msg)}`);
   },
 
   error(msg) {
-    console.error(`${colors.red}[!] Error:${colors.reset} ${msg}`);
+    console.error(`${colors.red}[!] Error:${colors.reset} ${redactSensitiveOutput(msg)}`);
   },
 
   step(prefix, msg) {
-    console.log(`${colors.cyan}${prefix}${colors.reset} ${msg}`);
+    console.log(`${colors.cyan}${prefix}${colors.reset} ${redactSensitiveOutput(msg)}`);
   },
 
   plain(msg) {
-    console.log(msg);
+    console.log(redactSensitiveOutput(msg));
   },
 
   dim(msg) {
-    console.log(`${colors.dim}${msg}${colors.reset}`);
+    console.log(`${colors.dim}${redactSensitiveOutput(msg)}${colors.reset}`);
   },
 
   divider(len = 72) {
     console.log(`${colors.gray}${'-'.repeat(len)}${colors.reset}`);
   },
 };
+

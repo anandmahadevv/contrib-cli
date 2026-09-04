@@ -157,3 +157,24 @@ export function isPathInside(parentDir, targetPath) {
   const rel = path.relative(path.resolve(parentDir), path.resolve(targetPath));
   return Boolean(rel && !rel.startsWith('..') && !path.isAbsolute(rel));
 }
+
+/**
+ * Redact potential sensitive tokens, keys, and credentials from a string.
+ * Ensures GitHub tokens and authorization headers are never logged or leaked.
+ * @param {any} input
+ * @returns {string}
+ */
+export function redactSensitiveOutput(input) {
+  if (input === null || input === undefined) return '';
+  const text = typeof input === 'string' ? input : String(input);
+  return text
+    .replace(/ghp_[a-zA-Z0-9]{36,}/g, 'ghp_***')
+    .replace(/gho_[a-zA-Z0-9]{36,}/g, 'gho_***')
+    .replace(/ghu_[a-zA-Z0-9]{36,}/g, 'ghu_***')
+    .replace(/ghs_[a-zA-Z0-9]{36,}/g, 'ghs_***')
+    .replace(/ghr_[a-zA-Z0-9]{36,}/g, 'ghr_***')
+    .replace(/github_pat_[a-zA-Z0-9_]{82,}/g, 'github_pat_***')
+    .replace(/https:\/\/[^:\s]+:[^@\s]+@github\.com/gi, 'https://***:***@github.com')
+    .replace(/(Bearer|token)\s+[a-zA-Z0-9_\-\.]{20,}/gi, '$1 [REDACTED]');
+}
+

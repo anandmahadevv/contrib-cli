@@ -380,6 +380,67 @@ Workspaces, cache, and registry are organized under `~/.contrib`:
 
 ---
 
+## Privacy & Security
+
+`gsoc-contrib` (`contrib`) is built with a strict privacy-first, local-first architecture. It is designed specifically for open-source developers who value control over their local environment, source code, and credentials.
+
+### Data the CLI Application Collects and Stores
+
+The CLI application persists minimal operational data strictly on your local filesystem under `~/.contrib` (or the directory specified by `$CONTRIB_HOME`):
+
+1. **Workspace Registry (`registry.json`)**:
+   Stores identifiers of active workspaces (`id`, local filesystem path, GitHub repository `owner/repo`, issue/PR number, branch name, creation timestamp, and applied identity ID).
+2. **GitHub API Cache (`cache/api/`)**:
+   Caches public issue and pull request metadata (title, body description, labels, and issue author login) to reduce network round-trips, respect rate limits, and support offline workspace creation.
+3. **Bare Git Cache (`cache/git/`)**:
+   Maintains local bare Git mirrors for blobless and worktree clones, saving local disk and bandwidth across multiple issues in the same repository.
+4. **Git Identities (`identities.json`, optional)**:
+   If you configure Git identities via `contrib identity add`, user-provided author details (`name`, `email`, local path to SSH key, and GPG signing key) are stored locally solely to configure Git's local `user.name`, `user.email`, `commit.gpgsign`, or `core.sshCommand` in your workspaces.
+
+### Data the CLI Application Does NOT Collect
+
+The CLI application itself:
+* **Does NOT collect, store, or transmit IP addresses, personal information, or environment variables** (beyond reading documented variables such as `GITHUB_TOKEN`, `GH_TOKEN`, `CONTRIB_HOME`, `EDITOR`, `VISUAL`, `NO_COLOR`, and `FORCE_COLOR` in memory).
+* **Does NOT include telemetry, analytics, tracking, fingerprinting, crash reporting (e.g., Sentry, Bugsnag), or external data beacons**.
+* **Does NOT store GitHub authentication tokens, SSH private keys, or passwords on disk**. GitHub tokens are held only in process memory for the lifecycle of the command and sent strictly in HTTPS request headers directly to GitHub's official REST API.
+* **Does NOT inspect or read private SSH key files**. If an identity specifies `--ssh-key`, only the file path is configured into Git's `core.sshCommand` (`ssh -i "<path>"`).
+* **Does NOT send repository contents, workspace files, diffs, or credentials to any project-controlled server or third party**.
+* **Does NOT operate any project-controlled backend, analytics database, or remote server**.
+* **Does NOT print or log authentication credentials**. Terminal logs, diagnostic outputs (`init`, `doctor`), and error traces are filtered through automated credential redaction (`redactSensitiveOutput`) to scrub tokens and basic authentication strings.
+
+> **Note on Network Infrastructure Metadata**:
+> While the CLI application itself does not collect, record, or transmit user IP addresses or tracking telemetry, standard TCP/IP network transport packets are transmitted by your operating system when communicating with GitHub's servers (e.g., HTTPS requests to `api.github.com` or Git SSH traffic to `github.com`). These network-layer interactions are handled by GitHub in accordance with the [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement).
+
+---
+
+### Network Request Audit
+
+Every network request initiated by `contrib` is strictly directed to official GitHub infrastructure or user-specified Git remotes. Below is the comprehensive audit of all network requests in the project and why each one exists:
+
+| Request / Operation | Protocol & Destination | Purpose & Rationale |
+| :--- | :--- | :--- |
+| **Fetch Issue Metadata** | `GET https://api.github.com/repos/{owner}/{repo}/issues/{issue}` | Retrieves public issue title, description body, labels, and author to populate workspace context (`.contrib/ISSUE.md`), determine relevant source files, and configure workspace branches. |
+| **Inspect Current User** | `GET https://api.github.com/user` | Determines the authenticated GitHub username to check whether the contributor already owns a fork of the repository. |
+| **Check Existing Fork** | `GET https://api.github.com/repos/{username}/{repo}` | Checks whether a fork exists under the user's account to automatically configure `upstream` and `origin` remotes. |
+| **Create Repository Fork** | `POST https://api.github.com/repos/{owner}/{repo}/forks` | Creates a user fork on GitHub when `--fork` is passed or when preparing PR submission. |
+| **Search Contribution Issues** | `GET https://api.github.com/search/issues?q=...` | Powers the `contrib search` and `contrib browse` commands to search public GitHub issues by label, repository, and keywords. |
+| **Check Rate Limits & Auth** | `GET https://api.github.com/rate_limit` | Powers `contrib init` and `contrib doctor` to report remaining GitHub API requests and authentication status. |
+| **Get Default Branch** | `GET https://api.github.com/repos/{owner}/{repo}` | Retrieves the repository default branch (`main` vs `master`) to properly target base branch checkouts. |
+| **Git Clone / Fetch / Push** | Git over HTTPS/SSH to `github.com` | Standard Git version control operations executed via your system's `git` executable to clone blobless trees, fetch upstream commits, and push user-committed branches to their fork. |
+
+No network requests are ever made to any other host, service, or project-controlled endpoint.
+
+---
+
+### Dependency Tree & Security Audit
+
+Before every release, the project dependency tree is audited to prevent dependency bloat, typosquatting, or supply chain vulnerabilities:
+
+* **Production Dependencies**: Only `commander` (`^13.1.0`), which has **0** transitive dependencies.
+* **Security Audit**: Verified using `npm audit` with **0 vulnerabilities**.
+
+---
+
 ## Development
 
 ```bash

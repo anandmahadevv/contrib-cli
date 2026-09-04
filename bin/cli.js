@@ -8,6 +8,7 @@
  */
 
 import { runCli } from '../src/cli.js';
+import { redactSensitiveOutput } from '../src/utils/security.js';
 
 // Gracefully handle termination signals
 process.on('SIGINT', () => {
@@ -27,6 +28,8 @@ runCli(process.argv)
     }
   })
   .catch((err) => {
-    process.stderr.write(`\x1b[31m[!] Error:\x1b[0m ${err.message || err}\n`);
+    const rawMsg = err.message || String(err);
+    process.stderr.write(`\x1b[31m[!] Error:\x1b[0m ${redactSensitiveOutput(rawMsg)}\n`);
     process.exitCode = 1;
   });
+

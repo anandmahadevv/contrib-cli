@@ -9,7 +9,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
-import { GitError, SecurityError } from './security.js';
+import { GitError, SecurityError, redactSensitiveOutput } from './security.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -54,10 +54,12 @@ export async function runGitCommand(args, options = {}) {
         'Git executable was not found in your PATH. Please install Git to continue.'
       );
     }
-    const stderr = err.stderr ? err.stderr.trim() : err.message;
+    const rawStderr = err.stderr ? err.stderr.trim() : err.message;
+    const sanitizedStderr = redactSensitiveOutput(rawStderr);
+    const sanitizedArgs = redactSensitiveOutput(args.join(' '));
     throw new GitError(
-      `Git command failed: git ${args.join(' ')}\nError: ${stderr}`,
-      stderr
+      `Git command failed: git ${sanitizedArgs}\nError: ${sanitizedStderr}`,
+      sanitizedStderr
     );
   }
 }

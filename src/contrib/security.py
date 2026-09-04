@@ -50,6 +50,21 @@ def sanitize_workspace_name(name: str) -> str:
     return sanitized
 
 
+def redact_sensitive_output(text: str) -> str:
+    """Redact GitHub tokens and credentials from diagnostic or error strings."""
+    if not text or not isinstance(text, str):
+        return "" if text is None else str(text)
+    text = re.sub(r"ghp_[a-zA-Z0-9]{36,}", "ghp_***", text)
+    text = re.sub(r"gho_[a-zA-Z0-9]{36,}", "gho_***", text)
+    text = re.sub(r"ghu_[a-zA-Z0-9]{36,}", "ghu_***", text)
+    text = re.sub(r"ghs_[a-zA-Z0-9]{36,}", "ghs_***", text)
+    text = re.sub(r"ghr_[a-zA-Z0-9]{36,}", "ghr_***", text)
+    text = re.sub(r"github_pat_[a-zA-Z0-9_]{82,}", "github_pat_***", text)
+    text = re.sub(r"https://[^:\s]+:[^@\s]+@github\.com", "https://***:***@github.com", text, flags=re.IGNORECASE)
+    text = re.sub(r"(Bearer|token)\s+[a-zA-Z0-9_\-\.]{20,}", r"\1 [REDACTED]", text, flags=re.IGNORECASE)
+    return text
+
+
 def run_git_command(
     args: List[str],
     cwd: Optional[Path] = None,
@@ -74,4 +89,7 @@ def run_git_command(
         raise SecurityError("Git executable not found in PATH. Please install Git.")
     except subprocess.CalledProcessError as e:
         stderr = e.stderr.strip() if e.stderr else "Unknown error"
-        raise RuntimeError(f"Git command failed: {' '.join(cmd)}\nError: {stderr}")
+        sanitized_stderr = redact_sensitive_output(stderr)
+        sanitized_cmd = redact_sensitive_output(" ".join(cmd))
+        raise RuntimeError(f"Git command failed: {sanitized_cmd}\nError: {sanitized_stderr}")
+

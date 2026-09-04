@@ -4,6 +4,7 @@ import {
   validateGitHubUrl,
   sanitizeWorkspaceName,
   isPathInside,
+  redactSensitiveOutput,
   SecurityError,
 } from '../src/utils/security.js';
 
@@ -81,5 +82,24 @@ describe('Security & Validation', () => {
 
     assert.strictEqual(isPathInside(parent, child), true);
     assert.strictEqual(isPathInside(parent, outside), false);
+  });
+
+  test('redacts GitHub personal access tokens and secrets', () => {
+    const raw = 'Error authenticating with token ghp_123456789012345678901234567890123456 and fine-grained github_pat_11AAAAAAA0123456789012345678901234567890123456789012345678901234567890123456789012';
+    const redacted = redactSensitiveOutput(raw);
+    assert.strictEqual(redacted.includes('ghp_1234567890'), false);
+    assert.strictEqual(redacted.includes('ghp_***'), true);
+    assert.strictEqual(redacted.includes('github_pat_11AAAA'), false);
+    assert.strictEqual(redacted.includes('github_pat_***'), true);
+  });
+
+  test('redacts authorization headers and embedded git credentials', () => {
+    const rawAuth = 'Authorization: Bearer ghp_sampletokenstringlongenoughhere';
+    const redactedAuth = redactSensitiveOutput(rawAuth);
+    assert.strictEqual(redactedAuth, 'Authorization: Bearer [REDACTED]');
+
+    const rawUrl = 'fatal: could not read from https://user:secretpassword@github.com/org/repo.git';
+    const redactedUrl = redactSensitiveOutput(rawUrl);
+    assert.strictEqual(redactedUrl, 'fatal: could not read from https://***:***@github.com/org/repo.git');
   });
 });

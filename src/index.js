@@ -48,6 +48,7 @@ export {
   validateGitHubUrl,
   sanitizeWorkspaceName,
   isPathInside,
+  redactSensitiveOutput,
   SecurityError,
   UserError,
   GitError,

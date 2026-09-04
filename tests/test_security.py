@@ -5,6 +5,7 @@ from contrib.security import (
     SecurityError,
     sanitize_workspace_name,
     validate_github_url,
+    redact_sensitive_output,
 )
 
 
@@ -40,3 +41,16 @@ def test_sanitize_workspace_name():
 def test_sanitize_workspace_name_traversal():
     with pytest.raises(SecurityError, match="Unsafe workspace name"):
         sanitize_workspace_name("..")
+
+
+def test_redact_sensitive_output():
+    raw = "Failed with ghp_012345678901234567890123456789012345 and github_pat_11AAAAAAA0123456789012345678901234567890123456789012345678901234567890123456789012"
+    redacted = redact_sensitive_output(raw)
+    assert "ghp_01234" not in redacted
+    assert "ghp_***" in redacted
+    assert "github_pat_11AAA" not in redacted
+    assert "github_pat_***" in redacted
+
+    url_raw = "fatal: https://user:pass@github.com/repo.git"
+    assert redact_sensitive_output(url_raw) == "fatal: https://***:***@github.com/repo.git"
+
