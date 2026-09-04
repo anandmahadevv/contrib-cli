@@ -1,5 +1,8 @@
 ﻿pyproject.toml
-.pytest_cache/
-tests/
-bin/
+*.py
+*.pyc
+__pycache__/
 src/contrib/
+tests/
+.pytest_cache/
+bin/
