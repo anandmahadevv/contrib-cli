@@ -54,21 +54,23 @@ describe('Workspace Service', () => {
     assert.ok(workspaces[0].sizeBytes > 0);
   });
 
-  test('getWorkspace retrieves workspace by id, url, or owner/repo', () => {
+  test('getWorkspace retrieves workspace by id, url, owner/repo, shorthand repo name, or partial ID', () => {
     saveRegistry({
       sample_id: {
-        id: 'sample_id',
-        url: 'https://github.com/myorg/myrepo/issues/99',
-        owner: 'myorg',
-        repo: 'myrepo',
-        issue_number: '99',
+        id: 'anandmahadevv__contrib-docs__issue_main',
+        url: 'https://github.com/anandmahadevv/contrib-docs/issues/main',
+        owner: 'anandmahadevv',
+        repo: 'contrib-docs',
+        issue_number: 'main',
       },
     });
 
-    assert.ok(getWorkspace('sample_id'));
-    assert.ok(getWorkspace('https://github.com/myorg/myrepo/issues/99'));
-    assert.ok(getWorkspace('myorg/myrepo'));
-    assert.ok(getWorkspace('myorg/myrepo#99'));
+    assert.ok(getWorkspace('anandmahadevv__contrib-docs__issue_main'));
+    assert.ok(getWorkspace('https://github.com/anandmahadevv/contrib-docs/issues/main'));
+    assert.ok(getWorkspace('anandmahadevv/contrib-docs'));
+    assert.ok(getWorkspace('anandmahadevv/contrib-docs#main'));
+    assert.ok(getWorkspace('contrib-docs'));
+    assert.ok(getWorkspace('contrib'));
     assert.strictEqual(getWorkspace('nonexistent'), null);
   });
 

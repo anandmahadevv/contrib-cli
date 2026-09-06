@@ -425,13 +425,45 @@ export function getWorkspace(idOrTarget) {
   }
 
   const values = Object.values(registry);
-  const found = values.find(
+  let found = values.find(
     (w) =>
       w.id === idOrTarget ||
       w.url === idOrTarget ||
       `${w.owner}/${w.repo}` === idOrTarget ||
       `${w.owner}/${w.repo}#${w.issue_number}` === idOrTarget
   );
+
+  if (!found) {
+    // Try repo name exact match (e.g., 'contrib-docs', 'creatorOS', 'requests')
+    const repoMatches = values.filter(
+      (w) => w.repo && w.repo.toLowerCase() === idOrTarget.toLowerCase()
+    );
+    if (repoMatches.length === 1) {
+      found = repoMatches[0];
+    } else if (repoMatches.length > 1) {
+      // Pick the most recently created workspace for that repo
+      found = repoMatches.sort(
+        (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+      )[0];
+    }
+  }
+
+  if (!found) {
+    // Try partial ID or owner/repo match
+    const partialMatches = values.filter(
+      (w) =>
+        (w.id && w.id.toLowerCase().includes(idOrTarget.toLowerCase())) ||
+        (w.owner && w.repo && `${w.owner}/${w.repo}`.toLowerCase().includes(idOrTarget.toLowerCase()))
+    );
+    if (partialMatches.length === 1) {
+      found = partialMatches[0];
+    } else if (partialMatches.length > 1) {
+      found = partialMatches.sort(
+        (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+      )[0];
+    }
+  }
+
   return found || null;
 }
 
