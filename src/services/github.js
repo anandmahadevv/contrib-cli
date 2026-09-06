@@ -207,7 +207,15 @@ export async function searchIssues(query, options = {}) {
   let q = query ? `${query} ` : '';
   q += `state:${state} is:issue `;
   if (repo) {
-    q += `repo:${repo} `;
+    const cleanRepo = repo
+      .trim()
+      .replace(/^https?:\/\/github\.com\//i, '')
+      .replace(/\/$/, '')
+      .replace(/\.git$/i, '')
+      .split('/')
+      .slice(0, 2)
+      .join('/');
+    q += `repo:${cleanRepo} `;
   }
   if (label) {
     q += `label:"${label}" `;
