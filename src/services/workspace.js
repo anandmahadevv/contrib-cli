@@ -22,6 +22,7 @@ import {
   generateAiPromptV2,
 } from './context.js';
 import { applyIdentityToWorkspace } from './identity.js';
+import { planWorkspaceClosure } from './planner.js';
 import {
   sanitizeWorkspaceName,
   isPathInside,
@@ -223,21 +224,38 @@ export async function createWorkspace(target, options = {}) {
         // Determine starting point branch from bare cache
         let startPoint = 'HEAD';
         try {
-          const { stdout: branchOut } = await runGitCommand(['branch'], { cwd: bareCacheDir });
-          const branches = branchOut.split('\n').map((b) => b.trim().replace(/^\*\s*/, '')).filter(Boolean);
-          if (branches.includes('main')) startPoint = 'main';
-          else if (branches.includes('master')) startPoint = 'master';
-          else if (branches.length > 0) startPoint = branches[0];
+          const { stdout: headRef } = await runGitCommand(
+            ['symbolic-ref', 'refs/remotes/origin/HEAD'],
+            { cwd: bareCacheDir }
+          );
+          startPoint = headRef.trim().replace('refs/remotes/origin/', '');
+        } catch {
+          try {
+            const { stdout: branchOut } = await runGitCommand(['branch'], { cwd: bareCacheDir });
+            const branches = branchOut.split('\n').map((b) => b.trim().replace(/^\*\s*/, '')).filter(Boolean);
+            if (branches.includes('main')) startPoint = 'main';
+            else if (branches.includes('master')) startPoint = 'master';
+            else if (branches.length > 0) startPoint = branches[0];
+          } catch {
+            // ignore
+          }
+        }
+
+        // Check if target branch already exists in bare repository
+        let branchExists = false;
+        try {
+          const { stdout: branchList } = await runGitCommand(['branch', '--list', targetBranch], { cwd: bareCacheDir });
+          branchExists = branchList.trim().length > 0;
         } catch {
           // ignore
         }
 
-        // Add git worktree
+        // Add git worktree safely
         fs.mkdirSync(path.dirname(wsPath), { recursive: true });
-        await runGitCommand(
-          ['worktree', 'add', '-b', targetBranch, wsPath, startPoint],
-          { cwd: bareCacheDir }
-        );
+        const worktreeCmd = branchExists
+          ? ['worktree', 'add', wsPath, targetBranch]
+          : ['worktree', 'add', '-b', targetBranch, wsPath, startPoint];
+        await runGitCommand(worktreeCmd, { cwd: bareCacheDir });
       } else {
         // Standard Blobless / Treeless / Shallow clone
         fs.mkdirSync(wsPath, { recursive: true });
@@ -264,14 +282,24 @@ export async function createWorkspace(target, options = {}) {
         await runGitCommand(['checkout', '-b', targetBranch], { cwd: wsPath });
       }
 
-      // Configure sparse checkout if requested
+      // Configure sparse checkout and monorepo closure plan if requested
       if (options.sparse) {
-        const sparsePaths =
+        const rawSparsePaths =
           typeof options.sparse === 'boolean'
             ? focusAreas
             : options.sparse;
-        if (sparsePaths && (Array.isArray(sparsePaths) ? sparsePaths.length > 0 : String(sparsePaths).length > 0)) {
-          await setupSparseCheckout(wsPath, sparsePaths);
+
+        const focusList = Array.isArray(rawSparsePaths)
+          ? rawSparsePaths
+          : String(rawSparsePaths || '').split(/[,\s]+/).filter(Boolean);
+
+        const closure = planWorkspaceClosure(wsPath, focusList);
+        const finalPaths = closure.targetPaths && closure.targetPaths.length > 0
+          ? closure.targetPaths
+          : focusList;
+
+        if (finalPaths.length > 0 && !closure.fullCheckoutRequired) {
+          await setupSparseCheckout(wsPath, finalPaths);
         }
       }
 
@@ -538,17 +566,15 @@ export async function analyzeIssue(target) {
   const tokens = textCorpus.split(/\s+/);
 
   for (const token of tokens) {
+    const cleanToken = token.replace(/^[`'",():[\]{}*.]+|[`'",():[\]{}*.]+$|/g, '').trim();
+    if (!cleanToken || cleanToken.length <= 2 || cleanToken.startsWith('http')) {
+      continue;
+    }
     if (
-      token.includes('/') ||
-      /\.(?:py|js|jsx|ts|tsx|go|rs|md|json|yml|yaml|c|cpp|h|java|rb|php|html|css)$/.test(token)
+      cleanToken.includes('/') ||
+      /\.(?:py|js|jsx|ts|tsx|go|rs|md|json|yml|yaml|c|cpp|h|java|rb|php|html|css)$/i.test(cleanToken)
     ) {
-      const cleanToken = token.replace(/[`'",():[\]{}*]/g, '');
-      if (
-        cleanToken &&
-        cleanToken.length > 2 &&
-        !cleanToken.startsWith('http') &&
-        !suggestedPaths.includes(cleanToken)
-      ) {
+      if (!suggestedPaths.includes(cleanToken)) {
         suggestedPaths.push(cleanToken);
       }
     }

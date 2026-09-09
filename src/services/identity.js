@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license MIT
  * Copyright (c) 2026 Anand
  *
@@ -6,6 +6,7 @@
  * Applies user identities and SSH host configurations to Git workspaces.
  */
 
+import fs from 'node:fs';
 import { runGitCommand } from '../utils/git.js';
 import { UserError } from '../utils/security.js';
 import { getIdentity } from '../config/index.js';
@@ -45,6 +46,9 @@ export async function applyIdentityToWorkspace(wsPath, identityOrName) {
 
   // 3. Custom SSH key via core.sshCommand
   if (identity.sshKey) {
+    if (!fs.existsSync(identity.sshKey)) {
+      throw new UserError(`SSH key path does not exist: ${identity.sshKey}`);
+    }
     await runGitCommand(['config', 'core.sshCommand', `ssh -i "${identity.sshKey}"`], { cwd: wsPath });
   }
 
