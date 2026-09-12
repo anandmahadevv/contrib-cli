@@ -1,6 +1,6 @@
 {
   "name": "gsoc-contrib",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Fast, lightweight contribution workspace manager for GitHub issues without repeatedly cloning entire repositories.",
   "type": "module",
   "main": "./src/index.js",

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2026-09-13
+### Fixed
+- Fixed Commander option defaults in `src/cli.js` (`--level`, `--time`) that prevented interactive quiz mode from triggering when running `contrib recommend`.
+
 ## [0.5.1] - 2026-09-13
 ### Fixed
 - Fixed interactive TTY check in `contrib recommend` to ensure interactive quiz questions trigger seamlessly across Git Bash, Windows CMD, and PowerShell terminal environments.
