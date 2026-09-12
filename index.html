@@ -512,6 +512,13 @@ const SEARCH_INDEX = [{
   keywords: "identity ssh git user name email signing personal work switch add list use remove",
   description: "Manage multiple Git and SSH author identities (personal, work, GSoC) seamlessly."
 }, {
+  id: "cmd-recommend",
+  title: "contrib recommend / contrib match",
+  category: "Discovery & Heuristics",
+  badge: "Command",
+  keywords: "recommend match gsoc quiz org organization beginner starter python javascript rust ai ml security",
+  description: "Interactive GSoC Project Matcher & Recommendation Engine matching developer skills with 200+ top open-source organizations."
+}, {
   id: "cmd-search",
   title: "contrib search <query>",
   category: "Discovery & Heuristics",
@@ -1057,6 +1064,9 @@ function DocsApp() {
   }, {
     group: "Discovery & AI Heuristics",
     items: [{
+      id: "cmd-recommend",
+      label: "contrib recommend"
+    }, {
       id: "cmd-search",
       label: "contrib search"
     }, {
@@ -1125,7 +1135,7 @@ function DocsApp() {
     className: "font-bold tracking-tight text-slate-900 dark:text-white text-base"
   }, "gsoc-contrib"), /*#__PURE__*/React.createElement("span", {
     className: "text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono px-2 py-0.5 rounded-full"
-  }, "v0.4.0")), /*#__PURE__*/React.createElement("div", {
+  }, "v0.5.2")), /*#__PURE__*/React.createElement("div", {
     className: "hidden lg:flex items-center gap-5 text-sm font-medium text-slate-600 dark:text-slate-400"
   }, /*#__PURE__*/React.createElement("a", {
     href: "#overview",
@@ -1546,6 +1556,17 @@ function DocsApp() {
   }, "3. List all configured identities:"), /*#__PURE__*/React.createElement(CodeBlock, {
     code: "contrib identity list"
   })))), /*#__PURE__*/React.createElement("section", {
+    id: "cmd-recommend",
+    className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 font-mono"
+  }, "contrib recommend"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-500 dark:text-slate-400 font-mono mb-4"
+  }, "Aliases: contrib match, contrib gsoc"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+  }, "Interactive GSoC Project Matcher & Recommendation Engine. Surveys your programming languages, domain interests (AI/ML, Web, Cloud, Security), and experience level to score 200+ top GSoC organizations and pull live starter issues from GitHub."), /*#__PURE__*/React.createElement(CodeBlock, {
+    code: "contrib recommend [--lang <python,js>] [--domain <ai>] [--level <beginner>]"
+  })), /*#__PURE__*/React.createElement("section", {
     id: "cmd-doctor",
     className: "mb-16 pt-6 border-t border-slate-100 dark:border-slate-800/80 scroll-mt-24"
   }, /*#__PURE__*/React.createElement("h2", {
