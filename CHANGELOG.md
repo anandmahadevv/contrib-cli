@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-09-12
+### Added
+- **Smart GSoC Project Matcher & Recommendation Engine (`contrib recommend` / `contrib match` / `contrib gsoc`)**:
+  - Interactive CLI survey matching contributor skills, programming languages, target domain interests (AI/ML, Web, Cloud, Security, Mobile, Systems), and experience levels against 200+ top Google Summer of Code organizations.
+  - Multi-factor recommendation algorithm calculating match percentages (`98% MATCH`), starter tips, and mentorship quality ratings.
+  - Live GitHub API integration fetching open `"good first issue"` and beginner starter issues directly from matched repositories.
+  - One-action startup handoff: select a recommended issue to launch lightweight worktree workspaces instantly.
+  - Flag-driven non-interactive mode (`--lang`, `--domain`, `--level`, `--json`, `--markdown`) for CLI scripting and CI.
+
 ## [0.4.0] - 2026-09-03
 ### Added
 - **Smart Offline Engine (`contrib --offline`)**:

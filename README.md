@@ -53,7 +53,17 @@ contrib --help
 npx gsoc-contrib init
 ```
 
-### 2. Search for Contribution Opportunities
+### 2. Match Skills with GSoC Organizations (AI Recommendation Quiz)
+
+```bash
+# Launch interactive GSoC project matcher:
+npx gsoc-contrib recommend
+
+# Or filter directly via CLI flags:
+npx gsoc-contrib recommend --lang python,javascript --domain ai --level beginner
+```
+
+### 3. Search for Contribution Opportunities
 
 ```bash
 npx gsoc-contrib search "good first issue" --repo psf/requests

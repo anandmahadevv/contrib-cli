@@ -28,6 +28,7 @@ import { handleOpen } from './commands/open.js';
 import { handleShellInit, handleAlias } from './commands/shell.js';
 import { handleIdentity } from './commands/identity.js';
 import { handleDashboard } from './commands/dashboard.js';
+import { handleRecommend } from './commands/recommend.js';
 import {
   SecurityError,
   UserError,
@@ -232,6 +233,23 @@ Examples:
     .option('-n, --limit <number>', 'Maximum number of results (default: 10)')
     .action(async (query, options) => {
       process.exitCode = await handleSearch(query, options);
+    });
+
+  // Command: recommend / match / gsoc
+  program
+    .command('recommend')
+    .alias('match')
+    .alias('gsoc')
+    .description('Match skills & interests with top GSoC Organizations and find beginner starter issues.')
+    .option('-l, --lang <languages>', 'Filter by languages (e.g. python,javascript,rust)')
+    .option('-d, --domain <domain>', 'Filter by domain (e.g. ai, web, cloud, security)')
+    .option('--level <level>', 'Skill level: beginner, intermediate, or advanced', 'beginner')
+    .option('-t, --time <hours>', 'Hours per week available for contribution', '10')
+    .option('-n, --limit <number>', 'Number of recommendations to show (default: 3)')
+    .option('-j, --json', 'Output recommendations in JSON format')
+    .option('-m, --markdown', 'Output recommendations in Markdown format')
+    .action(async (options) => {
+      process.exitCode = await handleRecommend(options);
     });
 
   // Command: doctor / info
