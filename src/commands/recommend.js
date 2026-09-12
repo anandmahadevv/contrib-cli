@@ -29,7 +29,8 @@ export async function handleRecommend(options = {}) {
   const limit = options.limit ? parseInt(options.limit, 10) : 3;
 
   // Non-interactive or flag-based execution
-  if (options.lang || options.domain || options.level || options.json || options.markdown || !process.stdin.isTTY) {
+  const isFlagDriven = Boolean(options.lang || options.domain || options.json || options.markdown);
+  if (isFlagDriven) {
     const userLangs = options.lang ? options.lang.split(',').map((s) => s.trim()) : [];
     const userDomains = options.domain ? options.domain.split(',').map((s) => s.trim()) : [];
     const level = options.level || 'beginner';
