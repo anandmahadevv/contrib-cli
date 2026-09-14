@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Play, Pause, RotateCcw, Monitor, CheckCircle2, Sparkles, Terminal, Cpu } from "lucide-react"
+import { Play, Pause, RotateCcw, Sparkles, Terminal, Cpu, FileCode, Check, Copy, ArrowRight, Zap, Search } from "lucide-react"
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -41,9 +41,42 @@ const SCENES = [
   },
 ]
 
+const SAMPLE_FILES = {
+  prompt: `// AI_PROMPT.md (Synthesized Briefing Package)
+# Task Briefing: Fix Header Parsing in requests #6000
+
+## Focus Areas
+- src/requests/adapters.py (L142-L188)
+- src/requests/utils.py (L45-L89)
+
+## Context & Guidelines
+- Follow PEP8 styling rules
+- Run pytest tests/test_adapters.py before opening PR
+- Isolated git branch: contrib/issue-6000`,
+  context: `{
+  "repo": "psf/requests",
+  "issue": 6000,
+  "branch": "contrib/issue-6000",
+  "stack": "python",
+  "testCommand": "pytest",
+  "qualityTools": ["flake8", "black"]
+}`,
+  issue: `# Issue #6000: Header parsing fails on multiline headers
+
+Reproduction:
+  import requests
+  requests.get('https://httpbin.org/headers', headers={'X-Test': 'line1\\nline2'})
+
+Expected:
+  Headers parsed correctly without splitting.`,
+}
+
 export function DemoVideoPlayer() {
   const [isPlaying, setIsPlaying] = useState(true)
   const [currentScene, setCurrentScene] = useState(0)
+  const [activeTab, setActiveTab] = useState<"prompt" | "context" | "issue">("prompt")
+  const [customUrl, setCustomUrl] = useState("https://github.com/JustVugg/colibri/issues/1")
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     if (!isPlaying) return
@@ -57,9 +90,15 @@ export function DemoVideoPlayer() {
 
   const active = SCENES[currentScene]
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(`npx gsoc-contrib start ${customUrl} --agy`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
-    <div className="w-full max-w-5xl mx-auto my-8 border-2 border-foreground bg-background shadow-[8px_8px_0px_0px_#ea580c]">
-      {/* Player Header Bar */}
+    <div className="w-full max-w-5xl mx-auto my-8 border-2 border-foreground bg-background shadow-[10px_10px_0px_0px_#ea580c]">
+      {/* Player Top Header Bar */}
       <div className="flex items-center justify-between border-b-2 border-foreground bg-foreground px-4 py-3 text-background font-mono text-xs">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
@@ -68,7 +107,7 @@ export function DemoVideoPlayer() {
             <span className="h-3 w-3 rounded-full bg-emerald-500 inline-block" />
           </div>
           <span className="font-bold tracking-wider uppercase text-background">
-            BOOTH_PROMO_ANIMATION_4K.MP4
+            BOOTH_SHOWCASE_ENGINE_v0.5.3.MP4
           </span>
         </div>
 
@@ -82,8 +121,39 @@ export function DemoVideoPlayer() {
         </div>
       </div>
 
+      {/* Interactive URL Input Simulation Bar */}
+      <div className="border-b-2 border-foreground bg-zinc-900 px-4 py-3 font-mono text-xs text-white flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-2 w-full sm:w-auto flex-1">
+          <Search size={14} className="text-[#ea580c] shrink-0" />
+          <span className="text-zinc-400 shrink-0">$ contrib start</span>
+          <input
+            type="text"
+            value={customUrl}
+            onChange={(e) => setCustomUrl(e.target.value)}
+            className="bg-zinc-950 border border-zinc-700 px-3 py-1 text-white font-mono text-xs w-full focus:outline-none focus:border-[#ea580c]"
+            placeholder="Paste any GitHub Issue URL..."
+          />
+        </div>
+        <button
+          onClick={handleCopy}
+          className="w-full sm:w-auto bg-[#ea580c] hover:bg-white hover:text-black text-black px-4 py-1.5 font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 shrink-0 transition-colors"
+        >
+          {copied ? (
+            <>
+              <Check size={14} className="text-emerald-600" />
+              <span>COPIED COMMAND!</span>
+            </>
+          ) : (
+            <>
+              <Copy size={14} />
+              <span>COPY --AGY COMMAND</span>
+            </>
+          )}
+        </button>
+      </div>
+
       {/* Main Animated Video Screen Area */}
-      <div className="relative min-h-[380px] sm:min-h-[460px] bg-[#09090b] text-white p-8 sm:p-12 flex flex-col justify-between overflow-hidden">
+      <div className="relative min-h-[400px] sm:min-h-[480px] bg-[#09090b] text-white p-6 sm:p-10 flex flex-col justify-between overflow-hidden">
         {/* Background Dot Grid */}
         <div
           className="absolute inset-0 opacity-20 pointer-events-none"
@@ -103,12 +173,12 @@ export function DemoVideoPlayer() {
           </div>
           <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase tracking-widest">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            LIVE BOOTH SHOWCASE
+            VERIFIED IN ANTIGRAVITY IDE
           </div>
         </div>
 
         {/* Animated Scene Content */}
-        <div className="my-auto z-10 py-6">
+        <div className="my-auto z-10 py-4">
           <AnimatePresence mode="wait">
             <motion.div
               key={active.id}
@@ -141,7 +211,7 @@ export function DemoVideoPlayer() {
               {active.id === 1 && (
                 <div className="border border-zinc-700 bg-zinc-900 p-4 max-w-xl font-mono text-xs space-y-2 mt-4">
                   <div className="flex justify-between text-red-400 font-bold">
-                    <span>$ git clone https://github.com/large-org/repo.git</span>
+                    <span>$ git clone {customUrl}</span>
                     <span>WAITING... (68.4s)</span>
                   </div>
                   <div className="w-full h-3 border border-red-500 bg-zinc-950 overflow-hidden">
@@ -155,18 +225,42 @@ export function DemoVideoPlayer() {
                 </div>
               )}
 
+              {/* Scene 3 Interactive File Inspector */}
+              {active.id === 3 && (
+                <div className="border border-zinc-700 bg-zinc-950 max-w-2xl font-mono text-xs mt-4">
+                  <div className="flex border-b border-zinc-800 bg-zinc-900">
+                    {(["prompt", "context", "issue"] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                          activeTab === tab
+                            ? "border-b-2 border-[#ea580c] text-[#ea580c] bg-zinc-950"
+                            : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        {tab === "prompt" ? "AI_PROMPT.md" : tab === "context" ? "context.json" : "ISSUE.md"}
+                      </button>
+                    ))}
+                  </div>
+                  <pre className="p-4 text-zinc-300 overflow-x-auto text-[11px] leading-relaxed max-h-[160px]">
+                    {SAMPLE_FILES[activeTab]}
+                  </pre>
+                </div>
+              )}
+
               {/* Scene 4 Command snippet */}
               {active.id === 4 && (
                 <div className="border-2 border-white bg-zinc-900 p-4 max-w-xl font-mono text-xs text-white font-bold flex items-center gap-2 mt-4 shadow-[4px_4px_0px_0px_#ea580c]">
                   <span className="text-[#ea580c]">$</span>
-                  <span>npx gsoc-contrib start &lt;issue-url&gt; --agy</span>
+                  <span>npx gsoc-contrib start {customUrl} --agy</span>
                 </div>
               )}
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Video Scrubber & Play Controls */}
+        {/* Video Scrubber & Controls */}
         <div className="z-10 border-t border-zinc-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
@@ -199,6 +293,26 @@ export function DemoVideoPlayer() {
               />
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Verified Live Metrics HUD Footer */}
+      <div className="grid grid-cols-2 md:grid-cols-4 border-t-2 border-foreground bg-foreground text-background font-mono p-4 text-xs divide-x-2 divide-background/20">
+        <div className="px-4 py-2">
+          <span className="text-[10px] text-background/60 block uppercase">Avg Setup Speed</span>
+          <span className="text-lg font-bold text-emerald-400">3.4s⚡</span>
+        </div>
+        <div className="px-4 py-2">
+          <span className="text-[10px] text-background/60 block uppercase">Bandwidth Saved</span>
+          <span className="text-lg font-bold text-[#ea580c]">95.4%</span>
+        </div>
+        <div className="px-4 py-2">
+          <span className="text-[10px] text-background/60 block uppercase">JustVugg/colibri</span>
+          <span className="text-lg font-bold text-emerald-400">50% .git saved</span>
+        </div>
+        <div className="px-4 py-2">
+          <span className="text-[10px] text-background/60 block uppercase">AI Discovery Latency</span>
+          <span className="text-lg font-bold text-white">80% Skipped</span>
         </div>
       </div>
     </div>
