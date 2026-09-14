@@ -31,6 +31,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             {[
               { label: "WHAT WE'RE BUILDING", href: "#building" },
+              { label: "AI AGENT CASE STUDY", href: "#agent-case-study" },
               { label: "FEATURES", href: "#features" },
               { label: "ABOUT CLI", href: "#about" },
               { label: "DOCS", href: "https://github.com/anandmahadevv/contrib-cli#readme" },
