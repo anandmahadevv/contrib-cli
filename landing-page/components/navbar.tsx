@@ -30,10 +30,10 @@ export function Navbar() {
           {/* Center nav links */}
           <div className="hidden md:flex items-center gap-8">
             {[
+              { label: "DEMO", href: "/demo" },
               { label: "WHAT WE'RE BUILDING", href: "#building" },
-              { label: "AI AGENT CASE STUDY", href: "#agent-case-study" },
+              { label: "AI CASE STUDY", href: "#agent-case-study" },
               { label: "FEATURES", href: "#features" },
-              { label: "ABOUT CLI", href: "#about" },
               { label: "DOCS", href: "https://github.com/anandmahadevv/contrib-cli#readme" },
             ].map((link, i) => (
               <motion.a
