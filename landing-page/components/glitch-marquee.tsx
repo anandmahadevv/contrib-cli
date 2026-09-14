@@ -5,15 +5,14 @@ import { motion } from "framer-motion"
 const ease = [0.22, 1, 0.36, 1] as const
 
 const PARTNERS = [
+  "ANTIGRAVITY IDE",
   "OPENAI",
   "ANTHROPIC",
-  "GOOGLE",
+  "GOOGLE DEEPMIND",
   "META",
   "NVIDIA",
-  "MISTRAL",
-  "COHERE",
-  "STABILITY",
-  "DEEPMIND",
+  "MISTRAL AI",
+  "CURSOR",
   "HUGGING FACE",
 ]
 
@@ -44,11 +43,11 @@ export function GlitchMarquee() {
         transition={{ duration: 0.5, ease }}
         className="flex items-center gap-4 mb-8"
       >
-        <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
+        <span className="text-[10px] font-mono tracking-[0.15em] uppercase text-muted-foreground whitespace-nowrap shrink-0">
           {"// PARTNERS: MODEL_ECOSYSTEM"}
         </span>
         <div className="flex-1 border-t border-border" />
-        <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">008</span>
+        <span className="text-[10px] font-mono tracking-[0.15em] uppercase text-muted-foreground shrink-0">008</span>
       </motion.div>
 
       {/* Marquee */}
