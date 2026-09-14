@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/navbar"
+import { DemoVideoPlayer } from "@/components/demo-video-player"
 import { HeroSection } from "@/components/hero-section"
 import { AgentCaseStudy } from "@/components/agent-case-study"
 import { BuildingSection } from "@/components/building-section"
@@ -12,6 +13,11 @@ export default function DemoPage() {
         {/* Demo Page Top Banner */}
         <div className="w-full px-6 py-4 bg-[#ea580c] text-background font-mono text-xs font-bold text-center uppercase tracking-widest">
           🎬 DEMO SHOWCASE — GSOC-CONTRIB v0.5.3 | ZERO COLD-START WORKSPACE ENGINE
+        </div>
+
+        {/* Interactive Video Showcase */}
+        <div className="px-6">
+          <DemoVideoPlayer />
         </div>
 
         <HeroSection />
