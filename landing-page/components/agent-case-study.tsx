@@ -148,6 +148,24 @@ export function AgentCaseStudy() {
                 &ldquo;Contributing to open source has enormous cold-start cost for AI agents. <code className="text-[#ea580c] font-semibold">.contrib</code> eliminates the cold start by doing that translation once per issue, offline, deterministically.&rdquo;
               </p>
             </blockquote>
+
+            {/* Live Repository Benchmark Card */}
+            <div className="border border-background/20 p-3.5 bg-background/10 rounded font-mono text-xs text-background mt-4">
+              <div className="flex items-center justify-between text-[#ea580c] font-bold mb-2">
+                <span>// LIVE BENCHMARK: JustVugg/colibri</span>
+                <span className="text-[10px] bg-[#ea580c] text-background px-1.5 py-0.5 font-bold uppercase">50% .GIT SAVINGS</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div>
+                  <span className="text-background/60 block">Full Clone .git:</span>
+                  <span className="text-red-400 font-bold">17.67 MB</span>
+                </div>
+                <div>
+                  <span className="text-background/60 block">contrib Workspace .git:</span>
+                  <span className="text-emerald-400 font-bold">8.86 MB (50% smaller⚡)</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="border-t border-background/20 pt-4 mt-6 flex items-center justify-between text-xs text-background/60">
