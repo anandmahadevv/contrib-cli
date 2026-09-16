@@ -1,0 +1,10 @@
+repository,category,trial,cold_full_clone_sec,cold_bare_cache_sec,warm_worktree_ms,storage_single_clone_mb,storage_n3_clones_mb,storage_contrib_cache_mb,storage_contrib_n3_total_mb
+express,Small,1,4.38,2.83,1090.00,11.51,34.52,4.05,6.79
+express,Small,2,3.75,2.50,1107.33,11.51,34.52,4.05,6.79
+express,Small,3,4.08,2.38,1320.33,11.51,34.52,4.05,6.79
+flask,Medium,1,4.45,2.54,1332.33,14.65,43.94,4.03,10.67
+flask,Medium,2,4.62,2.41,1176.33,14.65,43.94,4.03,10.67
+flask,Medium,3,5.11,2.75,2197.33,14.65,43.94,4.03,10.67
+requests,Medium,1,5.51,2.60,1266.67,18.31,54.93,3.66,19.89
+requests,Medium,2,4.25,2.63,1434.00,18.31,54.93,3.66,19.89
+requests,Medium,3,4.90,2.38,1160.00,18.31,54.93,3.66,19.89

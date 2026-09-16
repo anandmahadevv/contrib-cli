@@ -1,5 +1,6 @@
 # gsoc-contrib (`contrib`)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22801402.svg)](https://doi.org/10.5281/zenodo.22801402)
 [![npm version](https://img.shields.io/npm/v/gsoc-contrib.svg)](https://www.npmjs.com/package/gsoc-contrib)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js CI](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
@@ -484,6 +485,25 @@ npm login
 
 # 3. Publish public package
 npm publish --access public
+```
+
+---
+
+## Research Paper & Citation
+
+If you use **Contrib CLI** or its empirical benchmark datasets in your research or project, please cite the published paper:
+
+> Anand M. (2026). *Contrib CLI: An Isolated, Shared-Cache Workspace Architecture for AI-Assisted Open-Source Contribution and Empirical Repository Mining*. Zenodo. [https://doi.org/10.5281/zenodo.22801402](https://doi.org/10.5281/zenodo.22801402)
+
+```bibtex
+@article{anand2026contrib,
+  author    = {Anand M},
+  title     = {Contrib CLI: An Isolated, Shared-Cache Workspace Architecture for AI-Assisted Open-Source Contribution and Empirical Repository Mining},
+  journal   = {Zenodo},
+  year      = {2026},
+  doi       = {10.5281/zenodo.22801402},
+  url       = {https://doi.org/10.5281/zenodo.22801402}
+}
 ```
 
 ---

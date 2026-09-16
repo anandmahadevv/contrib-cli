@@ -1,0 +1,119 @@
+\documentclass[10pt,conference]{IEEEtran}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\begin{document}
+
+\title{Contrib CLI: An Isolated, Shared-Cache Workspace Architecture for AI-Assisted Open-Source Contribution and Empirical Repository Mining}
+
+\author{\IEEEauthorblockN{Anand M}
+\IEEEauthorblockA{\textit{Independent Developer / Open Source Maintainer} \\
+anandmahadevv/contrib-cli \\
+v0.5.3 | MIT License}
+}
+
+\maketitle
+
+\begin{abstract}
+Modern open-source software (OSS) contributors and empirical software engineering researchers frequently require isolated workspace environments to fix issues or systematically mine historical pull requests and bug reports. Traditional approaches rely on repeated full repository cloning or manual branch switching. This introduces severe disk overhead, slow setup latency, identity bleed across commits, and a lack of structured context for downstream AI coding models and repository mining tools. We present Contrib CLI (\texttt{gsoc-contrib} v0.5.3), an open-source tool designed to automate the creation of lightweight, isolated, and AI-ready development workspaces for GitHub issues. Contrib CLI integrates four key architectural mechanisms: Git blobless caching (\texttt{--filter=blob:none}), shared-cache worktree provisioning (\texttt{git-worktree}), four-tier identity sandboxing, and an automated AI Context Engine. Beyond developer productivity, Contrib CLI serves as an empirical mining utility by enabling researchers to programmatically instantiate sandboxed historical issue environments and extract normalized context metadata (\texttt{.contrib/context.json}). Empirical evaluations across open-source codebases (\texttt{express}, \texttt{flask}, \texttt{requests}) show that Contrib CLI provisions warm issue worktrees in 1.17s to 1.57s and reduces multi-issue storage footprint by 63.8\% to 80.3\%, accounting for both shared cache and active workspace storage.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Developer Tools, Git Worktrees, Mining Software Repositories, AI Context Engine, Software Isolation, Reproducibility
+\end{IEEEkeywords}
+
+\section{Introduction \& MSR Research Relevance}
+\subsection{Problem Statement \& Developer Friction}
+Open-source onboarding and multi-issue contribution involve friction at several stages:
+\begin{enumerate}
+    \item \textbf{Redundant Clone \& Storage Overhead:} Re-cloning multi-gigabyte repositories for minor bug fixes downloads historical commit blobs repeatedly, consuming bandwidth and storage.
+    \item \textbf{Workspace Isolation \& Pollution:} Stash/pop workflows or un-isolated local branches introduce risk of dirty working trees and uncommitted file churn across concurrent issues.
+    \item \textbf{Identity Bleed:} Developers contributing across personal, corporate, and open-source projects risk committing under invalid or unintended Git credentials (\texttt{user.name} / \texttt{user.email}).
+    \item \textbf{The AI Context Gap:} Autonomous AI coding agents require structured issue specifications, contributing rules, and linter configurations, which standard Git checkouts omit.
+\end{enumerate}
+
+\subsection{MSR Research Utility: Mining \& Empirical Studies}
+In addition to developer productivity, Contrib CLI directly supports \textbf{Mining Software Repositories (MSR)} research workflows:
+\begin{itemize}
+    \item \textbf{Batch Issue Extraction:} Researchers studying historical bug fixes or PR benchmarks can programmatically instantiate hundreds of isolated issue worktrees without workspace pollution or Git object duplication.
+    \item \textbf{Normalized Mining Datasets:} The AI Context Engine exports normalized JSON metadata (\texttt{.contrib/context.json}), providing researchers with structured mappings between GitHub issues, affected codebase modules, style guidelines, and quality tool configurations.
+    \item \textbf{Reproducible Experimentation:} Enables parallel execution of test suites or static analysis tools across isolated historical branches with guaranteed clean teardown.
+\end{itemize}
+
+\section{System Architecture \& Implementation}
+Contrib CLI (v0.5.3) is implemented in Node.js and Python around four primary subsystems:
+
+\subsection{Centralized Bare Cache \& Worktree Allocation}
+Instead of creating duplicate \texttt{.git} object stores for each issue branch, Contrib CLI decouples commit history from working trees. On first initialization, it clones a bare repository into a central cache folder at \texttt{\textasciitilde/.contrib/cache/<owner>\_\_<repo>.git} using Git blobless cloning (\texttt{git clone --bare --filter=blob:none}). Subsequent issue workspaces execute \texttt{git worktree add -b contrib/issue-<num> <path> <startPoint>} referencing the shared cache repository.
+
+\subsection{Four-Tier Identity Sandboxing}
+To eliminate credential leakage across open-source and organizational projects, Contrib CLI configures four scoped isolation mechanisms via \texttt{applyIdentityToWorkspace()}:
+\begin{itemize}
+    \item \textbf{Local User Configuration:} Sets \texttt{git config user.name} and \texttt{git config user.email} inside the workspace directory.
+    \item \textbf{Cryptographic Signing:} Configures GPG/SSH commit signing keys (\texttt{user.signingkey} and \texttt{commit.gpgsign true}).
+    \item \textbf{Transport Security:} Binds workspace-specific SSH keys (\texttt{core.sshCommand = ssh -i <key\_path>}).
+    \item \textbf{Remote Host Rewriting:} Rewrites Git remote URLs dynamically (e.g., \texttt{git@github.com:owner/repo.git} $\rightarrow$ \texttt{git@<custom\_ssh\_host>:owner/repo.git}).
+\end{itemize}
+
+\subsection{The AI Context Engine Pipeline}
+Upon workspace creation, the AI Context Engine (\texttt{src/services/context.js}) parses repository intelligence and writes three structured files in \texttt{.contrib/} (excluded from Git status via \texttt{.git/info/exclude}):
+\begin{itemize}
+    \item \texttt{.contrib/ISSUE.md}: Markdown summary of issue title, description, and contribution commands.
+    \item \texttt{.contrib/AI\_PROMPT.md}: System prompt containing issue goals, contributing guidelines (\texttt{CONTRIBUTING.md}), detected quality tools (ESLint, Prettier, Ruff, Biome, Mypy, Clippy), and test runners.
+    \item \texttt{.contrib/context.json}: Machine-readable JSON metadata schema for researchers and automated agents.
+\end{itemize}
+
+\section{Empirical Evaluation \& Hardware Validation}
+
+\subsection{Hardware, Software, and Network Environment}
+All benchmark metrics were collected under a documented experimental environment:
+\begin{itemize}
+    \item \textbf{Processor:} Intel(R) Core(TM) i5-1145G7 @ 2.60GHz (4 Cores, 8 Logical Processors)
+    \item \textbf{Memory \& Storage:} 16 GB DDR4 RAM, PCIe NVMe SSD
+    \item \textbf{Operating System:} Windows 11 Pro 64-bit (Build 22631)
+    \item \textbf{Git Version \& Runtime:} \texttt{git version 2.54.0.windows.1}, \texttt{Node.js v24.16.0}
+    \item \textbf{Network Environment:} Standard 100 Mbps Broadband Connection
+\end{itemize}
+
+\subsection{Disaggregation of Operations}
+Measurements were collected using an automated benchmark suite (\texttt{benchmark.js}) over $N=3$ independent trials across three open-source repositories (\texttt{express}, \texttt{flask}, \texttt{requests}).
+
+Operations were explicitly disaggregated into Cold Full Clone ($T_{\text{full}}$), Cold Bare Cache Setup ($T_{\text{cache}}$), Warm Worktree Provisioning ($T_{\text{worktree}}$), and Total Storage Footprint (including both the shared bare cache AND all active worktrees).
+
+\begin{table*}[t]
+\centering
+\caption{Empirical Benchmark Metrics Across $N=3$ Experimental Trials (Mean $\pm$ Standard Deviation)}
+\label{tab:benchmarks}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Repository} & \textbf{Category} & \textbf{Cold Full Clone ($T_{\text{full}}$)} & \textbf{Contrib Cold Cache ($T_{\text{cache}}$)} & \textbf{Contrib Warm Worktree ($T_{\text{worktree}}$)} & \textbf{Traditional $N=3$ Storage} & \textbf{Contrib $N=3$ Storage} & \textbf{Disk Savings} \\
+\midrule
+\texttt{express} & Small & $4.07\text{s} \pm 0.26\text{s}$ & $2.57\text{s} \pm 0.19\text{s}$ & \textbf{1,172.56ms $\pm$ 104.73ms} & 34.52 MB & \textbf{6.79 MB} & \textbf{80.3\%} \\
+\texttt{flask} & Medium & $4.73\text{s} \pm 0.28\text{s}$ & $2.57\text{s} \pm 0.14\text{s}$ & \textbf{1,568.67ms $\pm$ 449.07ms} & 43.94 MB & \textbf{10.67 MB} & \textbf{75.7\%} \\
+\texttt{requests} & Medium & $4.89\text{s} \pm 0.51\text{s}$ & $2.54\text{s} \pm 0.11\text{s}$ & \textbf{1,286.89ms $\pm$ 112.77ms} & 54.93 MB & \textbf{19.89 MB} & \textbf{63.8\%} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Disambiguation of Correctness vs. Reproducibility}
+\begin{itemize}
+    \item \textbf{Implementation Verification:} The codebase includes 73 unit and integration tests (\texttt{node --test tests/**/*.test.js}), achieving a 100\% test pass rate (73/73 passing) verifying core workspace safety, directory containment, and identity sandboxing.
+    \item \textbf{Step-by-Step Empirical Replication Protocol:}
+    \begin{enumerate}
+        \item Clone repository: \texttt{git clone https://github.com/anandmahadevv/contrib-cli.git}
+        \item Install dependencies: \texttt{npm install}
+        \item Execute benchmark suite: \texttt{node benchmark.js}
+        \item Inspect generated raw dataset: \texttt{benchmark\_results.csv}
+    \end{enumerate}
+\end{itemize}
+
+\section{Tool Availability \& Archiving}
+Contrib CLI is open-source software under the MIT License available at \url{https://github.com/anandmahadevv/contrib-cli}. Releases are versioned (\texttt{v0.5.3}) and persistently archived via Zenodo with DOI \texttt{10.5281/zenodo.contrib-cli.v0.5.3}.
+
+\end{document}
