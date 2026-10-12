@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../utils/logger.js';
-import { getGitStatusSummary, runGitCommand } from '../utils/git.js';
+import { getGitStatusSummary } from '../utils/git.js';
 import { listWorkspaces, getWorkspace } from '../services/workspace.js';
 
 /**

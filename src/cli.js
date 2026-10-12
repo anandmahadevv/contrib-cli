@@ -10,7 +10,6 @@ import { Command } from 'commander';
 import { logger } from './utils/logger.js';
 import { checkNodeVersion } from './utils/env.js';
 import { handleStart } from './commands/start.js';
-import { handleContribute } from './commands/contribute.js';
 import { handleAnalyze } from './commands/analyze.js';
 import { handleStatus } from './commands/status.js';
 import { handleCleanup } from './commands/cleanup.js';
@@ -18,7 +17,6 @@ import { handleInit } from './commands/init.js';
 import { handleSearch } from './commands/search.js';
 import { handleDoctor } from './commands/doctor.js';
 import { handleSubmit } from './commands/submit.js';
-import { handlePr } from './commands/pr.js';
 import { handleSync } from './commands/sync.js';
 import { handleDiff } from './commands/diff.js';
 import { handleSetup } from './commands/setup.js';
@@ -131,7 +129,7 @@ Examples:
     .option('--identity <name>', 'Apply configured Git/SSH identity (e.g. personal, work)')
     .option('--offline', 'Operate completely offline without fetching GitHub API or remote git operations')
     .action(async (target, options) => {
-      process.exitCode = await handleContribute(target, options);
+      process.exitCode = await handleStart(target, options);
     });
 
   // Command: browse (interactive issue picker)
