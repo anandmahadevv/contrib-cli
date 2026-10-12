@@ -13,6 +13,10 @@
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Target Repositories for Empirical Evaluation
 const TEST_REPOSITORIES = [
@@ -22,8 +26,8 @@ const TEST_REPOSITORIES = [
 ];
 
 const NUM_TRIALS = 3;
-const BENCHMARK_DIR = path.join(process.cwd(), '.contrib_benchmark_run');
-const CSV_OUTPUT_PATH = path.join(process.cwd(), 'benchmark_results.csv');
+const BENCHMARK_DIR = path.join(__dirname, '.contrib_benchmark_run');
+const CSV_OUTPUT_PATH = path.join(__dirname, 'benchmark_results.csv');
 
 /**
  * Calculate directory size recursively in bytes.
@@ -217,7 +221,17 @@ async function runBenchmark() {
   }
 }
 
-runBenchmark().catch((err) => {
-  console.error('Benchmark execution failed:', err);
-  process.exit(1);
-});
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log('Usage: node benchmarks/benchmark.js\n\nRuns Contrib CLI academic benchmark and empirical performance suite.');
+  process.exit(0);
+}
+
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+if (isDirectRun) {
+  runBenchmark().catch((err) => {
+    console.error('Benchmark execution failed:', err);
+    process.exit(1);
+  });
+}
+
+export { runBenchmark };

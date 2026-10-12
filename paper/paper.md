@@ -99,8 +99,8 @@ We evaluated Contrib CLI v0.5.3 across three open-source codebases (`express`, `
 - **Operating System:** Windows 11 Pro (x64)
 - **Git Binary Version:** `git version 2.54.0.windows.1`
 - **Node.js Runtime:** `Node.js v24.16.0`
-- **Benchmark Driver:** [`benchmark.js`](file:///C:/Users/anand/contrib-cli/benchmark.js)
-- **Raw Experimental Data:** [`benchmark_results.csv`](file:///C:/Users/anand/contrib-cli/benchmark_results.csv)
+- **Benchmark Driver:** [`benchmarks/benchmark.js`](../benchmarks/benchmark.js)
+- **Raw Experimental Data:** [`benchmarks/benchmark_results.csv`](../benchmarks/benchmark_results.csv)
 
 # Limitations & Future Work
 

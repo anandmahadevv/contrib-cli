@@ -111,8 +111,8 @@ Measurements were collected using an automated benchmark suite (`benchmark.js`) 
 - **Step-by-Step Empirical Replication Procedure:** Independent researchers can replicate our exact benchmark findings via the following protocol:
   1. Clone repository: `git clone https://github.com/anandmahadevv/contrib-cli.git && cd contrib-cli`
   2. Install dependencies: `npm install`
-  3. Execute automated benchmark suite: `node benchmark.js`
-  4. Verify generated CSV output: Inspect `benchmark_results.csv` containing raw per-trial timings and directory byte counts.
+  3. Execute automated benchmark suite: `node benchmarks/benchmark.js`
+  4. Verify generated CSV output: Inspect `benchmarks/benchmark_results.csv` containing raw per-trial timings and directory byte counts.
 
 ---
 
