@@ -10,11 +10,7 @@
   },
   "files": [
     "bin",
-    "src",
-    "!src/contrib",
-    "!**/__pycache__",
-    "!**/*.py",
-    "!**/*.pyc"
+    "src"
   ],
   "publishConfig": {
     "access": "public"
