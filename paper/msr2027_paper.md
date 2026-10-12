@@ -128,5 +128,5 @@ Measurements were collected using an automated benchmark suite (`benchmarks/benc
 
 Contrib CLI is open-source software under the **MIT License**:
 - **Repository:** https://github.com/anandmahadevv/contrib-cli
-- **npm Registry:** `gsoc-contrib` (`npm install -g gsoc-contrib`)
+- **npm Registry:** [`gsoc-contrib`](https://www.npmjs.com/package/gsoc-contrib) (`npm install -g gsoc-contrib`)
 - **Persistent Archiving & DOI:** Version releases are tagged (e.g. `v0.5.3`) and archived persistently via Zenodo integration with DOI https://doi.org/10.5281/zenodo.23296861.

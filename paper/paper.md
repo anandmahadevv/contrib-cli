@@ -110,6 +110,6 @@ We evaluated Contrib CLI v0.5.3 across three open-source codebases (`express`, `
 
 Contrib CLI is open-source software under the **MIT License**.
 - **Repository:** [github.com/anandmahadevv/contrib-cli](https://github.com/anandmahadevv/contrib-cli)
-- **npm Package:** `gsoc-contrib` (`npm install -g gsoc-contrib`)
+- **npm Registry:** [`gsoc-contrib`](https://www.npmjs.com/package/gsoc-contrib) (`npm install -g gsoc-contrib`)
 
 # References
