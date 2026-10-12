@@ -1,8 +1,0 @@
-pyproject.toml
-*.py
-*.pyc
-__pycache__/
-src/contrib/
-tests/
-.pytest_cache/
-bin/

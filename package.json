@@ -22,8 +22,7 @@
   "scripts": {
     "start": "node ./bin/cli.js",
     "test": "node --test",
-    "lint": "node -e \"console.log('No linting errors.')\"",
-    "build": "echo 'Static docs ready in docs/'"
+    "lint": "node -e \"console.log('No linting errors.')\""
   },
   "keywords": [
     "github",
