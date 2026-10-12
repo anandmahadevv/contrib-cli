@@ -26,6 +26,8 @@ This leads to:
 
 ## Installation & Execution
 
+Contrib CLI is distributed exclusively through npm (`gsoc-contrib`).
+
 ### Run instantly with `npx` (No install required)
 
 ```bash

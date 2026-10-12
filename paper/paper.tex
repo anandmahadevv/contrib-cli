@@ -47,7 +47,7 @@ In addition to developer productivity, Contrib CLI directly supports \textbf{Min
 \end{itemize}
 
 \section{System Architecture \& Implementation}
-Contrib CLI (v0.5.3) is implemented in Node.js and Python around four primary subsystems:
+Contrib CLI (v0.5.3) is implemented in Node.js around four primary subsystems:
 
 \subsection{Centralized Bare Cache \& Worktree Allocation}
 Instead of creating duplicate \texttt{.git} object stores for each issue branch, Contrib CLI decouples commit history from working trees. On first initialization, it clones a bare repository into a central cache folder at \texttt{\textasciitilde/.contrib/cache/<owner>\_\_<repo>.git} using Git blobless cloning (\texttt{git clone --bare --filter=blob:none}). Subsequent issue workspaces execute \texttt{git worktree add -b contrib/issue-<num> <path> <startPoint>} referencing the shared cache repository.
@@ -82,7 +82,7 @@ All benchmark metrics were collected under a documented experimental environment
 \end{itemize}
 
 \subsection{Disaggregation of Operations}
-Measurements were collected using an automated benchmark suite (\texttt{benchmark.js}) over $N=3$ independent trials across three open-source repositories (\texttt{express}, \texttt{flask}, \texttt{requests}).
+Measurements were collected using an automated benchmark suite (\texttt{benchmarks/benchmark.js}) over $N=3$ independent trials across three open-source repositories (\texttt{express}, \texttt{flask}, \texttt{requests}).
 
 Operations were explicitly disaggregated into Cold Full Clone ($T_{\text{full}}$), Cold Bare Cache Setup ($T_{\text{cache}}$), Warm Worktree Provisioning ($T_{\text{worktree}}$), and Total Storage Footprint (including both the shared bare cache AND all active worktrees).
 
@@ -108,12 +108,12 @@ Operations were explicitly disaggregated into Cold Full Clone ($T_{\text{full}}$
     \begin{enumerate}
         \item Clone repository: \texttt{git clone https://github.com/anandmahadevv/contrib-cli.git}
         \item Install dependencies: \texttt{npm install}
-        \item Execute benchmark suite: \texttt{node benchmark.js}
-        \item Inspect generated raw dataset: \texttt{benchmark\_results.csv}
+        \item Execute benchmark suite: \texttt{node benchmarks/benchmark.js}
+        \item Inspect generated raw dataset: \texttt{benchmarks/benchmark\_results.csv}
     \end{enumerate}
 \end{itemize}
 
 \section{Tool Availability \& Archiving}
-Contrib CLI is open-source software under the MIT License available at \url{https://github.com/anandmahadevv/contrib-cli}. Releases are versioned (\texttt{v0.5.3}) and persistently archived via Zenodo with DOI \texttt{10.5281/zenodo.contrib-cli.v0.5.3}.
+Contrib CLI is open-source software under the MIT License available on npm at \url{https://www.npmjs.com/package/gsoc-contrib} and GitHub at \url{https://github.com/anandmahadevv/contrib-cli}. Releases are versioned (\texttt{v0.5.3}) and persistently archived via Zenodo with DOI \url{https://doi.org/10.5281/zenodo.23296861}.
 
 \end{document}

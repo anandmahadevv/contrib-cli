@@ -10,7 +10,7 @@ import path from 'node:path';
 import { logger } from '../utils/logger.js';
 import { checkGitInstalled, getGitStatusSummary, getDirectorySize, formatBytes, detectProjectStack } from '../utils/git.js';
 import { checkGitHubAuth } from '../services/github.js';
-import { getContribHome, getWorkspacesDir, getCacheDir, getRegistryFile } from '../config/index.js';
+import { getWorkspacesDir, getCacheDir } from '../config/index.js';
 import { listWorkspaces, getWorkspace } from '../services/workspace.js';
 
 /**

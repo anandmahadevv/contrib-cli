@@ -8,7 +8,7 @@
 
 import readline from 'node:readline/promises';
 import { logger } from '../utils/logger.js';
-import { getRecommendedOrgs, fetchOrgStarterIssues, GSOC_ORGANIZATIONS } from '../services/recommend.js';
+import { getRecommendedOrgs, fetchOrgStarterIssues } from '../services/recommend.js';
 import { handleStart } from './start.js';
 
 /**

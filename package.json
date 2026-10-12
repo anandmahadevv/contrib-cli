@@ -10,11 +10,7 @@
   },
   "files": [
     "bin",
-    "src",
-    "!src/contrib",
-    "!**/__pycache__",
-    "!**/*.py",
-    "!**/*.pyc"
+    "src"
   ],
   "publishConfig": {
     "access": "public"
@@ -22,8 +18,7 @@
   "scripts": {
     "start": "node ./bin/cli.js",
     "test": "node --test",
-    "lint": "node -e \"console.log('No linting errors.')\"",
-    "build": "echo 'Static docs ready in docs/'"
+    "lint": "node -e \"console.log('No linting errors.')\""
   },
   "keywords": [
     "github",
