@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Removed
+- Removed the experimental Python port (`src/contrib/`, `pyproject.toml`, pytest suite and the Python CI job). Contrib CLI is distributed exclusively through npm (`gsoc-contrib`). The PyPI package is no longer maintained; older PyPI releases (<= 0.4.0) are deprecated.
+- Removed the Next.js landing page, Remotion demo video project, static docs site and Vercel configuration.
+- Removed unused imports and the redundant `pr`/`contribute` command wrapper modules (the `pr` alias and `contribute` command are unchanged).
+### Changed
+- Moved research artifacts to `paper/` and the benchmark suite to `benchmarks/`.
+
 ## [0.5.2] - 2026-09-13
 ### Fixed
 - Fixed Commander option defaults in `src/cli.js` (`--level`, `--time`) that prevented interactive quiz mode from triggering when running `contrib recommend`.
