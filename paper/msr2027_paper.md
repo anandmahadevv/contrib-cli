@@ -34,7 +34,7 @@ In addition to developer productivity, Contrib CLI directly supports **Mining So
 
 ## 2. System Architecture & Technical Implementation
 
-Contrib CLI (`v0.5.3`) is implemented in JavaScript (Node.js) and Python around four primary subsystems:
+Contrib CLI (`v0.5.3`) is implemented in JavaScript (Node.js) around four primary subsystems:
 
 ```
                           +------------------------------+
@@ -92,7 +92,7 @@ To guarantee rigorous empirical reproducibility, all benchmarks were collected u
 - **Network Environment:** Standard 100 Mbps Broadband Connection
 
 ### 3.2 Benchmark Design & Operations Disaggregation
-Measurements were collected using an automated benchmark suite (`benchmark.js`) over $N=3$ independent trials across three open-source codebases (`express`, `flask`, `requests`). Operations were disaggregated into:
+Measurements were collected using an automated benchmark suite (`benchmarks/benchmark.js`) over $N=3$ independent trials across three open-source codebases (`express`, `flask`, `requests`). Operations were disaggregated into:
 1. **Cold Full Clone ($T_{\text{full}}$):** Standard `git clone` from remote.
 2. **Cold Bare Cache ($T_{\text{cache}}$):** First-time blobless bare cache setup (`git clone --bare --filter=blob:none`).
 3. **Warm Worktree Provisioning ($T_{\text{worktree}}$):** Allocating an issue worktree from an existing cache (`git worktree add`).
@@ -129,5 +129,4 @@ Measurements were collected using an automated benchmark suite (`benchmark.js`) 
 Contrib CLI is open-source software under the **MIT License**:
 - **Repository:** https://github.com/anandmahadevv/contrib-cli
 - **npm Registry:** `gsoc-contrib` (`npm install -g gsoc-contrib`)
-- **PyPI Registry:** `gsoc-contrib` (`pip install gsoc-contrib`)
-- **Persistent Archiving & DOI:** Version releases are tagged (e.g. `v0.5.3`) and archived persistently via Zenodo integration with DOI `10.5281/zenodo.contrib-cli.v0.5.3`.
+- **Persistent Archiving & DOI:** Version releases are tagged (e.g. `v0.5.3`) and archived persistently via Zenodo integration with DOI https://doi.org/10.5281/zenodo.23296861.

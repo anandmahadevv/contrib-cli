@@ -9,7 +9,6 @@ tags:
   - Software Isolation
 authors:
   - name: Anand M
-    orcid: 0009-0000-0000-0000
     affiliation: 1
 affiliations:
   - name: Independent Developer / Open Source Maintainer
@@ -37,7 +36,7 @@ Contrib CLI addresses these challenges by provisioning isolated worktrees attach
 
 # System Architecture & Technical Implementation
 
-Contrib CLI (`v0.5.3`) is implemented in Node.js and Python, featuring four core subsystems:
+Contrib CLI (`v0.5.3`) is implemented in Node.js, featuring four core subsystems:
 
 ```
                           +------------------------------+
@@ -80,7 +79,7 @@ Upon workspace creation, the AI Context Engine (`src/services/context.js`) scans
 
 # Experimental Evaluation & Results
 
-We evaluated Contrib CLI v0.5.3 across three open-source codebases (`express`, `flask`, `requests`) across $N=3$ experimental trials using an automated benchmark suite (`benchmark.js`).
+We evaluated Contrib CLI v0.5.3 across three open-source codebases (`express`, `flask`, `requests`) across $N=3$ experimental trials using an automated benchmark suite (`benchmarks/benchmark.js`).
 
 ## Measured Performance Metrics
 
@@ -112,6 +111,5 @@ We evaluated Contrib CLI v0.5.3 across three open-source codebases (`express`, `
 Contrib CLI is open-source software under the **MIT License**.
 - **Repository:** [github.com/anandmahadevv/contrib-cli](https://github.com/anandmahadevv/contrib-cli)
 - **npm Package:** `gsoc-contrib` (`npm install -g gsoc-contrib`)
-- **PyPI Package:** `gsoc-contrib` (`pip install gsoc-contrib`)
 
 # References

@@ -6,6 +6,7 @@ package-lock.json
 
 # Contrib runtime storage
 .contrib/
+.contrib_benchmark_run/
 
 # Environment and secrets
 .env
