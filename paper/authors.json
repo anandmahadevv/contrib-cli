@@ -10,5 +10,15 @@
         "name": "Independent Researcher"
       }
     ]
+  },
+  {
+    "person_or_org": {
+      "type": "personal",
+      "family_name": "Manoj",
+      "given_name": "Rinu"
+    },
+    "role": {
+      "id": "datacollector"
+    }
   }
 ]

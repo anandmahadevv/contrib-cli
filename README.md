@@ -495,11 +495,11 @@ npm publish --access public
 
 If you use **Contrib CLI** or its empirical benchmark datasets in your research or project, please cite the published paper:
 
-> Anand M. (2026). *Contrib CLI: An Isolated, Shared-Cache Workspace Architecture for AI-Assisted Open-Source Contribution and Empirical Repository Mining*. Zenodo. [https://doi.org/10.5281/zenodo.22801402](https://doi.org/10.5281/zenodo.22801402)
+> Anand M., & Manoj, R. (2026). *Contrib CLI: An Isolated, Shared-Cache Workspace Architecture for AI-Assisted Open-Source Contribution and Empirical Repository Mining*. Zenodo. [https://doi.org/10.5281/zenodo.22801402](https://doi.org/10.5281/zenodo.22801402)
 
 ```bibtex
 @article{anand2026contrib,
-  author    = {Anand M},
+  author    = {M, Anand and Manoj, Rinu},
   title     = {Contrib CLI: An Isolated, Shared-Cache Workspace Architecture for AI-Assisted Open-Source Contribution and Empirical Repository Mining},
   journal   = {Zenodo},
   year      = {2026},
@@ -507,6 +507,8 @@ If you use **Contrib CLI** or its empirical benchmark datasets in your research 
   url       = {https://doi.org/10.5281/zenodo.22801402}
 }
 ```
+
+Acknowledgements: Jashwanth Pasupuleti (researcher).
 
 ---
 
