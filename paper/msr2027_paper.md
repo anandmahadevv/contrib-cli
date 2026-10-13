@@ -1,5 +1,6 @@
 # Contrib CLI: An Isolated, Shared-Cache Workspace Architecture for AI-Assisted Open-Source Contribution and Empirical Repository Mining
 
+**Authors:** Anand M, Rinu Manoj (data collection)  
 **Target Venue:** MSR 2027 — Data & Tool Showcase Track  
 **Deadlines:** Abstract: November 5, 2026 | Paper: November 10, 2026  
 **Format:** IEEE 4-Page Content + 1-Page References Standard Tool Demonstration  
@@ -130,3 +131,7 @@ Contrib CLI is open-source software under the **MIT License**:
 - **Repository:** https://github.com/anandmahadevv/contrib-cli
 - **npm Registry:** [`gsoc-contrib`](https://www.npmjs.com/package/gsoc-contrib) (`npm install -g gsoc-contrib`)
 - **Persistent Archiving & DOI:** Version releases are tagged (e.g. `v0.5.3`) and archived persistently via Zenodo integration with DOI https://doi.org/10.5281/zenodo.23296861.
+
+## Acknowledgements
+
+Jashwanth Pasupuleti contributed as a researcher.
