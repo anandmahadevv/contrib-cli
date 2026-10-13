@@ -10,6 +10,7 @@ tags:
 authors:
   - name: Anand M
     affiliation: 1
+  - name: Rinu Manoj
 affiliations:
   - name: Independent Developer / Open Source Maintainer
     index: 1
@@ -111,5 +112,9 @@ We evaluated Contrib CLI v0.5.3 across three open-source codebases (`express`, `
 Contrib CLI is open-source software under the **MIT License**.
 - **Repository:** [github.com/anandmahadevv/contrib-cli](https://github.com/anandmahadevv/contrib-cli)
 - **npm Registry:** [`gsoc-contrib`](https://www.npmjs.com/package/gsoc-contrib) (`npm install -g gsoc-contrib`)
+
+# Acknowledgements
+
+Rinu Manoj contributed to data collection for the empirical evaluation. Jashwanth Pasupuleti contributed as a researcher.
 
 # References
