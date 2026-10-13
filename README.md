@@ -1,10 +1,13 @@
 # gsoc-contrib (`contrib`)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22801402.svg)](https://doi.org/10.5281/zenodo.22801402)
+[![Website](https://img.shields.io/badge/website-cli.anandlabs.space-FF5722?logo=vercel&logoColor=white)](https://cli.anandlabs.space/)
 [![npm version](https://img.shields.io/npm/v/gsoc-contrib.svg)](https://www.npmjs.com/package/gsoc-contrib)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js CI](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
+> **Official Website & Live Demo**: [https://cli.anandlabs.space](https://cli.anandlabs.space)
+> 
 > A fast, lightweight contribution workspace manager for GitHub issues without repeatedly cloning entire multi-gigabyte repositories.
 
 ---
